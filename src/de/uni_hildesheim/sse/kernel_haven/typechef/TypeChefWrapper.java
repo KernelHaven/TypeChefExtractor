@@ -151,6 +151,7 @@ public class TypeChefWrapper {
     public void addDefaultPostIncludeDirs() {
         addPostIncludeDir(new File("usr/lib/gcc/x86_64-linux-gnu/5/include"));
         addPostIncludeDir(new File("usr/include/x86_64-linux-gnu"));
+        addPostIncludeDir(new File("usr/include"));
     }
     
     /**
@@ -277,10 +278,10 @@ public class TypeChefWrapper {
         }
         for (File staticInclude : staticIncludes) {
             if (staticInclude == null || !staticInclude.isFile()) {
-                throw new IllegalArgumentException("Static include header \"" + staticIncludes + "\" does not exist");
+                throw new IllegalArgumentException("Static include header \"" + staticInclude + "\" does not exist");
             }
             if (!staticInclude.canRead()) {
-                throw new IllegalArgumentException("Static include header \"" + staticIncludes + "\" is not readable");
+                throw new IllegalArgumentException("Static include header \"" + staticInclude + "\" is not readable");
             }
         }
         

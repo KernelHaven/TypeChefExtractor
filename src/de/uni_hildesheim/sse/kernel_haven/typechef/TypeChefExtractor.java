@@ -154,9 +154,20 @@ public class TypeChefExtractor implements ICodeModelExtractor, Runnable {
         wrapper.setSourceDir(linuxSourceTree);
         wrapper.setPlatformHeader(new File("platform.h"));
         wrapper.setSystemRoot(new File("/"));
+        wrapper.addDefaultLinuxIncludeDirs("x86");
         wrapper.addDefaultPostIncludeDirs();
         
-
+        wrapper.addStaticInclude(new File("/home/adam/typechef_tests/results/linux-4.4/kconfig/x86.completed.h"));
+//        wrapper.addStaticInclude(new File("/home/adam/typechef_tests/results/linux-4.4/kconfig/x86.nonbool.h"));
+        wrapper.addStaticInclude(new File("/home/adam/typechef_tests/tools/kernelminer/res/typechef/partial_conf.h"));
+        wrapper.addStaticInclude(new File("/home/adam/typechef_tests/tools/kernelminer/res/typechef/header_override/kconfig.h"));
+        
+        wrapper.addPreprocessorDefine("__KERNEL__");
+        wrapper.addPreprocessorDefine("CONFIG_AS_CFI=1");
+        wrapper.addPreprocessorDefine("CONFIG_AS_CFI_SIGNAL_FRAME=1");
+        wrapper.addPreprocessorDefine("KBUILD_BASENAME=\"base\"");
+        wrapper.addPreprocessorDefine("KBUILD_MODNAME=\"base\"");
+        
         LOGGER.logDebug("Calling typechef wrapper...");
         
         SourceFile result = wrapper.runOnFile(file);

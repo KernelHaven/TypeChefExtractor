@@ -27,7 +27,8 @@ import de.fosd.typechef.parser.c.CTypeContext;
 import de.fosd.typechef.parser.c.ParserMain;
 import de.fosd.typechef.parser.c.TranslationUnit;
 import de.fosd.typechef.xtclexer.XtcPreprocessor;
-import de.uni_hildesheim.sse.kernel_haven.typechef.ast.File;
+import de.uni_hildesheim.sse.kernel_haven.typechef.simple_ast.SimpleAstConverter;
+import de.uni_hildesheim.sse.kernel_haven.typechef.simple_ast.TypeChefBlock;
 import scala.Tuple2;
 
 public class TypeChefRunner {
@@ -44,7 +45,7 @@ private Socket socket;
     
     private List<LexerError> lexerErrors;
     
-    private File parsed;
+    private TypeChefBlock parsed;
     
     private List<String> errors;
     
@@ -86,6 +87,7 @@ private Socket socket;
             @Override
             public VALexer create(FeatureModel model) {
                 return new XtcPreprocessor(config.getMacroFilter(), model);
+//                return new MyXtcPreprocessor(config.getMacroFilter(), model);
             }
         }, config, true);
         
@@ -119,9 +121,15 @@ private Socket socket;
         
         TranslationUnit unit = parser.parserMain(tokenReader, config, null);
         
-        AstConverter converter = new AstConverter(unit);
+        if (unit != null) {
+            SimpleAstConverter converter = new SimpleAstConverter();
+            parsed = converter.convertToFile(unit);
+        } else {
+            System.err.println("Can't parse tokens");
+        }
         
-        parsed  = converter.convertToFile();
+//        AstConverter converter = new AstConverter(unit);
+//        parsed  = converter.convertToFile();
     }
     
     private void sendResult() {
@@ -146,6 +154,7 @@ private Socket socket;
         int port = Integer.parseInt(args[0]);
         
         TypeChefRunner runner = new TypeChefRunner(port);
+        
         runner.run();
     }
     
