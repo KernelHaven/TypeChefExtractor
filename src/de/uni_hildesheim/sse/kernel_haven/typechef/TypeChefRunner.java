@@ -26,7 +26,6 @@ import de.fosd.typechef.parser.c.CParser;
 import de.fosd.typechef.parser.c.CTypeContext;
 import de.fosd.typechef.parser.c.ParserMain;
 import de.fosd.typechef.parser.c.TranslationUnit;
-import de.fosd.typechef.xtclexer.XtcPreprocessor;
 import de.uni_hildesheim.sse.kernel_haven.typechef.simple_ast.SimpleAstConverter;
 import de.uni_hildesheim.sse.kernel_haven.typechef.simple_ast.TypeChefBlock;
 import scala.Tuple2;
@@ -86,8 +85,8 @@ private Socket socket;
         Conditional<LexerResult> result = lexer.run(new VALexer.LexerFactory() {
             @Override
             public VALexer create(FeatureModel model) {
-                return new XtcPreprocessor(config.getMacroFilter(), model);
-//                return new MyXtcPreprocessor(config.getMacroFilter(), model);
+//                return new XtcPreprocessor(config.getMacroFilter(), model);
+                return new MyXtcPreprocessor(config.getMacroFilter(), model);
             }
         }, config, true);
         
@@ -112,12 +111,12 @@ private Socket socket;
     
     private void parseAst() {
         System.out.println("parseAst()");
-        
-        ParserMain parser = new ParserMain(new CParser(null, false));
-        
+
         LexerSuccess wrapper = new LexerSuccess(lexerTokens);
         TokenReader<de.fosd.typechef.parser.c.CToken, CTypeContext> tokenReader
                 = CLexerAdapter.prepareTokens(new One<LexerResult>(wrapper));
+        
+        ParserMain parser = new ParserMain(new CParser(null, false));
         
         TranslationUnit unit = parser.parserMain(tokenReader, config, null);
         
