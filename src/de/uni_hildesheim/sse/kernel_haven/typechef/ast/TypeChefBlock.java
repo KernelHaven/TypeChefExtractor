@@ -2,6 +2,7 @@ package de.uni_hildesheim.sse.kernel_haven.typechef.ast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,6 +11,7 @@ import de.uni_hildesheim.sse.kernel_haven.code_model.Block;
 import de.uni_hildesheim.sse.kernel_haven.util.FormatException;
 import de.uni_hildesheim.sse.kernel_haven.util.logic.Conjunction;
 import de.uni_hildesheim.sse.kernel_haven.util.logic.Formula;
+import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.ExpressionFormatException;
 import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.Parser;
 
 public class TypeChefBlock extends Block implements Serializable {
@@ -29,14 +31,12 @@ public class TypeChefBlock extends Block implements Serializable {
     private String relation;
     
     public TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation) {
-        this.parent = parent;
         this.condition = condition;
         this.text = text;
         this.relation = relation;
 
-        if (this.parent != null) {
-            this.presencCondition = new Conjunction(this.parent.getPresenceCondition(), this.condition);
-            this.parent.addChild(this);
+        if (parent != null) {
+            parent.addChild(this);
         } else {
             this.presencCondition = this.condition;
         }
@@ -76,13 +76,26 @@ public class TypeChefBlock extends Block implements Serializable {
 
     @Override
     public List<String> serializeCsv() {
-        // TODO Auto-generated method stub
-        return new ArrayList<>();
+        List<String> result = new ArrayList<>(3);
+        
+        // TODO: remove escaping once the cache properly handles it
+        String escapedText = text.replace("\\", "\\\\").replace(";", "\\,");
+        
+        result.add(escapedText);
+        result.add(relation);
+        result.add(condition.toString());
+        
+        return result;
     }
 
     @Override
     public void addChild(Block block) {
-        childreen.add((TypeChefBlock) block);
+        TypeChefBlock typechefBlock = (TypeChefBlock) block;
+        
+        typechefBlock.parent = this;
+        typechefBlock.presencCondition = new Conjunction(this.presencCondition, typechefBlock.condition);
+        
+        childreen.add(typechefBlock);
     }
     
     public String getText() {
@@ -91,6 +104,10 @@ public class TypeChefBlock extends Block implements Serializable {
     
     public String getRelation() {
         return relation;
+    }
+    
+    public TypeChefBlock getParent() {
+        return parent;
     }
     
     /**
@@ -103,8 +120,23 @@ public class TypeChefBlock extends Block implements Serializable {
      * @throws FormatException If the CSV is malformed.
      */
     public static TypeChefBlock createFromCsv(String[] csv, Parser<Formula> parser) throws FormatException {
-        // TODO Auto-generated method stub
-        return null;
+        if (csv.length != 3) {
+            throw new FormatException("Wrong number of CSV fields, expected 3 but got " + csv.length + ": " + Arrays.toString(csv));
+        }
+        
+        // TODO: remove escaping once the cache properly handles it
+        String text = csv[0].replaceAll("[^\\\\]\\\\,", ";").replace("\\\\", "\\");
+        String relation = csv[1];
+        
+        Formula condition;
+        try {
+            condition = parser.parse(csv[2]);
+        } catch (ExpressionFormatException e) {
+            throw new FormatException(e);
+        }
+        
+        
+        return new TypeChefBlock(null, condition, text, relation);
     }
     
     @Override
@@ -115,7 +147,12 @@ public class TypeChefBlock extends Block implements Serializable {
     public String toString(String indentation) {
         StringBuilder result = new StringBuilder();
         
-        result.append(indentation).append(relation).append(" [").append(condition.toString()).append("] ")
+        String conditionStr = condition.toString();
+        if (conditionStr.length() > 16) {
+            conditionStr = "...";
+        }
+        
+        result.append(indentation).append(relation).append(" [").append(conditionStr).append("] ")
                 .append(text).append("\n");
         
         indentation += "\t";
