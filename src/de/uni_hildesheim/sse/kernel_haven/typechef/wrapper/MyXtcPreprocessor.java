@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef;
+package de.uni_hildesheim.sse.kernel_haven.typechef.wrapper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,6 +40,18 @@ import xtc.lang.cpp.Syntax;
 import xtc.tree.Locatable;
 
 
+/**
+ * A copy of the XtcPreprocessor from Typechef that fixes two bugs:
+ * 
+ * <ol>
+ *      <li>Convert all backslashes ('\') to forward slashes ('/'), since Typechef can't handle the backslashes; this allows
+ *              Typechef to run on Windows.</li>
+ *      <li>Add a check to Integer.parseInt(), that detects overflows and doesn't throw an exception.
+ *              This is needed because some constants in preprocessor directives in Linux are larger than the signed integers of Java.</li>
+ * </ol>
+ * 
+ * @author Adam
+ */
 class MyXtcPreprocessor implements VALexer {
 
 

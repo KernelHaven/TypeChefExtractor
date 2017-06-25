@@ -6,7 +6,7 @@ import de.uni_hildesheim.sse.kernel_haven.code_model.ICodeModelExtractor;
 import de.uni_hildesheim.sse.kernel_haven.config.CodeExtractorConfiguration;
 
 /**
- * Factory for the typechef extractor.
+ * Factory for the Typechef extractor.
  * 
  * @author Adam
  */

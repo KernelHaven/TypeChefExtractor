@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.simple_ast;
+package de.uni_hildesheim.sse.kernel_haven.typechef.ast;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,10 +26,13 @@ public class TypeChefBlock extends Block implements Serializable {
     
     private String text;
     
-    public TypeChefBlock(TypeChefBlock parent, Formula condition, String text) {
+    private String relation;
+    
+    public TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation) {
         this.parent = parent;
         this.condition = condition;
         this.text = text;
+        this.relation = relation;
 
         if (this.parent != null) {
             this.presencCondition = new Conjunction(this.parent.getPresenceCondition(), this.condition);
@@ -73,12 +76,21 @@ public class TypeChefBlock extends Block implements Serializable {
 
     @Override
     public List<String> serializeCsv() {
+        // TODO Auto-generated method stub
         return new ArrayList<>();
     }
 
     @Override
     public void addChild(Block block) {
         childreen.add((TypeChefBlock) block);
+    }
+    
+    public String getText() {
+        return text;
+    }
+    
+    public String getRelation() {
+        return relation;
     }
     
     /**
@@ -103,7 +115,7 @@ public class TypeChefBlock extends Block implements Serializable {
     public String toString(String indentation) {
         StringBuilder result = new StringBuilder();
         
-        result.append(indentation).append("[").append(condition.toString()).append("] ")
+        result.append(indentation).append(relation).append(" [").append(condition.toString()).append("] ")
                 .append(text).append("\n");
         
         indentation += "\t";

@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef;
+package de.uni_hildesheim.sse.kernel_haven.typechef.util;
 
 import de.uni_hildesheim.sse.kernel_haven.util.logic.False;
 import de.uni_hildesheim.sse.kernel_haven.util.logic.Formula;
