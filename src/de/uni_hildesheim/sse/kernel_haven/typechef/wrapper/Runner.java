@@ -77,18 +77,18 @@ public class Runner {
      */
     public void run() throws IOException {
         try {
-             readParameters();
-             List<LexerToken> lexerTokens = runLexer();
-             
-             TypeChefBlock parsed;
-             
-             if (parseToAst) {
-                 parsed = parseToAst(lexerTokens);
-             } else {
-                 parsed = parseToFlatPcs(lexerTokens);
-             }
+            readParameters();
+            List<LexerToken> lexerTokens = runLexer();
+            
+            TypeChefBlock parsed;
+            
+            if (parseToAst) {
+                parsed = parseToAst(lexerTokens);
+            } else {
+                parsed = parseToFlatPcs(lexerTokens);
+            }
                  
-             sendResult(parsed);
+            sendResult(parsed);
              
         } catch (ExtractorException e) {
             sendException(e);
@@ -178,7 +178,8 @@ public class Runner {
     }
     
     /**
-     * Uses the Typechef parser to parse the tokens into an AST. The AST is then converted into our {@link TypeChefBlock} hierarchy.
+     * Uses the Typechef parser to parse the tokens into an AST. The AST is then converted into our
+     * {@link TypeChefBlock} hierarchy.
      * 
      * @param lexerTokens The result of the lexer.
      * @return The parsed and converted AST.
@@ -192,9 +193,11 @@ public class Runner {
         TokenReader<de.fosd.typechef.parser.c.CToken, CTypeContext> tokenReader
                 = CLexerAdapter.prepareTokens(new One<LexerResult>(wrapper));
         
-//        TokenReader<AbstractToken, Object> tokenReader2 = (TokenReader<AbstractToken, Object>) (TokenReader<?, ?>) tokenReader;
+//        TokenReader<AbstractToken, Object> tokenReader2 =
+//                (TokenReader<AbstractToken, Object>) (TokenReader<?, ?>) tokenReader;
 //        CParser p = new CParser(null, false);
-//        MultiParseResult<TranslationUnit> result2 = p.phrase(p.translationUnit()).apply(tokenReader2, FeatureExprFactory.True());
+//        MultiParseResult<TranslationUnit> result2 = p.phrase(p.translationUnit())
+//                .apply(tokenReader2, FeatureExprFactory.True());
         
         ParserMain parser = new ParserMain(new CParser(null, false));
         TranslationUnit unit = parser.parserMain(tokenReader, config, null);
@@ -217,7 +220,8 @@ public class Runner {
      * Goes through the tokens and creates a flat list of presence conditions. This is much faster than parsing.
      * 
      * @param lexerTokens The result of the lexer.
-     * @return A {@link TypeChefBlock} containing a flat list of {@link TypeChefBlock}s with all found presence conditions.
+     * @return A {@link TypeChefBlock} containing a flat list of {@link TypeChefBlock}s with all found presence
+     *      conditions.
      * 
      * @throws ExtractorException If conversion fails.
      */

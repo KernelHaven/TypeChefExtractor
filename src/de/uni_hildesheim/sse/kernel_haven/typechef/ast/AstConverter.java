@@ -12,6 +12,11 @@ import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.ExpressionFormatExce
 import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.Parser;
 import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.VariableCache;
 
+/**
+ * Converts an AST created by Typechef into our own format.
+ * 
+ * @author Adam
+ */
 public class AstConverter {
     
     private static final VariableCache CACHE = new VariableCache();
@@ -20,12 +25,22 @@ public class AstConverter {
     
     private static final Parser<Formula> PARSER = new Parser<>(GRAMMAR);
     
+    /**
+     * Converts the given Typechef AST to our own format.
+     * 
+     * @param unit The AST to convert.
+     * 
+     * @return The result of the conversion.
+     */
     public TypeChefBlock convertToFile(TranslationUnit unit) {
         TypeChefBlock tmp = new TypeChefBlock(null, new True(), "", "");
         convertTranslationUnit(tmp, new True(), unit, "");
         
         return (TypeChefBlock) tmp.iterator().next();
     }
+    
+    // CHECKSTYLE:OFF
+    // this file is so ugly... might aswell disable checkstyle
 
     @SuppressWarnings("unused")
     private void convertAst(TypeChefBlock parent, Formula condition, AST ast, String relation) {

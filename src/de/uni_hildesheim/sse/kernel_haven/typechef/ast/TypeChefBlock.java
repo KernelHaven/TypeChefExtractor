@@ -14,6 +14,11 @@ import de.uni_hildesheim.sse.kernel_haven.util.logic.Formula;
 import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.ExpressionFormatException;
 import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.Parser;
 
+/**
+ * An element of an AST.
+ * 
+ * @author Adam
+ */
 public class TypeChefBlock extends Block implements Serializable {
     
     private static final long serialVersionUID = 3122358323396424111L;
@@ -30,6 +35,15 @@ public class TypeChefBlock extends Block implements Serializable {
     
     private String relation;
     
+    /**
+     * Creates a new TypechefBlock. This automatically adds itself to the children list of the parent block. Do not use
+     * {@link #addChild(Block)} for this!
+     * 
+     * @param parent The parent of this new block. May be null.
+     * @param condition The condition of this block. Must not be null.
+     * @param text The text description of this block. Must not be null.
+     * @param relation The relation of this block to its parent. Must not benull.
+     */
     public TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation) {
         this.condition = condition;
         this.text = text;
@@ -98,14 +112,29 @@ public class TypeChefBlock extends Block implements Serializable {
         childreen.add(typechefBlock);
     }
     
+    /**
+     * Returns the text description of this block.
+     * 
+     * @return The text description. Never null.
+     */
     public String getText() {
         return text;
     }
     
+    /**
+     * Returns the relation of this block to its parent.
+     * 
+     * @return The relation description. Never null.
+     */
     public String getRelation() {
         return relation;
     }
     
+    /**
+     * Returns the parent of this block.
+     * 
+     * @return The parent block. May be null.
+     */
     public TypeChefBlock getParent() {
         return parent;
     }
@@ -121,7 +150,8 @@ public class TypeChefBlock extends Block implements Serializable {
      */
     public static TypeChefBlock createFromCsv(String[] csv, Parser<Formula> parser) throws FormatException {
         if (csv.length != 3) {
-            throw new FormatException("Wrong number of CSV fields, expected 3 but got " + csv.length + ": " + Arrays.toString(csv));
+            throw new FormatException("Wrong number of CSV fields, expected 3 but got "
+                    + csv.length + ": " + Arrays.toString(csv));
         }
         
         // TODO: remove escaping once the cache properly handles it
@@ -144,7 +174,15 @@ public class TypeChefBlock extends Block implements Serializable {
         return toString("");
     }
     
-    public String toString(String indentation) {
+    /**
+     * Turns this block into a string with the given indentation. Recursively walks through its children with increased
+     * indentation.
+     * 
+     * @param indentation The indentation. Contains only tabs. Never null.
+     * 
+     * @return This block as a string. Never null.
+     */
+    private String toString(String indentation) {
         StringBuilder result = new StringBuilder();
         
         String conditionStr = condition.toString();

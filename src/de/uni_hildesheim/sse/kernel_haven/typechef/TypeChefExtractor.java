@@ -175,6 +175,39 @@ public class TypeChefExtractor implements ICodeModelExtractor, Runnable {
     }
     
     /**
+     * Checks the presence condition in the build model for the given file. If the PC is not defined or not satisfiable
+     * then this method returns false.
+     * 
+     * @param file The file to check the PC for.
+     * 
+     * @return Whether to parse this file or not.
+     */
+    private boolean shouldParse(File file) {
+        boolean shouldParse = true;
+        
+        Formula pc = buildModel.getPc(file);
+        
+        if (pc != null) {
+            try {
+                if (!satSolver.isSatisfiable(cnfConverter.convert(pc))) {
+                    shouldParse = false;
+                    LOGGER.logInfo("Presence condition for file " + file.getPath()
+                            + " is not satisfiable; skipping file");
+                }
+            } catch (SolverException | ConverterException e) {
+                LOGGER.logException("Can't check satisfiability of presence condition for file " + file.getPath()
+                        + "; parsing file anyway", e);
+            }
+            
+        } else {
+            shouldParse = false;
+            LOGGER.logInfo("No presence condition for file " + file.getPath() + "; skipping");
+        }
+        
+        return shouldParse;
+    }
+    
+    /**
      * Runs Typechef on a single file. This first checks, whether the file presence condition is
      * satisfiable (and skips the unsatisfiable ones).
      * 
@@ -187,33 +220,20 @@ public class TypeChefExtractor implements ICodeModelExtractor, Runnable {
     private void runOnFile(File file) throws IOException, ExtractorException {
         LOGGER.logDebug("Checking if file PC is satisfiable");
         
-        Formula pc = buildModel.getPc(file);
-        if (pc == null) {
-            LOGGER.logInfo("No presence condition for file " + file.getPath() + "; skipping");
-            return;
-        }
-        
-        try {
-            if (!satSolver.isSatisfiable(cnfConverter.convert(pc))) {
-                LOGGER.logInfo("Presence condition for file " + file.getPath() + " is not satisfiable; skipping file");
-                return;
+        if (shouldParse(file)) {
+            LOGGER.logDebug("Creating typechef wrapper...");
+            
+            Wrapper wrapper = new Wrapper(configuration);
+            
+            LOGGER.logDebug("Calling typechef wrapper...");
+            
+            SourceFile result = wrapper.runOnFile(file);
+            
+            if (!isStopRequested()) {
+                provider.addResult(result);
             }
-        } catch (SolverException | ConverterException e) {
-            LOGGER.logException("Can't check satisfiability of presence condition for file " + file.getPath()
-                    + "; parsing file anyway", e);
         }
         
-        LOGGER.logDebug("Creating typechef wrapper...");
-        
-        Wrapper wrapper = new Wrapper(configuration);
-        
-        LOGGER.logDebug("Calling typechef wrapper...");
-        
-        SourceFile result = wrapper.runOnFile(file);
-        
-        if (!isStopRequested()) {
-            provider.addResult(result);
-        }
     }
 
 }

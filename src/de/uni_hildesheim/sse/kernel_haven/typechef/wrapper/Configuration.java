@@ -108,8 +108,9 @@ public class Configuration {
      */
     private void loadFromConfig(CodeExtractorConfiguration config) throws SetUpException {
         this.resDir = config.getExtractorResourceDir(TypeChefExtractor.class);
-        
         this.sourceDir = config.getSourceTree();
+        this.parseToAst = Boolean.parseBoolean(config.getProperty("code.extractor.parse_to_ast", "false"));
+        this.processRam = config.getProperty("code.extractor.process_ram", "20g");
         
         String platformHeader = config.getProperty("code.extractor.platform_header");
         if (platformHeader != null) {
@@ -143,12 +144,13 @@ public class Configuration {
             this.sourceIncludeDirs.add(new File(sourceIncludeDir));
         }
         
-        boolean addLinuxDirs = Boolean.parseBoolean(config.getProperty("code.extractor.add_linux_source_include_dirs", "false"));
+        boolean addLinuxDirs = Boolean.parseBoolean(config.getProperty(
+                "code.extractor.add_linux_source_include_dirs", "false"));
         if (addLinuxDirs) {
             if (config.getArch() == null) {
-                throw new SetUpException("No arch specified; this is needed for code.extractor.add_linux_source_include_dirs");
+                throw new SetUpException(
+                        "No arch specified; this is needed for code.extractor.add_linux_source_include_dirs");
             }
-            
             this.sourceIncludeDirs.add(new File("include"));
             this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include"));
             this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include/generated"));
@@ -172,10 +174,6 @@ public class Configuration {
                 throw new SetUpException(e);
             }
         }
-        
-        this.parseToAst = Boolean.parseBoolean(config.getProperty("code.extractor.parse_to_ast", "false"));
-        
-        this.processRam = config.getProperty("code.extractor.process_ram", "20g");
     }
     
     /**
@@ -264,9 +262,9 @@ public class Configuration {
         }
         for (File sourceIncludeDir : sourceIncludeDirs) {
             sourceIncludeDir = new File(sourceDir, sourceIncludeDir.getPath());
-            if (!sourceIncludeDir.isDirectory()) {
-//                Logger.INSTANCE.logWarning("Source include directory \"" + sourceIncludeDir + "\" is not a directory");
-            }
+//            if (!sourceIncludeDir.isDirectory()) {
+//                LOGGER.logWarning("Source include directory \"" + sourceIncludeDir + "\" is not a directory");
+//            }
         }
         
         // TODO: preprocessorDefines
@@ -405,10 +403,7 @@ public class Configuration {
                 
             } finally {
                 if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                    }
+                    out.close();
                 }
             }
             

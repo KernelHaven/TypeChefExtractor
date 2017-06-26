@@ -44,18 +44,23 @@ import xtc.tree.Locatable;
  * A copy of the XtcPreprocessor from Typechef that fixes two bugs:
  * 
  * <ol>
- *      <li>Convert all backslashes ('\') to forward slashes ('/'), since Typechef can't handle the backslashes; this allows
- *              Typechef to run on Windows.</li>
- *      <li>Add a check to Integer.parseInt(), that detects overflows and doesn't throw an exception.
- *              This is needed because some constants in preprocessor directives in Linux are larger than the signed integers of Java.</li>
+ *      <li>Convert all backslashes ('\') to forward slashes ('/'), since Typechef can't handle the backslashes;
+ *              this allows Typechef to run on Windows.</li>
+ *      <li>Add a check to Integer.parseInt(), that detects overflows and doesn't throw an exception. This is needed
+ *              because some constants in preprocessor directives in Linux are larger than the signed integers of
+ *              Java.</li>
  * </ol>
  * 
  * @author Adam
  */
 class MyXtcPreprocessor implements VALexer {
 
+    // disable checkstyle, since we copied this from Typechef
+    // CHECKSTYLE:OFF
+    
 
-    private File file = null;//file is just the name for the file reader. file and fileReader should be null or nonnull at the same time
+    //file is just the name for the file reader. file and fileReader should be null or nonnullat the same time
+    private File file = null;
     private Reader fileReader = null;
     private List<String> sysIncludes = new ArrayList<String>();
     private List<String> I = new ArrayList<String>();

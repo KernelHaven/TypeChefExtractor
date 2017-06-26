@@ -16,13 +16,17 @@ import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.VariableCache;
  * Examples:
  * <ul>
  *      <li><code>definedEx(CONFIG_X86_64)</code></li>
- *      <li><code>(definedEx(CONFIG_X86_PAE) && !definedEx(CONFIG_X86_64) && (definedEx(CONFIG_X86_64) || definedEx(CONFIG_X86_PAE)))</code></li>
+ *      <li><code>(definedEx(CONFIG_X86_PAE) && !definedEx(CONFIG_X86_64) && (definedEx(CONFIG_X86_64)
+ *              || definedEx(CONFIG_X86_PAE)))</code></li>
  * </ul>
  * </p>
  * 
  * @author Adam Krafczyk
  */
 public class TypeChefPresenceConditionGrammar extends CStyleBooleanGrammar {
+    
+    // CHECKSTYLE:OFF
+    // see CStyleBooleanGrammar for explanation why we disable checkstyle
     
     /**
      * Creates this grammar with the given variable cache. The cache is used
@@ -124,7 +128,8 @@ public class TypeChefPresenceConditionGrammar extends CStyleBooleanGrammar {
         }
         
         if (!identifier.matches("defined(Ex)?\\([a-zA-Z0-9_]+\\)")) {
-            throw new ExpressionFormatException("Identifier \"" + identifier + "\" is not valid definedEx() expression");
+            throw new ExpressionFormatException("Identifier \"" + identifier
+                    + "\" is not valid definedEx() expression");
         }
         
         if (identifier.startsWith("definedEx")) {

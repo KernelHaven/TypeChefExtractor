@@ -108,6 +108,13 @@ public class Wrapper {
         
         private ExtractorException extractorException;
         
+        /**
+         * Creates a communication thread.
+         * 
+         * @param serSock The server socket to listen at.
+         * @param config The configuration.
+         * @param params The parameters to send to the other process.
+         */
         public CommThread(ServerSocket serSock, Configuration config, List<String> params) {
             super("Comm of " + Thread.currentThread().getName());
             
@@ -118,22 +125,43 @@ public class Wrapper {
             lexerErrors = new ArrayList<>(0);
         }
         
+        /**
+         * Returns the result that was sent to us. If this is null, then the extractor failed.
+         * 
+         * @return The result, may be null.
+         */
         public TypeChefBlock getResult() {
             return result;
         }
         
+        /**
+         * Returns the list of lexer errors that was sent to us.
+         * 
+         * @return The list of lexer errors, never null.
+         */
         public List<String> getLexerErrors() {
             return lexerErrors;
         }
         
+        /**
+         * Returns an exception if communication failed.
+         * 
+         * @return The exception, null if no exception occured.
+         */
         public IOException getCommException() {
             return commException;
         }
         
+        /**
+         * Returns the exception that was sent to us. If this is not null then the extractor failed.
+         * 
+         * @return The exception, may be null.
+         */
         public ExtractorException getExtractorException() {
             return extractorException;
         }
         
+        @Override
         @SuppressWarnings("unchecked")
         public void run() {
             try {
@@ -179,6 +207,52 @@ public class Wrapper {
     }
     
     /**
+     * Runs the Typechef process. This method blocks until the process exited.
+     * 
+     * @param port The port to pass to the process for communication.
+     * 
+     * @throws IOException If running the process fails.
+     */
+    private void runTypeChefProcess(int port) throws IOException {
+        if (CALL_IN_SAME_VM) {
+            LOGGER.logWarning("Starting TypeChef in same JVM");
+            try {
+                Runner.main(new String[] {String.valueOf(port)});
+            } catch (IOException e) {
+                LOGGER.logException("Exception in TypeChefRunner", e);
+            }
+            
+        } else {
+            ProcessBuilder builder = new ProcessBuilder("java",
+                    "-Xmx" + config.getProcessRam(),
+                    "-cp", getClassPath(),
+                    Runner.class.getName(),
+                    String.valueOf(port));
+            
+            LOGGER.logDebug("Starting Typechef process", builder.command().toString());
+            
+            builder.redirectErrorStream(true);
+            if (INHERIT_OUTPUT) {
+                builder.redirectOutput(Redirect.INHERIT);
+            } else {
+                builder.redirectOutput(Redirect.PIPE);
+            }
+            
+            Process process = builder.start();
+            
+            if (!INHERIT_OUTPUT) {
+                new OutputVoider(process.getInputStream()).start();
+            }
+            
+            try {
+                process.waitFor();
+            } catch (InterruptedException e) {
+                LOGGER.logException("Exception while waiting", e);
+            }
+        }
+    }
+    
+    /**
      * Runs Typechef on the given source file inside the source tree specified in the configuration.
      * 
      * @param file The file to run on. Relative to the source_tree in the configuration passed to
@@ -200,42 +274,7 @@ public class Wrapper {
         CommThread comm = new CommThread(serSock, config, params);
         comm.start();
         
-        if (CALL_IN_SAME_VM) {
-            LOGGER.logWarning("Starting TypeChef in same JVM");
-            try {
-                Runner.main(new String[] {String.valueOf(serSock.getLocalPort())});
-            } catch (Exception e) {
-                LOGGER.logException("Exception in TypeChefRunner", e);
-            }
-            
-        } else {
-            ProcessBuilder builder = new ProcessBuilder("java",
-                    "-Xmx" + config.getProcessRam(),
-                    "-cp", getClassPath(),
-                    Runner.class.getName(),
-                    String.valueOf(serSock.getLocalPort()));
-            
-            LOGGER.logDebug("Starting typechef process", builder.command().toString());
-            
-            builder.redirectErrorStream(true);
-            if (INHERIT_OUTPUT) {
-                builder.redirectOutput(Redirect.INHERIT);
-            } else {
-                builder.redirectOutput(Redirect.PIPE);
-            }
-            
-            Process process = builder.start();
-            
-            if (!INHERIT_OUTPUT) {
-                new OutputVoider(process.getInputStream()).start();
-            }
-            
-            try {
-                process.waitFor();
-            } catch (InterruptedException e) {
-                LOGGER.logException("Exception while waiting", e);
-            }
-        }
+        runTypeChefProcess(serSock.getLocalPort());
         
         // if the process finished, then close sersocket
         // otherwise, if the process failed before the connection was established, we wait here forever

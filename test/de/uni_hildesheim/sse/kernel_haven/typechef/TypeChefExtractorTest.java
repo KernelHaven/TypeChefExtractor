@@ -22,31 +22,56 @@ import de.uni_hildesheim.sse.kernel_haven.util.ExtractorException;
 import de.uni_hildesheim.sse.kernel_haven.util.Logger;
 import de.uni_hildesheim.sse.kernel_haven.util.Util;
 
+/**
+ * Tests for the typechef extractor.
+ * 
+ * TODO: currently this are just temporary methods for debugging purposes.
+ * 
+ * @author Adam
+ */
 public class TypeChefExtractorTest {
     
-    private static final File resDir = new File("testdata/res");
+    private static final File RES_DIR = new File("testdata/res");
     
+    /**
+     * Inits the logger.
+     */
     @BeforeClass
     public static void initLogger() {
         Logger.init();
     }
     
+    /**
+     * Creates the resource directory for each test.
+     */
     @Before
     public void createResDir() {
-        assertThat(resDir.exists(), is(false));
-        assertThat(resDir.getParentFile().isDirectory(), is(true));
+        assertThat(RES_DIR.exists(), is(false));
+        assertThat(RES_DIR.getParentFile().isDirectory(), is(true));
         
-        resDir.mkdir();
+        RES_DIR.mkdir();
         
-        assertThat(resDir.isDirectory(), is(true));
+        assertThat(RES_DIR.isDirectory(), is(true));
     }
     
+    /**
+     * Clears the resource directory after each test.
+     * 
+     * @throws IOException unwanted.
+     */
     @After
     public void deleteResDir() throws IOException {
-        Util.deleteFolder(resDir);
-        assertThat(resDir.exists(), is(false));
+        Util.deleteFolder(RES_DIR);
+        assertThat(RES_DIR.exists(), is(false));
     }
 
+    /**
+     * Temporary method for starting typechef on testdata/test.c.
+     * 
+     * @throws SetUpException Unwanted.
+     * @throws ExtractorException Unwanted.
+     * @throws IOException Unwanted.
+     */
     @Test
     @Ignore
     public void temp() throws SetUpException, ExtractorException, IOException {
@@ -55,7 +80,7 @@ public class TypeChefExtractorTest {
             
             Properties props = new Properties();
             props.setProperty("source_tree", "testdata");
-            props.setProperty("resource_dir", resDir.getPath());
+            props.setProperty("resource_dir", RES_DIR.getPath());
             props.setProperty("code.extractor.skip_default_include_dirs", "true");
             props.setProperty("code.extractor.parse_to_ast", "false");
             TestConfiguration testConfig = new TestConfiguration(props);
@@ -70,16 +95,23 @@ public class TypeChefExtractorTest {
         }
     }
     
+    /**
+     * Temporary method for starting typechef on a linux file.
+     * 
+     * @throws SetUpException Unwanted.
+     * @throws ExtractorException Unwanted.
+     * @throws IOException Unwanted.
+     */
     @Test
     @Ignore
-    public void linuxTest() throws Exception {
+    public void linuxTest() throws SetUpException, ExtractorException, IOException {
         File sourceFile = new File("kernel/kexec.c");
 //        File sourceFile = new File("drivers/memstick/core/memstick.c");
         
         Properties props = new Properties();
         props.setProperty("source_tree", "/home/adam/tmp/linux-4.4");
         props.setProperty("arch", "x86");
-        props.setProperty("resource_dir", resDir.getPath());
+        props.setProperty("resource_dir", RES_DIR.getPath());
         
         props.setProperty("code.extractor.add_linux_source_include_dirs", "true");
         
@@ -104,6 +136,10 @@ public class TypeChefExtractorTest {
         System.out.println(result.iterator().next().toString());
     }
     
+    /**
+     * Temporary dummy test to make jenkins happy.
+     * TODO
+     */
     @Test
     public void dummy() {
     }
