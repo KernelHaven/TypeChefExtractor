@@ -73,6 +73,7 @@
 		<mkdir dir="${reports.xml.dir}" />
 		<mkdir dir="${reports.html.dir}" />
 		<get src="${jenkins.location}/lastSuccessfulBuild/artifact/build/jar/kernelhaven.jar" dest="${dependencies.dir}/kernelhaven.jar" />
+        <get src="${jenkins.location}/lastSuccessfulBuild/artifact/build/jar/cnfutils.jar" dest="${dependencies.dir}/cnfutils.jar" />
 	</target>
 
 
