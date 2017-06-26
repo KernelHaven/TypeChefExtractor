@@ -10,6 +10,7 @@ import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.uni_hildesheim.sse.kernel_haven.SetUpException;
@@ -47,6 +48,7 @@ public class TypeChefExtractorTest {
     }
 
     @Test
+    @Ignore
     public void temp() throws SetUpException, ExtractorException, IOException {
         try {
             File sourceFile = new File("test.c");
@@ -55,7 +57,7 @@ public class TypeChefExtractorTest {
             props.setProperty("source_tree", "testdata");
             props.setProperty("resource_dir", resDir.getPath());
             props.setProperty("code.extractor.skip_default_include_dirs", "true");
-            props.setProperty("code.extractor.parse_to_ast", "true");
+            props.setProperty("code.extractor.parse_to_ast", "false");
             TestConfiguration testConfig = new TestConfiguration(props);
             
             Wrapper wrapper = new Wrapper(new Configuration(testConfig.getCodeConfiguration()));
@@ -69,6 +71,7 @@ public class TypeChefExtractorTest {
     }
     
     @Test
+    @Ignore
     public void linuxTest() throws Exception {
         File sourceFile = new File("kernel/kexec.c");
 //        File sourceFile = new File("drivers/memstick/core/memstick.c");
@@ -99,6 +102,10 @@ public class TypeChefExtractorTest {
         
         SourceFile result = wrapper.runOnFile(sourceFile);
         System.out.println(result.iterator().next().toString());
+    }
+    
+    @Test
+    public void dummy() {
     }
     
 }
