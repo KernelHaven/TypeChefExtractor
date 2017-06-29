@@ -445,6 +445,7 @@ class MyXtcPreprocessor implements VALexer {
          * <p/>
          * essentially only excludes brackets, commas, literals, and such
          */
+        @SuppressWarnings("unlikely-arg-type")
         @Override
         public boolean isKeywordOrIdentifier() {
             return isLanguageToken() && (xtcToken.toLanguage().tag() == CTag.IDENTIFIER ||
