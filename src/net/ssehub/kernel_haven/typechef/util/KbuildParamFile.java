@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.util;
+package net.ssehub.kernel_haven.typechef.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.uni_hildesheim.sse.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.Logger;
 
 /**
  * Class for reading extra compiler parameters extracted from Kbuild.

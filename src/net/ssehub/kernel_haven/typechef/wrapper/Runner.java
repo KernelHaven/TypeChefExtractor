@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.wrapper;
+package net.ssehub.kernel_haven.typechef.wrapper;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,15 +26,15 @@ import de.fosd.typechef.parser.c.CParser;
 import de.fosd.typechef.parser.c.CTypeContext;
 import de.fosd.typechef.parser.c.ParserMain;
 import de.fosd.typechef.parser.c.TranslationUnit;
-import de.uni_hildesheim.sse.kernel_haven.typechef.ast.AstConverter;
-import de.uni_hildesheim.sse.kernel_haven.typechef.ast.TypeChefBlock;
-import de.uni_hildesheim.sse.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
-import de.uni_hildesheim.sse.kernel_haven.util.ExtractorException;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.Formula;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.True;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.ExpressionFormatException;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.Parser;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.VariableCache;
+import net.ssehub.kernel_haven.typechef.ast.AstConverter;
+import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
+import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
+import net.ssehub.kernel_haven.util.ExtractorException;
+import net.ssehub.kernel_haven.util.logic.Formula;
+import net.ssehub.kernel_haven.util.logic.True;
+import net.ssehub.kernel_haven.util.logic.parser.ExpressionFormatException;
+import net.ssehub.kernel_haven.util.logic.parser.Parser;
+import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
 import scala.Tuple2;
 
 /**

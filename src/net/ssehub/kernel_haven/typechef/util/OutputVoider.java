@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.util;
+package net.ssehub.kernel_haven.typechef.util;
 
 import java.io.IOException;
 import java.io.InputStream;

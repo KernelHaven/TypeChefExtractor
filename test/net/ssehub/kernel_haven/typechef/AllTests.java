@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef;
+package net.ssehub.kernel_haven.typechef;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;

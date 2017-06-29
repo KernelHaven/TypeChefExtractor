@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef;
+package net.ssehub.kernel_haven.typechef;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -13,14 +13,14 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.uni_hildesheim.sse.kernel_haven.SetUpException;
-import de.uni_hildesheim.sse.kernel_haven.TestConfiguration;
-import de.uni_hildesheim.sse.kernel_haven.code_model.SourceFile;
-import de.uni_hildesheim.sse.kernel_haven.typechef.wrapper.Configuration;
-import de.uni_hildesheim.sse.kernel_haven.typechef.wrapper.Wrapper;
-import de.uni_hildesheim.sse.kernel_haven.util.ExtractorException;
-import de.uni_hildesheim.sse.kernel_haven.util.Logger;
-import de.uni_hildesheim.sse.kernel_haven.util.Util;
+import net.ssehub.kernel_haven.SetUpException;
+import net.ssehub.kernel_haven.TestConfiguration;
+import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.typechef.wrapper.Configuration;
+import net.ssehub.kernel_haven.typechef.wrapper.Wrapper;
+import net.ssehub.kernel_haven.util.ExtractorException;
+import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.Util;
 
 /**
  * Tests for the typechef extractor.

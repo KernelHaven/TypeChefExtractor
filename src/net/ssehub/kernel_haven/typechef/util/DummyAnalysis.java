@@ -1,12 +1,12 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.util;
+package net.ssehub.kernel_haven.typechef.util;
 
-import de.uni_hildesheim.sse.kernel_haven.SetUpException;
-import de.uni_hildesheim.sse.kernel_haven.analysis.AbstractAnalysis;
-import de.uni_hildesheim.sse.kernel_haven.code_model.Block;
-import de.uni_hildesheim.sse.kernel_haven.code_model.SourceFile;
-import de.uni_hildesheim.sse.kernel_haven.config.Configuration;
-import de.uni_hildesheim.sse.kernel_haven.util.CodeExtractorException;
-import de.uni_hildesheim.sse.kernel_haven.util.ExtractorException;
+import net.ssehub.kernel_haven.SetUpException;
+import net.ssehub.kernel_haven.analysis.AbstractAnalysis;
+import net.ssehub.kernel_haven.code_model.Block;
+import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.util.CodeExtractorException;
+import net.ssehub.kernel_haven.util.ExtractorException;
 
 /**
  * A dummy analysis for debugging purposes. Simply dumps the AST result to the logs.

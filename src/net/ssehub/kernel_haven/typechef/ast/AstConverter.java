@@ -1,16 +1,16 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.ast;
+package net.ssehub.kernel_haven.typechef.ast;
 
 import java.util.Iterator;
 
 import de.fosd.typechef.conditional.Opt;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.parser.c.*;
-import de.uni_hildesheim.sse.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.Formula;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.True;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.ExpressionFormatException;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.Parser;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.parser.VariableCache;
+import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
+import net.ssehub.kernel_haven.util.logic.Formula;
+import net.ssehub.kernel_haven.util.logic.True;
+import net.ssehub.kernel_haven.util.logic.parser.ExpressionFormatException;
+import net.ssehub.kernel_haven.util.logic.parser.Parser;
+import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
 
 /**
  * Converts an AST created by Typechef into our own format.

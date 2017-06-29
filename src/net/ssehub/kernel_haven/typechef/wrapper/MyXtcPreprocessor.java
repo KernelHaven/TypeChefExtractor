@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.wrapper;
+package net.ssehub.kernel_haven.typechef.wrapper;
 
 import java.io.File;
 import java.io.FileNotFoundException;

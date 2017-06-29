@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.wrapper;
+package net.ssehub.kernel_haven.typechef.wrapper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,14 +8,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import de.uni_hildesheim.sse.kernel_haven.SetUpException;
-import de.uni_hildesheim.sse.kernel_haven.config.CodeExtractorConfiguration;
-import de.uni_hildesheim.sse.kernel_haven.typechef.TypeChefExtractor;
-import de.uni_hildesheim.sse.kernel_haven.typechef.util.KbuildParamFile;
-import de.uni_hildesheim.sse.kernel_haven.typechef.util.OutputVoider;
-import de.uni_hildesheim.sse.kernel_haven.util.ExtractorException;
-import de.uni_hildesheim.sse.kernel_haven.util.Logger;
-import de.uni_hildesheim.sse.kernel_haven.variability_model.VariabilityVariable;
+import net.ssehub.kernel_haven.SetUpException;
+import net.ssehub.kernel_haven.config.CodeExtractorConfiguration;
+import net.ssehub.kernel_haven.typechef.TypeChefExtractor;
+import net.ssehub.kernel_haven.typechef.util.KbuildParamFile;
+import net.ssehub.kernel_haven.typechef.util.OutputVoider;
+import net.ssehub.kernel_haven.util.ExtractorException;
+import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
  * A configuration for Typechef.

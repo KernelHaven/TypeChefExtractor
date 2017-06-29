@@ -1,32 +1,32 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef;
+package net.ssehub.kernel_haven.typechef;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.uni_hildesheim.sse.kernel_haven.PipelineConfigurator;
-import de.uni_hildesheim.sse.kernel_haven.SetUpException;
-import de.uni_hildesheim.sse.kernel_haven.build_model.BuildModel;
-import de.uni_hildesheim.sse.kernel_haven.cnf.ConverterException;
-import de.uni_hildesheim.sse.kernel_haven.cnf.FormulaToCnfConverterFactory;
-import de.uni_hildesheim.sse.kernel_haven.cnf.IFormulaToCnfConverter;
-import de.uni_hildesheim.sse.kernel_haven.cnf.SatSolver;
-import de.uni_hildesheim.sse.kernel_haven.cnf.SolverException;
-import de.uni_hildesheim.sse.kernel_haven.cnf.VmToCnfConverter;
-import de.uni_hildesheim.sse.kernel_haven.code_model.CodeModelProvider;
-import de.uni_hildesheim.sse.kernel_haven.code_model.ICodeModelExtractor;
-import de.uni_hildesheim.sse.kernel_haven.code_model.SourceFile;
-import de.uni_hildesheim.sse.kernel_haven.config.CodeExtractorConfiguration;
-import de.uni_hildesheim.sse.kernel_haven.typechef.wrapper.Configuration;
-import de.uni_hildesheim.sse.kernel_haven.typechef.wrapper.Wrapper;
-import de.uni_hildesheim.sse.kernel_haven.util.BlockingQueue;
-import de.uni_hildesheim.sse.kernel_haven.util.CodeExtractorException;
-import de.uni_hildesheim.sse.kernel_haven.util.ExtractorException;
-import de.uni_hildesheim.sse.kernel_haven.util.FormatException;
-import de.uni_hildesheim.sse.kernel_haven.util.Logger;
-import de.uni_hildesheim.sse.kernel_haven.util.logic.Formula;
-import de.uni_hildesheim.sse.kernel_haven.variability_model.VariabilityModel;
+import net.ssehub.kernel_haven.PipelineConfigurator;
+import net.ssehub.kernel_haven.SetUpException;
+import net.ssehub.kernel_haven.build_model.BuildModel;
+import net.ssehub.kernel_haven.cnf.ConverterException;
+import net.ssehub.kernel_haven.cnf.FormulaToCnfConverterFactory;
+import net.ssehub.kernel_haven.cnf.IFormulaToCnfConverter;
+import net.ssehub.kernel_haven.cnf.SatSolver;
+import net.ssehub.kernel_haven.cnf.SolverException;
+import net.ssehub.kernel_haven.cnf.VmToCnfConverter;
+import net.ssehub.kernel_haven.code_model.CodeModelProvider;
+import net.ssehub.kernel_haven.code_model.ICodeModelExtractor;
+import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.config.CodeExtractorConfiguration;
+import net.ssehub.kernel_haven.typechef.wrapper.Configuration;
+import net.ssehub.kernel_haven.typechef.wrapper.Wrapper;
+import net.ssehub.kernel_haven.util.BlockingQueue;
+import net.ssehub.kernel_haven.util.CodeExtractorException;
+import net.ssehub.kernel_haven.util.ExtractorException;
+import net.ssehub.kernel_haven.util.FormatException;
+import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.logic.Formula;
+import net.ssehub.kernel_haven.variability_model.VariabilityModel;
 
 /**
  * Extractor to run Typechef on C source files.

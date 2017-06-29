@@ -1,4 +1,4 @@
-package de.uni_hildesheim.sse.kernel_haven.typechef.wrapper;
+package net.ssehub.kernel_haven.typechef.wrapper;
 
 import java.io.EOFException;
 import java.io.File;
@@ -13,11 +13,11 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.uni_hildesheim.sse.kernel_haven.code_model.SourceFile;
-import de.uni_hildesheim.sse.kernel_haven.typechef.ast.TypeChefBlock;
-import de.uni_hildesheim.sse.kernel_haven.typechef.util.OutputVoider;
-import de.uni_hildesheim.sse.kernel_haven.util.ExtractorException;
-import de.uni_hildesheim.sse.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
+import net.ssehub.kernel_haven.typechef.util.OutputVoider;
+import net.ssehub.kernel_haven.util.ExtractorException;
+import net.ssehub.kernel_haven.util.Logger;
 
 /**
  * A wrapper that provides a clean interface around the execution of Typechef in another process.
