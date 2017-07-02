@@ -227,8 +227,6 @@ public class Configuration {
             if (!openVariablesFile.canRead()) {
                 throw new SetUpException("openFeatures file can not be read");
             }
-        } else {
-            LOGGER.logWarning("No openVariablesFile specified");
         }
         
         if (systemRoot == null || !systemRoot.isDirectory()) {
