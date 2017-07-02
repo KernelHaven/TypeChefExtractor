@@ -156,12 +156,12 @@ public class TypeChefBlock extends Block implements Serializable {
 
     @Override
     public int getLineStart() {
-        return 0;
+        return pos != null ? pos.getLine() : -1;
     }
 
     @Override
     public int getLineEnd() {
-        return 0;
+        return pos != null ? pos.getLine() : -1;
     }
 
     @Override
@@ -231,6 +231,15 @@ public class TypeChefBlock extends Block implements Serializable {
      */
     public TypeChefBlock getParent() {
         return parent;
+    }
+    
+    /**
+     * Returns the position of this block.
+     * 
+     * @return The position of this block. May be null.
+     */
+    public Position getPosition() {
+        return pos;
     }
     
     /**
