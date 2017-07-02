@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.typechef.ast;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.fosd.typechef.error.WithPosition;
 import net.ssehub.kernel_haven.code_model.Block;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
@@ -22,6 +24,59 @@ import net.ssehub.kernel_haven.util.logic.parser.Parser;
 public class TypeChefBlock extends Block implements Serializable {
     
     private static final long serialVersionUID = 3122358323396424111L;
+    
+    /**
+     * A position in the source code, specified by file and line.
+     */
+    public static final class Position implements Serializable {
+        
+        private static final long serialVersionUID = 6178380565831457716L;
+
+        private File file;
+        
+        private int line;
+        
+        /**
+         * Creates a new position.
+         * 
+         * @param file The source file.
+         * @param line The line in the file.
+         */
+        public Position(File file, int line) {
+            this.file = file;
+            this.line = line;
+        }
+        
+        /**
+         * Creates a position from the scala object.
+         * 
+         * @param position The scala object to get the position from.
+         */
+        private Position(de.fosd.typechef.error.Position position) {
+            String file = position.getFile();
+            this.file = new File(file != null ? file : "<unkown>");
+            this.line = position.getLine();
+        }
+        
+        /**
+         * The source file.
+         * 
+         * @return The source file.
+         */
+        public File getFile() {
+            return file;
+        }
+        
+        /**
+         * The line in the source file.
+         * 
+         * @return The line in the source file.
+         */
+        public int getLine() {
+            return line;
+        }
+        
+    }
 
     private List<TypeChefBlock> childreen;
     
@@ -35,6 +90,8 @@ public class TypeChefBlock extends Block implements Serializable {
     
     private String relation;
     
+    private Position pos;
+    
     /**
      * Creates a new TypechefBlock. This automatically adds itself to the children list of the parent block. Do not use
      * {@link #addChild(Block)} for this!
@@ -42,7 +99,7 @@ public class TypeChefBlock extends Block implements Serializable {
      * @param parent The parent of this new block. May be null.
      * @param condition The condition of this block. Must not be null.
      * @param text The text description of this block. Must not be null.
-     * @param relation The relation of this block to its parent. Must not benull.
+     * @param relation The relation of this block to its parent. Must not be null.
      */
     public TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation) {
         this.condition = condition;
@@ -55,6 +112,35 @@ public class TypeChefBlock extends Block implements Serializable {
             this.presencCondition = this.condition;
         }
         this.childreen = new LinkedList<>();
+    }
+    
+    /**
+     * Creates a new TypechefBlock. This automatically adds itself to the children list of the parent block. Do not use
+     * {@link #addChild(Block)} for this!
+     * 
+     * @param parent The parent of this new block. May be null.
+     * @param condition The condition of this block. Must not be null.
+     * @param text The text description of this block. Must not be null.
+     * @param relation The relation of this block to its parent. Must not be null.
+     * @param position The position of this element in the source code. Must not be null.
+     */
+    TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation, WithPosition position) {
+        this(parent, condition, text, relation, new Position(position.getPositionFrom()));
+    }
+    
+    /**
+     * Creates a new TypechefBlock. This automatically adds itself to the children list of the parent block. Do not use
+     * {@link #addChild(Block)} for this!
+     * 
+     * @param parent The parent of this new block. May be null.
+     * @param condition The condition of this block. Must not be null.
+     * @param text The text description of this block. Must not be null.
+     * @param relation The relation of this block to its parent. Must not be null.
+     * @param pos The position. May be null.
+     */
+    public TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation, Position pos) {
+        this(parent, condition, text, relation);
+        this.pos = pos;
     }
 
     @SuppressWarnings("unchecked")
@@ -98,6 +184,14 @@ public class TypeChefBlock extends Block implements Serializable {
         result.add(escapedText);
         result.add(relation);
         result.add(condition.toString());
+        
+        if (pos != null) {
+            result.add(pos.getFile().toString());
+            result.add(pos.getLine() + "");
+        } else {
+            result.add("null");
+            result.add("null");
+        }
         
         return result;
     }
@@ -149,8 +243,8 @@ public class TypeChefBlock extends Block implements Serializable {
      * @throws FormatException If the CSV is malformed.
      */
     public static TypeChefBlock createFromCsv(String[] csv, Parser<Formula> parser) throws FormatException {
-        if (csv.length != 3) {
-            throw new FormatException("Wrong number of CSV fields, expected 3 but got "
+        if (csv.length != 5) {
+            throw new FormatException("Wrong number of CSV fields, expected 5 but got "
                     + csv.length + ": " + Arrays.toString(csv));
         }
         
@@ -165,8 +259,18 @@ public class TypeChefBlock extends Block implements Serializable {
             throw new FormatException(e);
         }
         
+        Position pos = null;
         
-        return new TypeChefBlock(null, condition, text, relation);
+        if (!csv[3].equals("null") && !csv[4].equals("null")) {
+            try {
+                pos = new Position(new File(csv[3]), Integer.parseInt(csv[4]));
+            } catch (NumberFormatException e) {
+                throw new FormatException(e);
+            }
+        }
+        
+        
+        return new TypeChefBlock(null, condition, text, relation, pos);
     }
     
     @Override
@@ -190,10 +294,15 @@ public class TypeChefBlock extends Block implements Serializable {
             conditionStr = "...";
         }
         
-        result.append(indentation).append(relation).append(" [").append(conditionStr).append("] ")
-                .append(text).append("\n");
+        result.append(indentation).append(relation).append(" [").append(conditionStr).append("] ");
         
-        indentation += "\t";
+        if (pos != null) {
+            result.append('[').append(pos.getFile().getName()).append(':').append(pos.getLine()).append("] ");
+        }
+        
+        result.append(text).append('\n');
+        
+        indentation += '\t';
         
         for (TypeChefBlock block : childreen) {
             result.append(block.toString(indentation));

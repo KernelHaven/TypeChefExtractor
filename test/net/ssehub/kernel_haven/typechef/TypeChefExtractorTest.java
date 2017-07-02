@@ -82,7 +82,7 @@ public class TypeChefExtractorTest {
             props.setProperty("source_tree", "testdata");
             props.setProperty("resource_dir", RES_DIR.getPath());
             props.setProperty("code.extractor.skip_default_include_dirs", "true");
-            props.setProperty("code.extractor.parse_to_ast", "false");
+            props.setProperty("code.extractor.parse_to_ast", "true");
             TestConfiguration testConfig = new TestConfiguration(props);
             
             Wrapper wrapper = new Wrapper(new Configuration(testConfig.getCodeConfiguration()));

@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.typechef.wrapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -228,7 +229,7 @@ public class Runner {
     private TypeChefBlock parseToFlatPcs(List<LexerToken> lexerTokens) throws ExtractorException {
         System.out.println("parseToFlatPcs()");
         
-        List<Formula> pcs = new LinkedList<>();
+        TypeChefBlock parsed = new TypeChefBlock(null, new True(), "File", "");
         String previous = "";
         
         VariableCache varCache = new VariableCache();
@@ -241,19 +242,15 @@ public class Runner {
             if (!expr.equals(previous)) {
                 previous = expr;
                 try {
-                    pcs.add(parser.parse(expr));
+                    Formula pc = parser.parse(expr);
+                    new TypeChefBlock(parsed, pc, "PresenceCondition", "",
+                            new TypeChefBlock.Position(new File(token.getSourceName()), token.getLine()));
                 } catch (ExpressionFormatException e) {
                     throw new ExtractorException(e);
                 }
                 varCache.clear();
             }
             
-        }
-        
-        TypeChefBlock parsed = new TypeChefBlock(null, new True(), "File", "");
-        
-        for (Formula f : pcs) {
-            new TypeChefBlock(parsed, f, "PresenceCondition", "");
         }
         
         return parsed;
