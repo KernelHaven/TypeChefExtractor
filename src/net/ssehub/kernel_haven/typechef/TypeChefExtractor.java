@@ -1,7 +1,18 @@
 package net.ssehub.kernel_haven.typechef;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.ssehub.kernel_haven.PipelineConfigurator;
 import net.ssehub.kernel_haven.SetUpException;
@@ -33,9 +44,15 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
     
     private static final Logger LOGGER = Logger.get();
 
-    private Configuration configuration;
+    private Configuration typechefConfig;
+    
+    private CodeExtractorConfiguration config;
+    
+    private boolean ignoreOtherModels;
     
     private boolean readFromOtherExtractors;
+    
+    private boolean prepared;
     
     private BuildModel buildModel;
     
@@ -45,21 +62,30 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
     
     @Override
     protected void init(CodeExtractorConfiguration config) throws SetUpException {
-        configuration = new Configuration(config);
+        this.config = config;
+        ignoreOtherModels = Boolean.parseBoolean(config.getProperty("code.extractor.ignore_other_models"));
+        typechefConfig = new Configuration(config);
         readFromOtherExtractors = false;
+        prepared = false;
     }
 
     @Override
     protected SourceFile runOnFile(File target) throws ExtractorException {
-        readFromOtherExtractors();
+        if (!ignoreOtherModels) {
+            readFromOtherExtractors();
+        }
+//        try {
+//            prepare();
+//        } catch (IOException e) {
+//            throw new CodeExtractorException(target, e);
+//        }
         
-        if (!shouldParse(target)) {
+        if (!ignoreOtherModels && !shouldParse(target)) {
             throw new CodeExtractorException(target, "File presence condition not satisfiable");
         }
         
         try {
-        
-            Wrapper wrapper = new Wrapper(configuration);
+            Wrapper wrapper = new Wrapper(typechefConfig);
             SourceFile result = wrapper.runOnFile(target);
             return result;
             
@@ -78,26 +104,21 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
      * 
      * @throws ExtractorException If the other pipelines were not successful.
      */
-    private void readFromOtherExtractors() throws ExtractorException {
-        synchronized (this) {
-            if (readFromOtherExtractors) {
-                return;
-            }
-            readFromOtherExtractors = true;
+    private synchronized void readFromOtherExtractors() throws ExtractorException {
+        if (readFromOtherExtractors) {
+            return;
+        }
+        readFromOtherExtractors = true;
+    
+        VariabilityModel varModel = PipelineConfigurator.instance().getVmProvider().getResult();
+        typechefConfig.setVariables(varModel.getVariables());
         
-            buildModel = PipelineConfigurator.instance().getBmProvider().getResult();
-            
-            VariabilityModel varModel = PipelineConfigurator.instance().getVmProvider().getResult();
-            cnfConverter = FormulaToCnfConverterFactory.create();
-            
-            try {
-                satSolver = new SatSolver(new VmToCnfConverter().convertVmToCnf(varModel));
-            } catch (FormatException e) {
-                throw new ExtractorException(e);
-            }
-                
-            configuration.setVariables(varModel.getVariables());
-            
+        buildModel = PipelineConfigurator.instance().getBmProvider().getResult();
+        cnfConverter = FormulaToCnfConverterFactory.create();
+        try {
+            satSolver = new SatSolver(new VmToCnfConverter().convertVmToCnf(varModel));
+        } catch (FormatException e) {
+            throw new ExtractorException(e);
         }
     }
     
@@ -132,6 +153,134 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
         }
         
         return shouldParse;
+    }
+    
+    
+    /**
+     * A non boolean operation on a variability variable.
+     * E.g. <code>>= 3</code>.
+     */
+    private static final class NonBooleanOperation {
+        
+        private String operator;
+        
+        private int value;
+
+        /**
+         * .
+         * @param operator .
+         * @param value .
+         */
+        public NonBooleanOperation(String operator, int value) {
+            this.operator = operator;
+            this.value = value;
+        }
+        
+        @Override
+        public int hashCode() {
+            return operator.hashCode() + Integer.hashCode(value);
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            boolean equal = false;
+            if (obj instanceof NonBooleanOperation) {
+                NonBooleanOperation other = (NonBooleanOperation) obj;
+                equal = this.operator.equals(other.operator) && this.value == other.value;
+            }
+            return equal;
+        }
+        
+    }
+    
+    /**
+     * Prepare the source tree.
+     * 
+     * @throws IOException IF reading files fails.
+     */
+    @SuppressWarnings("unused")
+    private synchronized void prepare() throws IOException {
+        if (prepared) {
+            return;
+        }
+        prepared = true;
+        
+        Map<String, Set<NonBooleanOperation>> nonBooleanVariables = new HashMap<>();
+        
+        // walk through every source file and collect non-boolean variability variables
+        try {
+            Files.walk(config.getSourceTree().toPath(), FileVisitOption.FOLLOW_LINKS).forEach((file) -> {
+                try {
+                    collectNonBoolean(file.toFile(), nonBooleanVariables);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
+        
+        for (Map.Entry<String, Set<NonBooleanOperation>> entry : nonBooleanVariables.entrySet()) {
+            System.out.println(entry.getKey() + " ");
+            for (NonBooleanOperation op : entry.getValue()) {
+                System.out.println("\t" + op.operator + " " + op.value);
+            }
+        }
+    }
+    
+    /**
+     * Finds all non-boolean variability variables used in the given file.
+     * 
+     * @param file The file to search in.
+     * @param result Where to add the found non-boolean variables to.
+     * 
+     * @throws IOException If reading the file fails.
+     */
+    private void collectNonBoolean(File file, Map<String, Set<NonBooleanOperation>> result) throws IOException {
+        if (!file.isFile() || (!file.getName().endsWith(".c") && !file.getName().endsWith(".h"))) {
+            return;
+        }
+        
+        Pattern regex = Pattern.compile("(CONFIG_[A-Za-z0-9_]+)\\s*(==|!=|<|>|<=|>=)\\s*(-?[0-9]+)\\s*");
+        
+        try (BufferedReader in = new BufferedReader(new FileReader(file))) {
+            
+            String line;
+            while ((line = in.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.charAt(0) != '#') {
+                    continue;
+                }
+                
+                while (line.charAt(line.length() - 1) == '\\') {
+                    line += in.readLine();
+                }
+                
+                Matcher m = regex.matcher(line);
+                
+                while (m.find()) {
+                    String variable = m.group(1);
+                    String operator = m.group(2);
+                    int value = Integer.parseInt(m.group(3));
+                    
+//                    if (operator.equals(">=")) {
+//                        operator = ">";
+//                        value--;
+//                    } else if (operator.equals("<=")) {
+//                        operator = "<";
+//                        value++;
+//                    }
+                    
+                    Set<NonBooleanOperation> l = result.get(variable);
+                    if (l == null) {
+                        l = new HashSet<>();
+                        result.put(variable, l);
+                    }
+                    l.add(new NonBooleanOperation(operator, value));
+                }
+            }
+            
+        }
     }
 
 }

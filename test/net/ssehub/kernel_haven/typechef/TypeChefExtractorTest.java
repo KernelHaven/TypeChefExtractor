@@ -76,15 +76,18 @@ public class TypeChefExtractorTest {
     @Ignore
     public void temp() throws SetUpException, ExtractorException, IOException {
         try {
-            File sourceFile = new File("test2.c");
+//            File sourceFile = new File("kernel/kexec.c");
+            File sourceFile = new File("test.c");
             
             Properties props = new Properties();
-            props.setProperty("source_tree", "testdata");
+            props.setProperty("source_tree", "testdata/src2");
+//            props.setProperty("source_tree", "E:\\tmp\\typechef_windows\\linux-4.4");
             props.setProperty("resource_dir", RES_DIR.getPath());
             props.setProperty("code.extractor.skip_default_include_dirs", "true");
             props.setProperty("code.extractor.parse_to_ast", "true");
             
-            props.setProperty("code.extractor.debug.inherit_output", "true");
+            props.setProperty("code.extractor.ignore_other_models", "true");
+            props.setProperty("code.extractor.debug.inherit_output", "false");
             
             if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
                 props.setProperty("code.extractor.platform_header", "testdata/win/platform.h");
@@ -92,9 +95,14 @@ public class TypeChefExtractorTest {
             
             TestConfiguration testConfig = new TestConfiguration(props);
             
-            Wrapper wrapper = new Wrapper(new Configuration(testConfig.getCodeConfiguration()));
+            TypeChefExtractor extractor = new TypeChefExtractor();
+            extractor.init(testConfig.getCodeConfiguration());
+            SourceFile result = extractor.runOnFile(sourceFile);
+//            System.out.println(result.iterator().next().toString());
             
-            SourceFile result = wrapper.runOnFile(sourceFile);
+//            Wrapper wrapper = new Wrapper(new Configuration(testConfig.getCodeConfiguration()));
+//            
+//            SourceFile result = wrapper.runOnFile(sourceFile);
             System.out.println(result.iterator().next().toString());
         } catch (ExtractorException e) {
             Logger.get().logException("Exception passed to unit test", e);
