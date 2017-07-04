@@ -28,23 +28,6 @@ public class Wrapper {
 
     private static final Logger LOGGER = Logger.get();
     
-    /**
-     * Whether to launch a separate JVM or not. Set to <code>true</code> only
-     * for debug purposes.
-     */
-    private static final boolean CALL_IN_SAME_VM = false;
-    
-    /**
-     * Whether the TypeChef parameters should be logged. Useful for debugging.
-     */
-    private static final boolean LOG_CALL_PARAMS = false;
-    
-    /**
-     * Whether the child JVM process should have same stdout and stderr as the parent one.
-     * Useful for debugging. If set to false, then all output is discarded.
-     */
-    private static final boolean INHERIT_OUTPUT = false;
-    
     private Configuration config;
     
     /**
@@ -214,7 +197,7 @@ public class Wrapper {
      * @throws IOException If running the process fails.
      */
     private void runTypeChefProcess(int port) throws IOException {
-        if (CALL_IN_SAME_VM) {
+        if (config.callInSameVm()) {
             LOGGER.logWarning("Starting TypeChef in same JVM");
             try {
                 Runner.main(new String[] {String.valueOf(port)});
@@ -232,7 +215,7 @@ public class Wrapper {
             LOGGER.logDebug("Starting Typechef process", builder.command().toString());
             
             builder.redirectErrorStream(true);
-            if (INHERIT_OUTPUT) {
+            if (config.inheritOutput()) {
                 builder.redirectOutput(Redirect.INHERIT);
             } else {
                 builder.redirectOutput(Redirect.PIPE);
@@ -240,7 +223,7 @@ public class Wrapper {
             
             Process process = builder.start();
             
-            if (!INHERIT_OUTPUT) {
+            if (!config.inheritOutput()) {
                 new OutputVoider(process.getInputStream()).start();
             }
             
@@ -265,7 +248,7 @@ public class Wrapper {
     private TypeChefBlock runTypeChef(File file) throws IOException, ExtractorException {
         List<String> params = config.buildParameters(file);
         
-        if (LOG_CALL_PARAMS) {
+        if (config.logCallParams()) {
             LOGGER.logDebug(params.toArray(new String[0]));
         }
         

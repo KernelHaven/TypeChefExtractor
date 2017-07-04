@@ -50,6 +50,12 @@ public class Configuration {
     
     private String processRam;
     
+    private boolean callInSameVm;
+    
+    private boolean logCallParams;
+    
+    private boolean inheritOutput;
+    
     /**
      * Creates a Typechef configuration from the given {@link CodeExtractorConfiguration}.
      * It uses the following keys:
@@ -80,6 +86,14 @@ public class Configuration {
      *          <li>code.extractor.kbuildparam_file</li>
      *          <li>code.extractor.platform_header</li>
      *          <li>code.extractor.open_variables</li>
+     *      </ul>
+     *  </li>
+     *  <li>
+     *      <b>Debug</b>
+     *      <ul>
+     *          <li>code.extractor.debug.call_in_same_vm</li>
+     *          <li>code.extractor.debug.log_call_params</li>
+     *          <li>code.extractor.debug.inherit_output</li>
      *      </ul>
      *  </li>
      * </ul>
@@ -172,8 +186,10 @@ public class Configuration {
         if (openVariablesSetting != null) {
             openVariablesFile = new File(openVariablesSetting);
         }
+        
+        loadDebugFromConfig(config);
     }
-
+    
     /**
      * Adds the default include directories usually needed for Linux.
      * 
@@ -190,6 +206,17 @@ public class Configuration {
         this.sourceIncludeDirs.add(new File("arch/" + arch + "/include/asm/mach-generic"));
         this.sourceIncludeDirs.add(new File("arch/" + arch + "/include/asm/mach-voyager"));
         this.sourceIncludeDirs.add(new File("include/uapi"));
+    }
+    
+    /**
+     * Loads some variables from configuration that are useful for debugging.
+     * 
+     * @param config The configuration to load the debug settings from.
+     */
+    private void loadDebugFromConfig(CodeExtractorConfiguration config) {
+        callInSameVm = Boolean.parseBoolean(config.getProperty("code.extractor.debug.call_in_same_vm"));
+        logCallParams = Boolean.parseBoolean(config.getProperty("code.extractor.debug.log_call_params"));
+        inheritOutput = Boolean.parseBoolean(config.getProperty("code.extractor.debug.inherit_output"));
     }
     
     /**
@@ -429,6 +456,34 @@ public class Configuration {
         } catch (IOException e) {
             throw new ExtractorException("Can't write open variables file", e);
         }
+    }
+    
+    /**
+     * Whether to launch a separate JVM or not. Used for debugging purposes.
+     * 
+     * @return Whether to launch in the same JVM the extractor runs in.
+     */
+    public boolean callInSameVm() {
+        return callInSameVm;
+    }
+    
+    /**
+     * Whether the TypeChef parameters should be logged. Useful for debugging.
+     * 
+     * @return Whether the parameters Typechef is started with should be logged to debug output.
+     */
+    public boolean logCallParams() {
+        return logCallParams;
+    }
+    
+    /**
+     * Whether the child JVM process should have same stdout and stderr as the parent one.
+     * Useful for debugging. If set to false, then all output can be discarded.
+     * 
+     * @return Whether the the sub-process should inherit the output or not.
+     */
+    public boolean inheritOutput() {
+        return inheritOutput;
     }
     
 }

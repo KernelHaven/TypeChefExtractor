@@ -76,13 +76,15 @@ public class TypeChefExtractorTest {
     @Ignore
     public void temp() throws SetUpException, ExtractorException, IOException {
         try {
-            File sourceFile = new File("test.c");
+            File sourceFile = new File("test2.c");
             
             Properties props = new Properties();
             props.setProperty("source_tree", "testdata");
             props.setProperty("resource_dir", RES_DIR.getPath());
             props.setProperty("code.extractor.skip_default_include_dirs", "true");
             props.setProperty("code.extractor.parse_to_ast", "true");
+            
+            props.setProperty("code.extractor.debug.inherit_output", "true");
             
             if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
                 props.setProperty("code.extractor.platform_header", "testdata/win/platform.h");
