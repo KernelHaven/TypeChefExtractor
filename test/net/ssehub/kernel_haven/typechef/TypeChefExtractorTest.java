@@ -83,6 +83,11 @@ public class TypeChefExtractorTest {
             props.setProperty("resource_dir", RES_DIR.getPath());
             props.setProperty("code.extractor.skip_default_include_dirs", "true");
             props.setProperty("code.extractor.parse_to_ast", "true");
+            
+            if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
+                props.setProperty("code.extractor.platform_header", "testdata/win/platform.h");
+            }
+            
             TestConfiguration testConfig = new TestConfiguration(props);
             
             Wrapper wrapper = new Wrapper(new Configuration(testConfig.getCodeConfiguration()));
