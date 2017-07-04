@@ -79,6 +79,7 @@ public class Configuration {
      *          <li>code.extractor.preprocessor_define.0</li>
      *          <li>code.extractor.kbuildparam_file</li>
      *          <li>code.extractor.platform_header</li>
+     *          <li>code.extractor.open_variables</li>
      *      </ul>
      *  </li>
      * </ul>
@@ -151,15 +152,7 @@ public class Configuration {
                 throw new SetUpException(
                         "No arch specified; this is needed for code.extractor.add_linux_source_include_dirs");
             }
-            this.sourceIncludeDirs.add(new File("include"));
-            this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include"));
-            this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include/generated"));
-            this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include/uapi"));
-            this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include/generated/uapi"));
-            this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include/asm/mach-default"));
-            this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include/asm/mach-generic"));
-            this.sourceIncludeDirs.add(new File("arch/" + config.getArch() + "/include/asm/mach-voyager"));
-            this.sourceIncludeDirs.add(new File("include/uapi"));
+            addDefaultLinuxDirs(config.getArch());
         }
         
         for (String preprocessorDefine : getSettingList(config, "code.extractor.preprocessor_define.")) {
@@ -174,6 +167,29 @@ public class Configuration {
                 throw new SetUpException(e);
             }
         }
+        
+        String openVariablesSetting = config.getProperty("code.extractor.open_variables");
+        if (openVariablesSetting != null) {
+            openVariablesFile = new File(openVariablesSetting);
+        }
+    }
+
+    /**
+     * Adds the default include directories usually needed for Linux.
+     * 
+     * @param arch The architecture to add the directories for.
+     */
+    private void addDefaultLinuxDirs(String arch) {
+       
+        this.sourceIncludeDirs.add(new File("include"));
+        this.sourceIncludeDirs.add(new File("arch/" + arch + "/include"));
+        this.sourceIncludeDirs.add(new File("arch/" + arch + "/include/generated"));
+        this.sourceIncludeDirs.add(new File("arch/" + arch + "/include/uapi"));
+        this.sourceIncludeDirs.add(new File("arch/" + arch + "/include/generated/uapi"));
+        this.sourceIncludeDirs.add(new File("arch/" + arch + "/include/asm/mach-default"));
+        this.sourceIncludeDirs.add(new File("arch/" + arch + "/include/asm/mach-generic"));
+        this.sourceIncludeDirs.add(new File("arch/" + arch + "/include/asm/mach-voyager"));
+        this.sourceIncludeDirs.add(new File("include/uapi"));
     }
     
     /**
@@ -222,10 +238,10 @@ public class Configuration {
         
         if (openVariablesFile != null) {
             if (!openVariablesFile.isFile()) {
-                throw new SetUpException("openFeatures file not specified");
+                throw new SetUpException("open_variables is not a valid file");
             }
             if (!openVariablesFile.canRead()) {
-                throw new SetUpException("openFeatures file can not be read");
+                throw new SetUpException("open_variables file can not be read");
             }
         }
         
@@ -374,13 +390,18 @@ public class Configuration {
     
     /**
      * Sets the list of variables that are in the variability model. This is required to generate
-     * a file to pass to Typechef that contains all open variables.
+     * a file to pass to Typechef that contains all open variables. This is a no-op if the user specified an
+     * open_variables file in the configuration.
      * 
      * @param variables The {@link VariabilityVariable}s in the variability model.
      * 
      * @throws ExtractorException If writing the files to a file for Typechef fails.
      */
     public void setVariables(Set<VariabilityVariable> variables) throws ExtractorException {
+        if (openVariablesFile != null) {
+            return;
+        }
+        
         try {
             this.openVariablesFile = File.createTempFile("open_variables", ".txt");
             
