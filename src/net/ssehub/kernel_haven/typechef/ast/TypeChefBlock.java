@@ -76,6 +76,24 @@ public class TypeChefBlock extends Block implements Serializable {
             return line;
         }
         
+        /**
+         * Sets the source file.
+         * 
+         * @param file The source file.
+         */
+        public void setFile(File file) {
+            this.file = file;
+        }
+        
+        /**
+         * Sets the line.
+         *  
+         * @param line The line.
+         */
+        public void setLine(int line) {
+            this.line = line;
+        }
+        
     }
 
     private List<TypeChefBlock> childreen;

@@ -289,11 +289,18 @@ public class Wrapper {
             throw comm.getCommException();
         }
         
-        if (comm.getResult() == null) {
+        TypeChefBlock result = comm.getResult();
+        
+        if (result == null) {
             throw new ExtractorException("Runner didn't return result or exception");
         }
         
-        return comm.getResult();
+        // manually set the location of the result, since Typechef creates a temporary command-line input so we
+        // don't get proper filenames for the top-block
+        result.getPosition().setFile(file);
+        result.getPosition().setLine(1);
+        
+        return result;
     }
     
     /**
