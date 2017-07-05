@@ -297,8 +297,7 @@ public class Wrapper {
         
         // manually set the location of the result, since Typechef creates a temporary command-line input so we
         // don't get proper filenames for the top-block
-        result.getPosition().setFile(file);
-        result.getPosition().setLine(1);
+        result.setPosition(new TypeChefBlock.Position(file, 1));
         
         return result;
     }

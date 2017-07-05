@@ -261,6 +261,15 @@ public class TypeChefBlock extends Block implements Serializable {
     }
     
     /**
+     * Changes the position of this block.
+     * 
+     * @param pos The new position of this block.
+     */
+    public void setPosition(Position pos) {
+        this.pos = pos;
+    }
+    
+    /**
      * Deserializes the given CSV into a block.
      * 
      * @param csv The csv.
