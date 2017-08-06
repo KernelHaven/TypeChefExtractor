@@ -270,6 +270,24 @@ public class TypeChefBlock extends Block implements Serializable {
     }
     
     /**
+     * Returns the first child with the given relation string.
+     * 
+     * @param relation The relation of the child to this parent block.
+     * 
+     * @return The child with the given relation; <code>null</code> if none found.
+     */
+    public TypeChefBlock getChild(String relation) {
+        TypeChefBlock result = null;
+        for (TypeChefBlock child : childreen) {
+            if (child.getRelation().equals(relation)) {
+                result = child;
+                break;
+            }
+        }
+        return result;
+    }
+    
+    /**
      * Deserializes the given CSV into a block.
      * 
      * @param csv The csv.
