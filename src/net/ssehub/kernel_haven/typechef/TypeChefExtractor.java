@@ -67,7 +67,7 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
             SourceFile result = wrapper.runOnFile(target);
             return result;
             
-        } catch (IOException e) {
+        } catch (IOException | ExtractorException e) {
             throw new CodeExtractorException(target, e);
         }
     }
