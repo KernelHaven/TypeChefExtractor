@@ -21,8 +21,8 @@
 	<property name="jacoco.file" value="${jacoco.dir}/jacocoant.jar" />
 	<property name="workspace.snapshot.dir" value="${build.dir}/workspacesnapshot/" />
     <property name="jenkins.location" value="http://jenkins.sse.uni-hildesheim.de/job" />
-    <property name="infrastructure.location" value="${jenkins.location}/KernelHaven_Infrastructure/lastSuccessfulBuild/artifact/build/jar/kernelhaven.jar" />
-    <property name="cnfUtils.location" value="${jenkins.location}/KernelHaven_CnfUtils/lastSuccessfulBuild/artifact/build/jar/cnfutils.jar" />
+    <property name="infrastructure.location" value="${jenkins.location}/KernelHaven_Infrastructure/lastSuccessfulBuild/artifact/build/jar/KernelHaven.jar" />
+    <property name="cnfUtils.location" value="${jenkins.location}/KernelHaven_CnfUtils/lastSuccessfulBuild/artifact/build/jar/CnfUtils.jar" />
 
 	<!-- Modules that build -->
 	<property name="src.dir" value="${basedir}/src" />
