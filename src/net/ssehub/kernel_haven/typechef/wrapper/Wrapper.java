@@ -154,9 +154,17 @@ public class Wrapper {
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                 
                 out.writeBoolean(config.isParseToAst());
-                out.writeObject(params);
+                out.writeUnshared(params);
                 
-                Object result = in.readObject();
+                Runtime rt = Runtime.getRuntime();
+                long usedMemoryBefore = rt.totalMemory() - rt.freeMemory();
+                
+                Object result = in.readUnshared();
+                
+                long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
+                
+                LOGGER.logDebug("Memory usage before waiting for result: " + usedMemoryBefore,
+                        "Memory usage after we got result object: " + usedMemoryAfter);
                 
                 if (result instanceof ExtractorException) {
                     this.extractorException = (ExtractorException) result;
@@ -168,7 +176,7 @@ public class Wrapper {
                     throw new IOException("Invalid result type: " + result.getClass().getName());
                 }
                 
-                Object lexerErrorList = in.readObject();
+                Object lexerErrorList = in.readUnshared();
                 if (lexerErrorList != null) {
                     lexerErrors.addAll((List<String>) lexerErrorList);
                 }

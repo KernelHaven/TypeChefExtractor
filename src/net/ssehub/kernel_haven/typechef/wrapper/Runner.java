@@ -66,6 +66,8 @@ public class Runner {
      * @throws IOException If creating the comm streams fails.
      */
     public Runner(int port) throws IOException {
+        System.out.println("ctor()");
+        
         socket = new Socket("localhost", port);
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
@@ -77,6 +79,8 @@ public class Runner {
      * @throws IOException If communication with the main process fails.
      */
     public void run() throws IOException {
+        System.out.println("run()");
+        
         try {
             readParameters();
             List<LexerToken> lexerTokens = runLexer();
@@ -107,12 +111,13 @@ public class Runner {
      */
     @SuppressWarnings("unchecked")
     private void readParameters() throws IOException, ExtractorException {
+        System.out.println("readParameters()");
         
         parseToAst = in.readBoolean();
         
         List<String> params;
         try {
-            params = (List<String>) in.readObject();
+            params = (List<String>) in.readUnshared();
         } catch (ClassNotFoundException e) {
             throw new IOException(e);
         }
@@ -138,6 +143,8 @@ public class Runner {
      * @throws ExtractorException If the lexer fails.
      */
     private List<LexerToken> runLexer() throws ExtractorException {
+        System.out.println("runLexer()");
+        
         LexerFrontend lexer = new LexerFrontend();
         Conditional<LexerResult> result;
         try {
@@ -262,9 +269,10 @@ public class Runner {
      * @param parsed The result to send.
      */
     private void sendResult(TypeChefBlock parsed) {
+        System.out.println("sendResult()");
         try {
-            out.writeObject(parsed);
-            out.writeObject(lexerErrors);
+            out.writeUnshared(parsed);
+            out.writeUnshared(lexerErrors);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -277,9 +285,10 @@ public class Runner {
      * @param exc The exception to send.
      */
     private void sendException(ExtractorException exc) {
+        System.out.println("sendException()");
         try {
-            out.writeObject(exc);
-            out.writeObject(lexerErrors);
+            out.writeUnshared(exc);
+            out.writeUnshared(lexerErrors);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -289,6 +298,7 @@ public class Runner {
      * Close the sockets.
      */
     private void close() {
+        System.out.println("close()");
         try {
             socket.close();
         } catch (IOException e) {
