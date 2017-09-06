@@ -2,9 +2,12 @@ package net.ssehub.kernel_haven.typechef;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 import org.junit.After;
@@ -95,7 +98,20 @@ public class TypeChefExtractorTest {
             TypeChefExtractor extractor = new TypeChefExtractor();
             extractor.init(testConfig.getCodeConfiguration());
             SourceFile result = extractor.runOnFile(sourceFile);
-            System.out.println(result.iterator().next().toString());
+            
+            String actual = result.iterator().next().toString();
+            actual.replaceAll("", "");
+            String expected = "";
+            try {
+                InputStream in = new FileInputStream("testdata/src1/ast.txt");
+                expected = Util.readStream(in);
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                fail("Can't load file with expected ASt");
+            }
+            
+            assertThat(actual, is(expected));
             
         } catch (ExtractorException e) {
             Logger.get().logException("Exception passed to unit test", e);
