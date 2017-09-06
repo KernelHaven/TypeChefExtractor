@@ -323,8 +323,13 @@ public class Wrapper {
     public SourceFile runOnFile(File file) throws IOException, ExtractorException {
         SourceFile result = new SourceFile(file);
         
+        long start = System.currentTimeMillis();
+        
         TypeChefBlock block = runTypeChef(file);
         result.addBlock(block);
+        
+        long duration = System.currentTimeMillis() - start;
+        LOGGER.logDebug("TypeChef took " + (duration / 1000) + "s for " + file.getPath());
         
         return result;
     }
