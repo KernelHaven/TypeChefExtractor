@@ -6,6 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/KernelHaven"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CnfUtils"/>
-	<classpathentry kind="lib" path="lib/include/TypeChef-0.4.1.jar"/>
+	<classpathentry kind="lib" path="lib/include/TypeChef-0.4.1.jar" sourcepath="lib/typechef+xtx_src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
