@@ -73,15 +73,12 @@ public class TypeChefExtractorTest {
      * @throws IOException Unwanted.
      */
     @Test
-    @Ignore
     public void temp() throws SetUpException, ExtractorException, IOException {
         try {
-//            File sourceFile = new File("kernel/kexec.c");
             File sourceFile = new File("test.c");
             
             Properties props = new Properties();
-            props.setProperty("source_tree", "testdata/src2");
-//            props.setProperty("source_tree", "E:\\tmp\\typechef_windows\\linux-4.4");
+            props.setProperty("source_tree", "testdata/src1");
             props.setProperty("resource_dir", RES_DIR.getPath());
             props.setProperty("code.extractor.skip_default_include_dirs", "true");
             props.setProperty("code.extractor.parse_to_ast", "true");
@@ -98,12 +95,8 @@ public class TypeChefExtractorTest {
             TypeChefExtractor extractor = new TypeChefExtractor();
             extractor.init(testConfig.getCodeConfiguration());
             SourceFile result = extractor.runOnFile(sourceFile);
-//            System.out.println(result.iterator().next().toString());
-            
-//            Wrapper wrapper = new Wrapper(new Configuration(testConfig.getCodeConfiguration()));
-//            
-//            SourceFile result = wrapper.runOnFile(sourceFile);
             System.out.println(result.iterator().next().toString());
+            
         } catch (ExtractorException e) {
             Logger.get().logException("Exception passed to unit test", e);
             throw e;
@@ -149,14 +142,6 @@ public class TypeChefExtractorTest {
         
         SourceFile result = wrapper.runOnFile(sourceFile);
         System.out.println(result.iterator().next().toString());
-    }
-    
-    /**
-     * Temporary dummy test to make jenkins happy.
-     * TODO
-     */
-    @Test
-    public void dummy() {
     }
     
 }
