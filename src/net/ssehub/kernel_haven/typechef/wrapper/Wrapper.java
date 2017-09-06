@@ -156,6 +156,10 @@ public class Wrapper {
                 out.writeBoolean(config.isParseToAst());
                 out.writeUnshared(params);
                 
+                // single byte to tell us that the runner now starts sending the result
+                in.readByte();
+                LOGGER.logDebug("Runner starts sending data...");
+                
                 Runtime rt = Runtime.getRuntime();
                 long usedMemoryBefore = rt.totalMemory() - rt.freeMemory();
                 
@@ -215,6 +219,7 @@ public class Wrapper {
             
         } else {
             ProcessBuilder builder = new ProcessBuilder("java",
+                    "-DKH_Parent=" + Thread.currentThread().getName(),
                     "-Xmx" + config.getProcessRam(),
                     "-cp", getClassPath(),
                     Runner.class.getName(),
@@ -229,6 +234,8 @@ public class Wrapper {
                 builder.redirectOutput(Redirect.PIPE);
             }
             
+            long start = System.currentTimeMillis();
+            
             Process process = builder.start();
             
             if (!config.inheritOutput()) {
@@ -240,6 +247,10 @@ public class Wrapper {
             } catch (InterruptedException e) {
                 LOGGER.logException("Exception while waiting", e);
             }
+            
+
+            long duration = System.currentTimeMillis() - start;
+            LOGGER.logDebug("TypeChef runner took " + (duration / 1000) + "s");
         }
     }
     
@@ -323,13 +334,8 @@ public class Wrapper {
     public SourceFile runOnFile(File file) throws IOException, ExtractorException {
         SourceFile result = new SourceFile(file);
         
-        long start = System.currentTimeMillis();
-        
         TypeChefBlock block = runTypeChef(file);
         result.addBlock(block);
-        
-        long duration = System.currentTimeMillis() - start;
-        LOGGER.logDebug("TypeChef took " + (duration / 1000) + "s for " + file.getPath());
         
         return result;
     }

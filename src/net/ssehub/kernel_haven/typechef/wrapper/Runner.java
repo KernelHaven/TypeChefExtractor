@@ -271,6 +271,7 @@ public class Runner {
     private void sendResult(TypeChefBlock parsed) {
         System.out.println("sendResult()");
         try {
+            out.writeByte(1);
             out.writeUnshared(parsed);
             out.writeUnshared(lexerErrors);
         } catch (IOException e) {
@@ -287,6 +288,7 @@ public class Runner {
     private void sendException(ExtractorException exc) {
         System.out.println("sendException()");
         try {
+            out.writeByte(2);
             out.writeUnshared(exc);
             out.writeUnshared(lexerErrors);
         } catch (IOException e) {
