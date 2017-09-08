@@ -90,6 +90,8 @@ public class Wrapper {
         
         private ServerSocket serSock;
         
+        private Socket socket;
+        
         private Configuration config;
         
         private List<String> params;
@@ -156,6 +158,24 @@ public class Wrapper {
         }
         
         /**
+         * Closes all sockets that are open.
+         */
+        public void close() {
+            if (serSock != null) {
+                try {
+                    serSock.close();
+                } catch (IOException e) {
+                }
+            }
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        
+        /**
          * Reads the CSV that the sub-process sends us.
          * 
          * @param in The stream to read from;
@@ -218,7 +238,7 @@ public class Wrapper {
         @SuppressWarnings("unchecked")
         public void run() {
             try {
-                Socket socket = serSock.accept();
+                socket = serSock.accept();
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                 
@@ -287,14 +307,18 @@ public class Wrapper {
      * Runs the Typechef process. This method blocks until the process exited.
      * 
      * @param port The port to pass to the process for communication.
+     * @return Whether the execution was successful, or not.
      * 
      * @throws IOException If running the process fails.
      */
-    private void runTypeChefProcess(int port) throws IOException {
+    private boolean runTypeChefProcess(int port) throws IOException {
+        boolean success = false;
+        
         if (config.callInSameVm()) {
             LOGGER.logWarning("Starting TypeChef in same JVM");
             try {
                 Runner.main(new String[] {String.valueOf(port)});
+                success = true;
             } catch (IOException e) {
                 LOGGER.logException("Exception in TypeChefRunner", e);
             }
@@ -325,16 +349,20 @@ public class Wrapper {
                 new OutputVoider(process.getInputStream()).start();
             }
             
+            int returnValue = -1;
             try {
-                process.waitFor();
+                returnValue = process.waitFor();
             } catch (InterruptedException e) {
                 LOGGER.logException("Exception while waiting", e);
             }
-            
 
             long duration = System.currentTimeMillis() - start;
             LOGGER.logDebug("TypeChef runner took " + (duration / 1000) + "s");
+            
+            success = returnValue == 0;
         }
+        
+        return success;
     }
     
     /**
@@ -359,14 +387,15 @@ public class Wrapper {
         CommThread comm = new CommThread(serSock, config, params);
         comm.start();
         
-        runTypeChefProcess(serSock.getLocalPort());
-        
-        // if the process finished, then close sersocket
-        // otherwise, if the process failed before the connection was established, we wait here forever
-        try {
-            serSock.close();
-        } catch (IOException e) {
+        boolean success = runTypeChefProcess(serSock.getLocalPort());
+        if (!success) {
+            LOGGER.logWarning("TypeChef runner process returned non-zero exit status",
+                    "It will probably not have sent correct data to us");
         }
+        
+        // if the process finished, then close all sockets
+        // otherwise, if the process failed before the connection was established, we wait here forever
+        comm.close();
         
         try {
             comm.join();
