@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.VALexer;
@@ -27,6 +29,7 @@ import de.fosd.typechef.parser.c.CParser;
 import de.fosd.typechef.parser.c.CTypeContext;
 import de.fosd.typechef.parser.c.ParserMain;
 import de.fosd.typechef.parser.c.TranslationUnit;
+import net.ssehub.kernel_haven.code_model.Block;
 import net.ssehub.kernel_haven.typechef.ast.AstConverter;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
@@ -58,6 +61,8 @@ public class Runner {
     
     private List<String> lexerErrors;
     
+    private Map<String, Long> times;
+    
     /**
      * Creates a new runner.
      * 
@@ -71,6 +76,7 @@ public class Runner {
         socket = new Socket("localhost", port);
         out = new ObjectOutputStream(socket.getOutputStream());
         in = new ObjectInputStream(socket.getInputStream());
+        times = new HashMap<>();
     }
     
     /**
@@ -145,6 +151,8 @@ public class Runner {
     private List<LexerToken> runLexer() throws ExtractorException {
         System.out.println("runLexer()");
         
+        long t0 = System.currentTimeMillis();
+        
         LexerFrontend lexer = new LexerFrontend();
         Conditional<LexerResult> result;
         try {
@@ -158,6 +166,9 @@ public class Runner {
         } catch (LexerException | IOException e) {
             throw new ExtractorException(e);
         }
+        
+        times.put("typechef_lexer", System.currentTimeMillis() - t0);
+        t0 = System.currentTimeMillis();
         
         scala.collection.immutable.List<Tuple2<FeatureExpr, LexerResult>> list = result.toList();
         
@@ -181,6 +192,9 @@ public class Runner {
         if (lexerTokens == null) {
             throw new ExtractorException("Lexer did not return a result, see \"Lexer errors\" in info log for details");
         }
+        
+
+        times.put("token_conversion", System.currentTimeMillis() - t0);
         
         return lexerTokens;
     }
@@ -207,15 +221,24 @@ public class Runner {
 //        MultiParseResult<TranslationUnit> result2 = p.phrase(p.translationUnit())
 //                .apply(tokenReader2, FeatureExprFactory.True());
         
+        long t0 = System.currentTimeMillis();
+        
         ParserMain parser = new ParserMain(new CParser(null, false));
         TranslationUnit unit = parser.parserMain(tokenReader, config, null);
+        
+
+        times.put("typechef_parser", System.currentTimeMillis() - t0);
         
         TypeChefBlock parsed = null;
         
         if (unit != null) {
+            t0 = System.currentTimeMillis();
+            
             System.out.println("Converting AST...");
             AstConverter converter = new AstConverter();
             parsed = converter.convertToFile(unit);
+            
+            times.put("ast_converter", System.currentTimeMillis() - t0);
             
         } else {
             throw new ExtractorException("Parser did not return an AST");
@@ -236,7 +259,9 @@ public class Runner {
     private TypeChefBlock parseToFlatPcs(List<LexerToken> lexerTokens) throws ExtractorException {
         System.out.println("parseToFlatPcs()");
         
-        TypeChefBlock parsed = new TypeChefBlock(null, new True(), "File", "");
+        long t0 = System.currentTimeMillis();
+        
+        TypeChefBlock parsed = new TypeChefBlock(null, True.INSTANCE, "File", "");
         String previous = "";
         
         VariableCache varCache = new VariableCache();
@@ -260,6 +285,8 @@ public class Runner {
             
         }
         
+        times.put("flat_pc_parsing", System.currentTimeMillis() - t0);
+        
         return parsed;
     }
     
@@ -272,10 +299,37 @@ public class Runner {
         System.out.println("sendResult()");
         try {
             out.writeByte(1);
-            out.writeUnshared(parsed);
+            
+            long t0 = System.currentTimeMillis();
+            
+            //out.writeUnshared(parsed);
+            sendSingleBlock(parsed, 0);
+            
+            out.writeUnshared(new Byte((byte) 0));
+            
             out.writeUnshared(lexerErrors);
+            
+            times.put("result_sending", System.currentTimeMillis() - t0);
+            out.writeUnshared(times);
+            
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Recursively sends this block and its children.
+     * 
+     * @param block The block to send.
+     * @param nesting The nesting level of this block.
+     * @throws IOException If writing the block or its children throws an IOException.
+     */
+    private void sendSingleBlock(TypeChefBlock block, int nesting) throws IOException {
+        out.writeUnshared(nesting);
+        out.writeUnshared(block.serializeCsv().toArray(new String[0]));
+        
+        for (Block child : block) {
+            sendSingleBlock((TypeChefBlock) child, nesting + 1);
         }
     }
     
@@ -289,8 +343,15 @@ public class Runner {
         System.out.println("sendException()");
         try {
             out.writeByte(2);
+            
+            long t0 = System.currentTimeMillis();
+            
             out.writeUnshared(exc);
             out.writeUnshared(lexerErrors);
+            
+            times.put("exception_sending", System.currentTimeMillis() - t0);
+            out.writeUnshared(times);
+            
         } catch (IOException e) {
             e.printStackTrace();
         }

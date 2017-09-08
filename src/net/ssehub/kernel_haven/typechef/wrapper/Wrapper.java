@@ -12,12 +12,19 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.typechef.util.OutputVoider;
 import net.ssehub.kernel_haven.util.ExtractorException;
+import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.logic.Formula;
+import net.ssehub.kernel_haven.util.logic.parser.CStyleBooleanGrammar;
+import net.ssehub.kernel_haven.util.logic.parser.Parser;
+import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
 
 /**
  * A wrapper that provides a clean interface around the execution of Typechef in another process.
@@ -144,6 +151,46 @@ public class Wrapper {
             return extractorException;
         }
         
+        /**
+         * Reads the CSV that the sub-process sends us.
+         * 
+         * @param in The stream to read from;
+         * @return The root node.
+         * @throws IOException If reading the stream fails.
+         */
+        private TypeChefBlock readCsvListResult(ObjectInputStream in) throws IOException {
+            VariableCache cache = new VariableCache();
+            Parser<Formula> parser = new Parser<>(new CStyleBooleanGrammar(cache));
+            
+            try {
+                TypeChefBlock root = TypeChefBlock.createFromCsv((String[]) in.readUnshared(), parser);
+                Stack<TypeChefBlock> nesting = new Stack<>();
+                nesting.push(root);
+                
+                Object read = in.readUnshared();
+                while (read instanceof Integer) {
+                    
+                    int level = (Integer) read;
+                    TypeChefBlock block = TypeChefBlock.createFromCsv((String[]) in.readUnshared(), parser);
+                    
+                    while (level < nesting.size()) {
+                        nesting.pop();
+                    }
+                    nesting.peek().addChild(block);
+                    
+                    nesting.push(block);
+                    
+                    read = in.readUnshared();
+                }
+
+                
+                return root;
+            } catch (ClassNotFoundException | FormatException e) {
+                throw new IOException("Recieved invalid data from TypeChef sub-process", e);
+            }
+            
+        }
+        
         @Override
         @SuppressWarnings("unchecked")
         public void run() {
@@ -165,16 +212,17 @@ public class Wrapper {
                 
                 Object result = in.readUnshared();
                 
-                long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
-                
-                LOGGER.logDebug("Memory usage before waiting for result: " + usedMemoryBefore,
-                        "Memory usage after we got result object: " + usedMemoryAfter);
-                
                 if (result instanceof ExtractorException) {
                     this.extractorException = (ExtractorException) result;
                     
                 } else if (result instanceof TypeChefBlock) {
                     this.result = (TypeChefBlock) result;
+                    
+                } else if (result instanceof Integer) {
+                    if ((Integer) result != 0) {
+                        LOGGER.logWarning("First block does not have nesting depth 0");
+                    }
+                    this.result = readCsvListResult(in);
                     
                 } else {
                     throw new IOException("Invalid result type: " + result.getClass().getName());
@@ -184,6 +232,14 @@ public class Wrapper {
                 if (lexerErrorList != null) {
                     lexerErrors.addAll((List<String>) lexerErrorList);
                 }
+                
+                Map<String, Long> times = (Map<String, Long>) in.readUnshared();
+                
+                long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
+                LOGGER.logDebug("Memory usage before we got the result: " + usedMemoryBefore,
+                        "Memory usage after we got the result: " + usedMemoryAfter);
+                
+                LOGGER.logDebug("Timing reported by runner (in ms):", times.toString());
                 
             } catch (EOFException e) {
                 commException = new IOException("TypeChefRunner exited without sending a result");
