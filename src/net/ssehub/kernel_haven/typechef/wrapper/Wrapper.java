@@ -84,6 +84,10 @@ public class Wrapper {
      */
     private static class CommThread extends Thread {
         
+        private static int numRecieving = 0;
+        
+        private static Object numReceivingLock = new Object();
+        
         private ServerSocket serSock;
         
         private Configuration config;
@@ -191,12 +195,30 @@ public class Wrapper {
             
         }
         
+        /**
+         * Checks whether we can receive data, without violating the receiving limit. If we can't receive now, wait
+         * until we can. Also increases numReceiving.
+         */
+        private void checkAndWaitReceivingLimit() {
+            synchronized (numReceivingLock) {
+                while (config.getMaxReceivingThreads() > 0 && numRecieving >= config.getMaxReceivingThreads()) {
+                    // other threads notify numReceivingLock, if they decrement numReceiving
+                    LOGGER.logDebug(numRecieving + " threads are currently recieving data; waiting until this is"
+                            + " lower than " + config.getMaxReceivingThreads());
+                    try {
+                        numReceivingLock.wait();
+                    } catch (InterruptedException e) {
+                    }
+                }
+                numRecieving++;
+            }
+        }
+        
         @Override
         @SuppressWarnings("unchecked")
         public void run() {
             try {
                 Socket socket = serSock.accept();
-                
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                 
@@ -207,6 +229,8 @@ public class Wrapper {
                 in.readByte();
                 LOGGER.logDebug("Runner starts sending data...");
                 
+                checkAndWaitReceivingLimit();
+                
                 Runtime rt = Runtime.getRuntime();
                 long usedMemoryBefore = rt.totalMemory() - rt.freeMemory();
                 
@@ -214,9 +238,6 @@ public class Wrapper {
                 
                 if (result instanceof ExtractorException) {
                     this.extractorException = (ExtractorException) result;
-                    
-                } else if (result instanceof TypeChefBlock) {
-                    this.result = (TypeChefBlock) result;
                     
                 } else if (result instanceof Integer) {
                     if ((Integer) result != 0) {
@@ -231,6 +252,11 @@ public class Wrapper {
                 Object lexerErrorList = in.readUnshared();
                 if (lexerErrorList != null) {
                     lexerErrors.addAll((List<String>) lexerErrorList);
+                }
+                
+                synchronized (numReceivingLock) {
+                    numRecieving--;
+                    numReceivingLock.notify();
                 }
                 
                 Map<String, Long> times = (Map<String, Long>) in.readUnshared();
@@ -276,6 +302,7 @@ public class Wrapper {
         } else {
             ProcessBuilder builder = new ProcessBuilder("java",
                     "-DKH_Parent=" + Thread.currentThread().getName(),
+                    "-Xms" + config.getProcessRam(),
                     "-Xmx" + config.getProcessRam(),
                     "-cp", getClassPath(),
                     Runner.class.getName(),

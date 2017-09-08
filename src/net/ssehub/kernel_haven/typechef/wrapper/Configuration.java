@@ -56,6 +56,8 @@ public class Configuration {
     
     private boolean inheritOutput;
     
+    private int maxReceivingThreads;
+    
     /**
      * Creates a Typechef configuration from the given {@link CodeExtractorConfiguration}.
      * It uses the following keys:
@@ -86,6 +88,7 @@ public class Configuration {
      *          <li>code.extractor.kbuildparam_file</li>
      *          <li>code.extractor.platform_header</li>
      *          <li>code.extractor.open_variables</li>
+     *          <li>code.extractor.max_receiving_threads</li>
      *      </ul>
      *  </li>
      *  <li>
@@ -125,7 +128,8 @@ public class Configuration {
         this.resDir = config.getExtractorResourceDir(TypeChefExtractor.class);
         this.sourceDir = config.getSourceTree();
         this.parseToAst = Boolean.parseBoolean(config.getProperty("code.extractor.parse_to_ast", "false"));
-        this.processRam = config.getProperty("code.extractor.process_ram", "20g");
+        
+        loadPerformanceSettings(config);
         
         String platformHeader = config.getProperty("code.extractor.platform_header");
         if (platformHeader != null) {
@@ -190,6 +194,25 @@ public class Configuration {
         loadDebugFromConfig(config);
     }
     
+    /**
+     * Loads performance related settings from the configuration.
+     * 
+     * @param config The configurations to load from.
+     * @throws SetUpException If the settings are invalid.
+     */
+    private void loadPerformanceSettings(CodeExtractorConfiguration config) throws SetUpException {
+
+        this.processRam = config.getProperty("code.extractor.process_ram", "15g");
+        
+        if (config.getProperty("code.extractor.max_receiving_threads") != null) {
+            try {
+                this.maxReceivingThreads = Integer.parseInt(config.getProperty("code.extractor.max_receiving_threads"));
+            } catch (NumberFormatException e) {
+                throw new SetUpException("code.extractor.max_receiving_threads is not a valid integer", e);
+            }
+        }
+    }
+
     /**
      * Adds the default include directories usually needed for Linux.
      * 
@@ -484,6 +507,15 @@ public class Configuration {
      */
     public boolean inheritOutput() {
         return inheritOutput;
+    }
+    
+    /**
+     * How many TypeChef processes can send their data at once to us.
+     * 
+     * @return The number of threads that concurrently can receive data from processes;  <= 0 means no limit.
+     */
+    public int getMaxReceivingThreads() {
+        return maxReceivingThreads;
     }
     
 }
