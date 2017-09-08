@@ -121,10 +121,10 @@ public class TypeChefPresenceConditionGrammar extends CStyleBooleanGrammar {
     @Override
     public Formula makeIdentifierFormula(String identifier) throws ExpressionFormatException {
         if (identifier.equals("1")) {
-            return new True();
+            return True.INSTANCE;
         }
         if (identifier.equals("0")) {
-            return new False();
+            return False.INSTANCE;
         }
         
         if (!identifier.matches("defined(Ex)?\\([a-zA-Z0-9_]+\\)")) {

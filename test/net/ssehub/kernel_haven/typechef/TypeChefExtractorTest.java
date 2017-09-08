@@ -105,6 +105,7 @@ public class TypeChefExtractorTest {
             try {
                 InputStream in = new FileInputStream("testdata/src1/ast.txt");
                 expected = Util.readStream(in);
+                expected.replace("\r", "");
                 in.close();
             } catch (IOException e) {
                 e.printStackTrace();
