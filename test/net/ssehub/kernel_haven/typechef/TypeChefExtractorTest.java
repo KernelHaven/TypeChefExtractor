@@ -86,6 +86,7 @@ public class TypeChefExtractorTest {
             props.setProperty("code.extractor.skip_default_include_dirs", "true");
             props.setProperty("code.extractor.parse_to_ast", "true");
             
+            props.setProperty("code.extractor.process_ram", "200m");
             props.setProperty("code.extractor.ignore_other_models", "true");
             props.setProperty("code.extractor.debug.inherit_output", "false");
             

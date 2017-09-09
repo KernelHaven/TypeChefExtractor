@@ -167,12 +167,6 @@ public class Wrapper {
                 } catch (IOException e) {
                 }
             }
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                }
-            }
         }
         
         /**
@@ -237,6 +231,7 @@ public class Wrapper {
         @Override
         @SuppressWarnings("unchecked")
         public void run() {
+            boolean numReceivingIncreased = false;
             try {
                 socket = serSock.accept();
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
@@ -250,6 +245,7 @@ public class Wrapper {
                 LOGGER.logDebug("Runner starts sending data...");
                 
                 checkAndWaitReceivingLimit();
+                numReceivingIncreased = true;
                 
                 Runtime rt = Runtime.getRuntime();
                 long usedMemoryBefore = rt.totalMemory() - rt.freeMemory();
@@ -274,11 +270,6 @@ public class Wrapper {
                     lexerErrors.addAll((List<String>) lexerErrorList);
                 }
                 
-                synchronized (numReceivingLock) {
-                    numRecieving--;
-                    numReceivingLock.notify();
-                }
-                
                 Map<String, Long> times = (Map<String, Long>) in.readUnshared();
                 
                 long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
@@ -297,6 +288,12 @@ public class Wrapper {
                 try {
                     serSock.close();
                 } catch (IOException e) {
+                }
+                if (numReceivingIncreased) {
+                    synchronized (numReceivingLock) {
+                        numRecieving--;
+                        numReceivingLock.notify();
+                    }
                 }
             }
         }
@@ -393,7 +390,7 @@ public class Wrapper {
                     "It will probably not have sent correct data to us");
         }
         
-        // if the process finished, then close all sockets
+        // if the process finished, then close the server socket
         // otherwise, if the process failed before the connection was established, we wait here forever
         comm.close();
         
