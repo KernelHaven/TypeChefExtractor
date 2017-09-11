@@ -48,17 +48,6 @@ public class TypeChefBlock extends Block implements Serializable {
         }
         
         /**
-         * Creates a position from the scala object.
-         * 
-         * @param position The scala object to get the position from.
-         */
-        private Position(de.fosd.typechef.error.Position position) {
-            String file = position.getFile();
-            this.file = new File(file != null ? file : "<unkown>");
-            this.line = position.getLine();
-        }
-        
-        /**
          * The source file.
          * 
          * @return The source file.
@@ -108,7 +97,10 @@ public class TypeChefBlock extends Block implements Serializable {
     
     private String relation;
     
-    private Position pos;
+    private String file;
+    
+    private int line;
+    
     
     /**
      * Creates a new TypechefBlock. This automatically adds itself to the children list of the parent block. Do not use
@@ -130,6 +122,8 @@ public class TypeChefBlock extends Block implements Serializable {
             this.presencCondition = this.condition;
         }
         this.childreen = new LinkedList<>();
+        
+        this.line = -1;
     }
     
     /**
@@ -144,24 +138,13 @@ public class TypeChefBlock extends Block implements Serializable {
      */
     TypeChefBlock(TypeChefBlock parent, Formula condition, ISyntaxElement type, String relation,
             WithPosition position) {
-        this(parent, condition, type, relation, new Position(position.getPositionFrom()));
+        this(parent, condition, type, relation);
+        
+        this.file = position.getPositionFrom().getFile();
+        this.line = position.getPositionFrom().getLine();
+        
     }
     
-    /**
-     * Creates a new TypechefBlock. This automatically adds itself to the children list of the parent block. Do not use
-     * {@link #addChild(Block)} for this!
-     * 
-     * @param parent The parent of this new block. May be null.
-     * @param condition The condition of this block. Must not be null.
-     * @param type The text type of this block. Must not be null.
-     * @param relation The relation of this block to its parent. Must not be null.
-     * @param pos The position. May be null.
-     */
-    public TypeChefBlock(TypeChefBlock parent, Formula condition, ISyntaxElement type, String relation, Position pos) {
-        this(parent, condition, type, relation);
-        this.pos = pos;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public Iterator<Block> iterator() {
@@ -175,12 +158,12 @@ public class TypeChefBlock extends Block implements Serializable {
 
     @Override
     public int getLineStart() {
-        return pos != null ? pos.getLine() : -1;
+        return line;
     }
 
     @Override
     public int getLineEnd() {
-        return pos != null ? pos.getLine() : -1;
+        return line;
     }
 
     @Override
@@ -215,9 +198,9 @@ public class TypeChefBlock extends Block implements Serializable {
         result.add(relation);
         result.add(condition.toString());
         
-        if (pos != null) {
-            result.add(pos.getFile().toString());
-            result.add(pos.getLine() + "");
+        if (file != null) {
+            result.add(file);
+            result.add(line + "");
         } else {
             result.add("null");
             result.add("null");
@@ -262,23 +245,41 @@ public class TypeChefBlock extends Block implements Serializable {
     public TypeChefBlock getParent() {
         return parent;
     }
-    
+
     /**
-     * Returns the position of this block.
+     * Returns the file that this block was found in.
      * 
-     * @return The position of this block. May be null.
+     * @return The file of this block; may be <code>null</code>.
      */
-    public Position getPosition() {
-        return pos;
+    public String getFile() {
+        return file;
     }
     
     /**
-     * Changes the position of this block.
+     * The line that this block was found in the file.
      * 
-     * @param pos The new position of this block.
+     * @return The line; -1 if not specified.
      */
-    public void setPosition(Position pos) {
-        this.pos = pos;
+    public int getLine() {
+        return line;
+    }
+    
+    /**
+     * Sets the file of this block.
+     * 
+     * @param file The file of this block.
+     */
+    public void setFile(String file) {
+        this.file = file;
+    }
+    
+    /**
+     * Sets the line of this block.
+     * 
+     * @param line The line of this block.
+     */
+    public void setLine(int line) {
+        this.line = line;
     }
     
     /**
@@ -342,18 +343,18 @@ public class TypeChefBlock extends Block implements Serializable {
             throw new FormatException(e);
         }
         
-        Position pos = null;
+        TypeChefBlock result = new TypeChefBlock(null, condition, type, relation);
         
         if (!csv[3].equals("null") && !csv[4].equals("null")) {
             try {
-                pos = new Position(new File(csv[3]), Integer.parseInt(csv[4]));
+                result.file = csv[3];
+                result.line = Integer.parseInt(csv[4]);
             } catch (NumberFormatException e) {
                 throw new FormatException(e);
             }
         }
         
-        
-        return new TypeChefBlock(null, condition, type, relation, pos);
+        return result;
     }
     
     @Override
@@ -379,8 +380,9 @@ public class TypeChefBlock extends Block implements Serializable {
         
         result.append(indentation).append(relation).append(" [").append(conditionStr).append("] ");
         
-        if (pos != null) {
-            result.append('[').append(pos.getFile().getName()).append(':').append(pos.getLine()).append("] ");
+        if (file != null) {
+            String filename = new File(file).getName();
+            result.append('[').append(filename).append(':').append(line).append("] ");
         }
         
         result.append(type.toString()).append('\n');

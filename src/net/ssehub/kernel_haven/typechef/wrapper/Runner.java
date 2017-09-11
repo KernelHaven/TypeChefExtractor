@@ -1,6 +1,5 @@
 package net.ssehub.kernel_haven.typechef.wrapper;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -277,8 +276,11 @@ public class Runner {
                 previous = expr;
                 try {
                     Formula pc = parser.parse(expr);
-                    new TypeChefBlock(parsed, pc, new LiteralSyntaxElement("PresenceCondition"), "",
-                            new TypeChefBlock.Position(new File(token.getSourceName()), token.getLine()));
+                    TypeChefBlock block = new TypeChefBlock(parsed, pc,
+                            new LiteralSyntaxElement("PresenceCondition"), "");
+                    block.setFile(token.getSourceName());
+                    block.setLine(token.getLine());
+                    
                 } catch (ExpressionFormatException e) {
                     throw new ExtractorException(e);
                 }
