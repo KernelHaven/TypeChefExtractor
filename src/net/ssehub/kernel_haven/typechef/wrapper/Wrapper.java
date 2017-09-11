@@ -224,6 +224,7 @@ public class Wrapper {
                     } catch (InterruptedException e) {
                     }
                 }
+                LOGGER.logDebug("Start receiving data");
                 numRecieving++;
             }
         }
