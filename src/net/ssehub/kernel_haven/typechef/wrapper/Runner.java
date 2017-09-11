@@ -31,6 +31,8 @@ import de.fosd.typechef.parser.c.ParserMain;
 import de.fosd.typechef.parser.c.TranslationUnit;
 import net.ssehub.kernel_haven.code_model.Block;
 import net.ssehub.kernel_haven.typechef.ast.AstConverter;
+import net.ssehub.kernel_haven.typechef.ast.LiteralSyntaxElement;
+import net.ssehub.kernel_haven.typechef.ast.SyntaxElements;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
 import net.ssehub.kernel_haven.util.ExtractorException;
@@ -261,7 +263,7 @@ public class Runner {
         
         long t0 = System.currentTimeMillis();
         
-        TypeChefBlock parsed = new TypeChefBlock(null, True.INSTANCE, "File", "");
+        TypeChefBlock parsed = new TypeChefBlock(null, True.INSTANCE, SyntaxElements.TRANSLATION_UNIT, "");
         String previous = "";
         
         VariableCache varCache = new VariableCache();
@@ -275,7 +277,7 @@ public class Runner {
                 previous = expr;
                 try {
                     Formula pc = parser.parse(expr);
-                    new TypeChefBlock(parsed, pc, "PresenceCondition", "",
+                    new TypeChefBlock(parsed, pc, new LiteralSyntaxElement("PresenceCondition"), "",
                             new TypeChefBlock.Position(new File(token.getSourceName()), token.getLine()));
                 } catch (ExpressionFormatException e) {
                     throw new ExtractorException(e);

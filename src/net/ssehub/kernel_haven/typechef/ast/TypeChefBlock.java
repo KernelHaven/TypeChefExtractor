@@ -104,7 +104,7 @@ public class TypeChefBlock extends Block implements Serializable {
     
     private Formula presencCondition;
     
-    private String text;
+    private ISyntaxElement type;
     
     private String relation;
     
@@ -116,12 +116,12 @@ public class TypeChefBlock extends Block implements Serializable {
      * 
      * @param parent The parent of this new block. May be null.
      * @param condition The condition of this block. Must not be null.
-     * @param text The text description of this block. Must not be null.
+     * @param type The text type of this block. Must not be null.
      * @param relation The relation of this block to its parent. Must not be null.
      */
-    public TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation) {
+    public TypeChefBlock(TypeChefBlock parent, Formula condition, ISyntaxElement type, String relation) {
         this.condition = condition;
-        this.text = text;
+        this.type = type;
         this.relation = relation;
 
         if (parent != null) {
@@ -138,12 +138,13 @@ public class TypeChefBlock extends Block implements Serializable {
      * 
      * @param parent The parent of this new block. May be null.
      * @param condition The condition of this block. Must not be null.
-     * @param text The text description of this block. Must not be null.
+     * @param type The text type of this block. Must not be null.
      * @param relation The relation of this block to its parent. Must not be null.
      * @param position The position of this element in the source code. Must not be null.
      */
-    TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation, WithPosition position) {
-        this(parent, condition, text, relation, new Position(position.getPositionFrom()));
+    TypeChefBlock(TypeChefBlock parent, Formula condition, ISyntaxElement type, String relation,
+            WithPosition position) {
+        this(parent, condition, type, relation, new Position(position.getPositionFrom()));
     }
     
     /**
@@ -152,12 +153,12 @@ public class TypeChefBlock extends Block implements Serializable {
      * 
      * @param parent The parent of this new block. May be null.
      * @param condition The condition of this block. Must not be null.
-     * @param text The text description of this block. Must not be null.
+     * @param type The text type of this block. Must not be null.
      * @param relation The relation of this block to its parent. Must not be null.
      * @param pos The position. May be null.
      */
-    public TypeChefBlock(TypeChefBlock parent, Formula condition, String text, String relation, Position pos) {
-        this(parent, condition, text, relation);
+    public TypeChefBlock(TypeChefBlock parent, Formula condition, ISyntaxElement type, String relation, Position pos) {
+        this(parent, condition, type, relation);
         this.pos = pos;
     }
 
@@ -196,10 +197,21 @@ public class TypeChefBlock extends Block implements Serializable {
     public List<String> serializeCsv() {
         List<String> result = new ArrayList<>(3);
         
-        // TODO: remove escaping once the cache properly handles it
-        String escapedText = text.replace("\\", "\\\\").replace(";", "\\,");
+        String text;
+        if (type instanceof LiteralSyntaxElement) {
+            // TODO: remove escaping once the cache properly handles it
+            text = "Literal: " + ((LiteralSyntaxElement) type).getContent().replace("\\", "\\\\").replace(";", "\\,");
+        } else if (type instanceof ErrorSyntaxElement) {
+            // TODO: remove escaping once the cache properly handles it
+            text = "Error: " + ((ErrorSyntaxElement) type).getMessage().replace("\\", "\\\\").replace(";", "\\,");
+        } else if (type instanceof SyntaxElements) {
+            text = type.toString();
+        } else {
+            // TODO: error handling
+            text = "Error: Unkown type found in AST";
+        }
         
-        result.add(escapedText);
+        result.add(text);
         result.add(relation);
         result.add(condition.toString());
         
@@ -225,12 +237,12 @@ public class TypeChefBlock extends Block implements Serializable {
     }
     
     /**
-     * Returns the text description of this block.
+     * Returns the type of this block.
      * 
-     * @return The text description. Never null.
+     * @return The type. Never null.
      */
-    public String getText() {
-        return text;
+    public ISyntaxElement getType() {
+        return type;
     }
     
     /**
@@ -302,8 +314,25 @@ public class TypeChefBlock extends Block implements Serializable {
                     + csv.length + ": " + Arrays.toString(csv));
         }
         
-        // TODO: remove escaping once the cache properly handles it
-        String text = csv[0].replaceAll("[^\\\\]\\\\,", ";").replace("\\\\", "\\");
+        ISyntaxElement type;
+        String text = csv[0];
+        if (text.startsWith("Literal: ")) {
+            text = text.substring("Literal: ".length());
+            // TODO: remove escaping once the cache properly handles it
+            text = text.replaceAll("[^\\\\]\\\\,", ";").replace("\\\\", "\\");
+            type = new LiteralSyntaxElement(text);
+        } else if (text.startsWith("Error: ")) {
+            text = text.substring("Error: ".length());
+            // TODO: remove escaping once the cache properly handles it
+            text = text.replaceAll("[^\\\\]\\\\,", ";").replace("\\\\", "\\");
+            type = new ErrorSyntaxElement(text);
+        } else {
+            type = SyntaxElements.getByName(text);
+            if (type == null) {
+                throw new FormatException("Unkown SyntaxElement type: " + text);
+            }
+        }
+        
         String relation = csv[1];
         
         Formula condition;
@@ -324,7 +353,7 @@ public class TypeChefBlock extends Block implements Serializable {
         }
         
         
-        return new TypeChefBlock(null, condition, text, relation, pos);
+        return new TypeChefBlock(null, condition, type, relation, pos);
     }
     
     @Override
@@ -354,7 +383,7 @@ public class TypeChefBlock extends Block implements Serializable {
             result.append('[').append(pos.getFile().getName()).append(':').append(pos.getLine()).append("] ");
         }
         
-        result.append(text).append('\n');
+        result.append(type.toString()).append('\n');
         
         indentation += '\t';
         

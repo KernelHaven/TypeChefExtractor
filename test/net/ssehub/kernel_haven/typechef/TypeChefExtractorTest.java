@@ -113,11 +113,34 @@ public class TypeChefExtractorTest {
                 fail("Can't load file with expected ASt");
             }
             
-            assertThat(actual, is(expected));
+            try {
+                assertThat(actual, is(expected));
+            } catch (AssertionError e) {
+                printDifference(actual, expected);
+                throw e;
+            }
             
         } catch (ExtractorException e) {
             Logger.get().logException("Exception passed to unit test", e);
             throw e;
+        }
+    }
+    
+    /**
+     * Prints a hint to the differences in the two given strings to console.
+     * 
+     * @param t1 The first string.
+     * @param t2 The second string.
+     */
+    private static void printDifference(String t1, String t2) {
+        for (int i = 0; i < Math.min(t1.length(), t2.length()); i++) {
+            if (t1.charAt(i) != t2.charAt(i)) {
+                System.out.println("Actual:");
+                System.out.println(t1.substring(Math.max(0, i - 50), Math.min(t1.length(), i + 50)));
+                System.out.println("Expected:");
+                System.out.println(t2.substring(Math.max(0, i - 50), Math.min(t2.length(), i + 50)));
+                break;
+            }
         }
     }
     
