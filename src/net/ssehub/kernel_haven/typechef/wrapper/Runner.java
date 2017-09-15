@@ -34,7 +34,7 @@ import net.ssehub.kernel_haven.typechef.ast.SyntaxElements;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
-import net.ssehub.kernel_haven.typechef.wrapper.comm.IResultSender;
+import net.ssehub.kernel_haven.typechef.wrapper.comm.IComm;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.True;
@@ -307,8 +307,8 @@ public class Runner {
             
             long t0 = System.currentTimeMillis();
             
-            IResultSender sender = CommFactory.createSender();
-            sender.sendResult(out, parsed);
+            IComm sender = CommFactory.createComm(in, out);
+            sender.sendResult(parsed);
             
             if (lexerErrors != null) {
                 out.writeUnshared(Message.LEXER_ERRORS);

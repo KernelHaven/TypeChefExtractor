@@ -15,10 +15,25 @@ import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
  * 
  * @author Adam
  */
-class CsvOverFileSending extends AbstractCsvSending implements IResultReceiver, IResultSender {
+class CsvOverFileSending extends AbstractCsvSending implements IComm {
 
+    private ObjectInputStream in;
+    
+    private ObjectOutputStream out;
+    
+    /**
+     * Creates this communcation strategy.
+     * 
+     * @param in The input stream to read data from the other side.
+     * @param out The output stream to write data to the other side.
+     */
+    public CsvOverFileSending(ObjectInputStream in, ObjectOutputStream out) {
+        this.in = in;
+        this.out = out;
+    }
+    
     @Override
-    public void sendResult(ObjectOutputStream out, TypeChefBlock result) throws IOException {
+    public void sendResult(TypeChefBlock result) throws IOException {
         File file = File.createTempFile("typechef_result", ".java_serialization");
         
         try (ObjectOutputStream fileOut = new ObjectOutputStream(new FileOutputStream(file))) {
@@ -29,7 +44,7 @@ class CsvOverFileSending extends AbstractCsvSending implements IResultReceiver, 
     }
 
     @Override
-    public TypeChefBlock receiveResult(ObjectInputStream in) throws IOException {
+    public TypeChefBlock receiveResult() throws IOException {
         try {
             File file = (File) in.readUnshared();
             

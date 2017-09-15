@@ -18,7 +18,7 @@ import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.typechef.util.OutputVoider;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
-import net.ssehub.kernel_haven.typechef.wrapper.comm.IResultReceiver;
+import net.ssehub.kernel_haven.typechef.wrapper.comm.IComm;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
@@ -210,8 +210,8 @@ public class Wrapper {
                         Runtime rt = Runtime.getRuntime();
                         long usedMemoryBefore = rt.totalMemory() - rt.freeMemory();
                         
-                        IResultReceiver receiver = CommFactory.createReceiver();
-                        this.result = receiver.receiveResult(in);
+                        IComm receiver = CommFactory.createComm(in, out);
+                        this.result = receiver.receiveResult();
                         
                         long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
                         LOGGER.logDebug("Memory usage before we got the result: " + Util.formatBytes(usedMemoryBefore),

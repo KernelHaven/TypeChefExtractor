@@ -11,15 +11,31 @@ import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
  * 
  * @author Adam
  */
-class JavaSerializationSending implements IResultReceiver, IResultSender {
+class JavaSerializationSending implements IComm {
 
+    private ObjectInputStream in;
+    
+    private ObjectOutputStream out;
+    
+    /**
+     * Creates this communcation strategy.
+     * 
+     * @param in The input stream to read data from the other side.
+     * @param out The output stream to write data to the other side.
+     */
+    public JavaSerializationSending(ObjectInputStream in, ObjectOutputStream out) {
+        this.in = in;
+        this.out = out;
+    }
+    
+    
     @Override
-    public void sendResult(ObjectOutputStream out, TypeChefBlock result) throws IOException {
+    public void sendResult(TypeChefBlock result) throws IOException {
         out.writeUnshared(result);
     }
 
     @Override
-    public TypeChefBlock receiveResult(ObjectInputStream in) throws IOException {
+    public TypeChefBlock receiveResult() throws IOException {
         try {
             return (TypeChefBlock) in.readUnshared();
         } catch (ClassNotFoundException e) {

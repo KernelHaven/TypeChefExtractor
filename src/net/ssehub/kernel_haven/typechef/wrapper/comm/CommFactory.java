@@ -1,32 +1,27 @@
 package net.ssehub.kernel_haven.typechef.wrapper.comm;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 /**
- * A factory for creating matching pairs of {@link IResultReceiver} and {@link IResultSender}.
+ * A factory for creating communication strategies ({@link IComm}).
  * 
  * @author Adam
  */
 public class CommFactory {
 
     /**
-     * Creates the receiver object.
+     * Creates the communication object.
      * 
-     * @return The receiver object.
-     */
-    public static IResultReceiver createReceiver() {
-        return new CsvOverFileSending();
-//        return new CsvOverTcpSending();
-//        return new JavaSerializationSending();
-    }
-    
-    /**
-     * Creates the sender object.
+     * @param in The input stream, to read data from the other side.
+     * @param out The output stream, to write data to the other side.
      * 
-     * @return The sencer object.
+     * @return The communication object.
      */
-    public static IResultSender createSender() {
-        return new CsvOverFileSending();
-//        return new CsvOverTcpSending();
-//        return new JavaSerializationSending();
+    public static IComm createComm(ObjectInputStream in, ObjectOutputStream out) {
+        return new CsvOverFileSending(in, out);
+//        return new CsvOverTcpSending(in, out);
+//        return new JavaSerializationSending(in, out);
     }
     
 }
