@@ -21,6 +21,7 @@ import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.IResultReceiver;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.Util;
 
 /**
  * A wrapper that provides a clean interface around the execution of Typechef in another process.
@@ -213,8 +214,8 @@ public class Wrapper {
                         this.result = receiver.receiveResult(in);
                         
                         long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
-                        LOGGER.logDebug("Memory usage before we got the result: " + usedMemoryBefore,
-                                "Memory usage after we got the result: " + usedMemoryAfter);
+                        LOGGER.logDebug("Memory usage before we got the result: " + Util.formatBytes(usedMemoryBefore),
+                                "Memory usage after we got the result: " + Util.formatBytes(usedMemoryAfter));
                         
                         break;
                     }
