@@ -238,7 +238,8 @@ public class Wrapper {
                 }
                 
             } catch (EOFException e) {
-                commException = new IOException("TypeChefRunner exited without sending a result");
+                commException = new IOException("TypeChefRunner exited abruptly;"
+                        + " the sub-process probably crashed");
             } catch (ClassNotFoundException | ClassCastException e) {
                 commException = new IOException(e);
             } catch (IOException e) {
@@ -381,6 +382,7 @@ public class Wrapper {
         TypeChefBlock result = comm.getResult();
         
         if (result == null) {
+            LOGGER.logDebug("Got neither exception nor result");
             throw new ExtractorException("Runner didn't return result or exception");
         }
         
