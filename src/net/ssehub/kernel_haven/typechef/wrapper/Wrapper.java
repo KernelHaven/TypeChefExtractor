@@ -369,10 +369,12 @@ public class Wrapper {
         }
         
         if (comm.getExtractorException() != null) {
+            LOGGER.logDebug("Got extractor exception");
             throw comm.getExtractorException();
         }
         
         if (comm.getCommException() != null) {
+            LOGGER.logDebug("Got comm exception");
             throw comm.getCommException();
         }
         
@@ -386,6 +388,8 @@ public class Wrapper {
         // don't get proper filenames for the top-block
         result.setFile(file.getPath());
         result.setLine(1);
+        
+        LOGGER.logDebug("Got result");
         
         return result;
     }
