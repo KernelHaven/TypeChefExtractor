@@ -35,12 +35,19 @@ class CsvOverFileSending extends AbstractCsvSending implements IComm {
     @Override
     public void sendResult(TypeChefBlock result) throws IOException {
         File file = File.createTempFile("typechef_result", ".java_serialization");
+        file.deleteOnExit();
         
         try (ObjectOutputStream fileOut = new ObjectOutputStream(new FileOutputStream(file))) {
             write(result, fileOut);
         }
         
         out.writeUnshared(file);
+        
+        try {
+            in.readUnshared(); // read a single object, that indicates that the other side finished with reading
+        } catch (ClassNotFoundException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
@@ -54,6 +61,7 @@ class CsvOverFileSending extends AbstractCsvSending implements IComm {
                 result = read(fileIn);
             }
             
+            out.writeUnshared(""); // indicate that we are done
             file.delete();
             return result;
             
