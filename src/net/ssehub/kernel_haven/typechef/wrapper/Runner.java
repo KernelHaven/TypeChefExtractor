@@ -28,12 +28,13 @@ import de.fosd.typechef.parser.c.CParser;
 import de.fosd.typechef.parser.c.CTypeContext;
 import de.fosd.typechef.parser.c.ParserMain;
 import de.fosd.typechef.parser.c.TranslationUnit;
-import net.ssehub.kernel_haven.code_model.Block;
 import net.ssehub.kernel_haven.typechef.ast.AstConverter;
 import net.ssehub.kernel_haven.typechef.ast.LiteralSyntaxElement;
 import net.ssehub.kernel_haven.typechef.ast.SyntaxElements;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
+import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
+import net.ssehub.kernel_haven.typechef.wrapper.comm.IResultSender;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.True;
@@ -302,38 +303,26 @@ public class Runner {
     private void sendResult(TypeChefBlock parsed) {
         System.out.println("sendResult()");
         try {
-            out.writeByte(1);
+            out.writeUnshared(Message.RESULT);
             
             long t0 = System.currentTimeMillis();
             
-            //out.writeUnshared(parsed);
-            sendSingleBlock(parsed, 0);
+            IResultSender sender = CommFactory.createSender();
+            sender.sendResult(out, parsed);
             
-            out.writeUnshared(new Byte((byte) 0));
-            
-            out.writeUnshared(lexerErrors);
+            if (lexerErrors != null) {
+                out.writeUnshared(Message.LEXER_ERRORS);
+                out.writeUnshared(lexerErrors);
+            }
             
             times.put("result_sending", System.currentTimeMillis() - t0);
+            
+            out.writeUnshared(Message.TIMINGS);
             out.writeUnshared(times);
+            out.writeUnshared(Message.END);
             
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-    
-    /**
-     * Recursively sends this block and its children.
-     * 
-     * @param block The block to send.
-     * @param nesting The nesting level of this block.
-     * @throws IOException If writing the block or its children throws an IOException.
-     */
-    private void sendSingleBlock(TypeChefBlock block, int nesting) throws IOException {
-        out.writeUnshared(nesting);
-        out.writeUnshared(block.serializeCsv().toArray(new String[0]));
-        
-        for (Block child : block) {
-            sendSingleBlock((TypeChefBlock) child, nesting + 1);
         }
     }
     
@@ -346,15 +335,21 @@ public class Runner {
     private void sendException(ExtractorException exc) {
         System.out.println("sendException()");
         try {
-            out.writeByte(2);
-            
             long t0 = System.currentTimeMillis();
             
+            out.writeUnshared(Message.EXCEPTION);
             out.writeUnshared(exc);
-            out.writeUnshared(lexerErrors);
+            
+            if (lexerErrors != null) {
+                out.writeUnshared(Message.LEXER_ERRORS);
+                out.writeUnshared(lexerErrors);
+            }
             
             times.put("exception_sending", System.currentTimeMillis() - t0);
+            out.writeUnshared(Message.TIMINGS);
             out.writeUnshared(times);
+            
+            out.writeUnshared(Message.END);
             
         } catch (IOException e) {
             e.printStackTrace();

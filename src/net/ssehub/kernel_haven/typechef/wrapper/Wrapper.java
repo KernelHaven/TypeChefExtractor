@@ -13,18 +13,14 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.typechef.util.OutputVoider;
+import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
+import net.ssehub.kernel_haven.typechef.wrapper.comm.IResultReceiver;
 import net.ssehub.kernel_haven.util.ExtractorException;
-import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.Logger;
-import net.ssehub.kernel_haven.util.logic.Formula;
-import net.ssehub.kernel_haven.util.logic.parser.CStyleBooleanGrammar;
-import net.ssehub.kernel_haven.util.logic.parser.Parser;
-import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
 
 /**
  * A wrapper that provides a clean interface around the execution of Typechef in another process.
@@ -170,46 +166,6 @@ public class Wrapper {
         }
         
         /**
-         * Reads the CSV that the sub-process sends us.
-         * 
-         * @param in The stream to read from;
-         * @return The root node.
-         * @throws IOException If reading the stream fails.
-         */
-        private TypeChefBlock readCsvListResult(ObjectInputStream in) throws IOException {
-            VariableCache cache = new VariableCache();
-            Parser<Formula> parser = new Parser<>(new CStyleBooleanGrammar(cache));
-            
-            try {
-                TypeChefBlock root = TypeChefBlock.createFromCsv((String[]) in.readUnshared(), parser);
-                Stack<TypeChefBlock> nesting = new Stack<>();
-                nesting.push(root);
-                
-                Object read = in.readUnshared();
-                while (read instanceof Integer) {
-                    
-                    int level = (Integer) read;
-                    TypeChefBlock block = TypeChefBlock.createFromCsv((String[]) in.readUnshared(), parser);
-                    
-                    while (level < nesting.size()) {
-                        nesting.pop();
-                    }
-                    nesting.peek().addChild(block);
-                    
-                    nesting.push(block);
-                    
-                    read = in.readUnshared();
-                }
-
-                
-                return root;
-            } catch (ClassNotFoundException | FormatException e) {
-                throw new IOException("Recieved invalid data from TypeChef sub-process", e);
-            }
-            
-        }
-        
-        /**
          * Checks whether we can receive data, without violating the receiving limit. If we can't receive now, wait
          * until we can. Also increases numReceiving.
          */
@@ -241,43 +197,44 @@ public class Wrapper {
                 out.writeBoolean(config.isParseToAst());
                 out.writeUnshared(params);
                 
-                // single byte to tell us that the runner now starts sending the result
-                in.readByte();
-                LOGGER.logDebug("Runner starts sending data...");
-                
-                checkAndWaitReceivingLimit();
-                numReceivingIncreased = true;
-                
-                Runtime rt = Runtime.getRuntime();
-                long usedMemoryBefore = rt.totalMemory() - rt.freeMemory();
-                
-                Object result = in.readUnshared();
-                
-                if (result instanceof ExtractorException) {
-                    this.extractorException = (ExtractorException) result;
+                Message type;
+                while ((type = (Message) in.readUnshared()) != Message.END) {
+                    LOGGER.logDebug("Got message: " + type);
                     
-                } else if (result instanceof Integer) {
-                    if ((Integer) result != 0) {
-                        LOGGER.logWarning("First block does not have nesting depth 0");
+                    switch (type) {
+                    case RESULT: {
+                        checkAndWaitReceivingLimit();
+                        numReceivingIncreased = true;
+                        
+                        Runtime rt = Runtime.getRuntime();
+                        long usedMemoryBefore = rt.totalMemory() - rt.freeMemory();
+                        
+                        IResultReceiver receiver = CommFactory.createReceiver();
+                        this.result = receiver.receiveResult(in);
+                        
+                        long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
+                        LOGGER.logDebug("Memory usage before we got the result: " + usedMemoryBefore,
+                                "Memory usage after we got the result: " + usedMemoryAfter);
+                        
+                        break;
                     }
-                    this.result = readCsvListResult(in);
-                    
-                } else {
-                    throw new IOException("Invalid result type: " + result.getClass().getName());
+                    case LEXER_ERRORS: {
+                        lexerErrors = (List<String>) in.readUnshared();
+                        break;
+                    }
+                    case EXCEPTION: {
+                        this.extractorException = (ExtractorException) in.readUnshared();
+                        break;
+                    }
+                    case TIMINGS: {
+                        Map<String, Long> times = (Map<String, Long>) in.readUnshared();
+                        LOGGER.logDebug("Timing reported by runner (in ms):", times.toString());
+                        break;
+                    }
+                    default:
+                        throw new IOException("Invalid message type: " + type);
+                    }
                 }
-                
-                Object lexerErrorList = in.readUnshared();
-                if (lexerErrorList != null) {
-                    lexerErrors.addAll((List<String>) lexerErrorList);
-                }
-                
-                Map<String, Long> times = (Map<String, Long>) in.readUnshared();
-                
-                long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
-                LOGGER.logDebug("Memory usage before we got the result: " + usedMemoryBefore,
-                        "Memory usage after we got the result: " + usedMemoryAfter);
-                
-                LOGGER.logDebug("Timing reported by runner (in ms):", times.toString());
                 
             } catch (EOFException e) {
                 commException = new IOException("TypeChefRunner exited without sending a result");
