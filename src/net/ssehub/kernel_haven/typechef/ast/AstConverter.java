@@ -1,6 +1,8 @@
 package net.ssehub.kernel_haven.typechef.ast;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import de.fosd.typechef.conditional.Opt;
 import de.fosd.typechef.featureexpr.FeatureExpr;
@@ -18,12 +20,6 @@ import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
  * @author Adam
  */
 public class AstConverter {
-    
-    private static final VariableCache CACHE = new VariableCache();
-    
-    private static final TypeChefPresenceConditionGrammar GRAMMAR = new TypeChefPresenceConditionGrammar(CACHE);
-    
-    private static final Parser<Formula> PARSER = new Parser<>(GRAMMAR);
     
     /**
      * Converts the given Typechef AST to our own format.
@@ -1252,16 +1248,28 @@ public class AstConverter {
     
     // -----------------------------------------------------------
     
+    private static final VariableCache CACHE = new VariableCache();
+    
+    private static final TypeChefPresenceConditionGrammar GRAMMAR = new TypeChefPresenceConditionGrammar(CACHE);
+    
+    private static final Parser<Formula> PARSER = new Parser<>(GRAMMAR);
+    
+    private static final Map<String, Formula> formulaCache = new HashMap<>(15000);
+    
     private static Formula toFormula(FeatureExpr featureExpr) {
-        try {
-            Formula formula = PARSER.parse(featureExpr.toTextExpr());
-            CACHE.clear();
-            return formula;
-        } catch (ExpressionFormatException e) {
-            // TODO
-            e.printStackTrace();
-            return True.INSTANCE;
+        String text = featureExpr.toTextExpr();
+        Formula result = formulaCache.get(text);
+        if (result == null) {
+            try {
+                result = PARSER.parse(text);
+                formulaCache.put(text, result);
+            } catch (ExpressionFormatException e) {
+                // TODO
+                e.printStackTrace();
+                return True.INSTANCE;
+            }
         }
+        return result;
     }
     
     private static <T> Iterable<T> scalaIterator(final scala.collection.immutable.List<T> a) {
