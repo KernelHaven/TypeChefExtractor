@@ -19,8 +19,8 @@ public class CommFactory {
      * @return The communication object.
      */
     public static IComm createComm(ObjectInputStream in, ObjectOutputStream out) {
-        return new CsvOverFileSending(in, out);
-//        return new CsvOverTcpSending(in, out);
+//        return new CsvOverFileSending(in, out);
+        return new CsvOverTcpSending(in, out);
 //        return new JavaSerializationSending(in, out);
     }
     
