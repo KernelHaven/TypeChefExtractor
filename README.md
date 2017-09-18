@@ -9,13 +9,12 @@ This extractor extracts a variability-aware abstract syntax tree (AST) from C co
 
 ## Usage
 
-To use this extractor, set `code.extractor.class` to `net.ssehub.kernel_haven.typechef.TypechefExtractorFactory` in the KernelHaven properties.
+To use this extractor, set `code.extractor.class` to `net.ssehub.kernel_haven.typechef.TypechefExtractor` in the KernelHaven properties.
 
 ### Dependencies
 
 In addition to KernelHaven, this extractor has the following dependencies:
 * [CnfUtils](https://github.com/KernelHaven/CnfUtils)
-* [Typechef-0.4.1.jar](https://github.com/KernelHaven/TypeChefExtractor/blob/master/lib/TypeChef-0.4.1.jar) in the plugins directory
 
 ### Configuration
 
