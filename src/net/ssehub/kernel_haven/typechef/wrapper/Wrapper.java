@@ -239,7 +239,7 @@ public class Wrapper {
                 
             } catch (EOFException e) {
                 commException = new IOException("TypeChefRunner exited abruptly;"
-                        + " the sub-process probably crashed");
+                        + " the sub-process probably crashed", e);
             } catch (ClassNotFoundException | ClassCastException e) {
                 commException = new IOException(e);
             } catch (IOException e) {
