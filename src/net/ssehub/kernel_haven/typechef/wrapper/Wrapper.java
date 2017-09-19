@@ -370,12 +370,12 @@ public class Wrapper {
         }
         
         if (comm.getExtractorException() != null) {
-            LOGGER.logDebug("Got extractor exception");
+            LOGGER.logExceptionDebug("Got extractor exception", comm.getExtractorException());
             throw comm.getExtractorException();
         }
         
         if (comm.getCommException() != null) {
-            LOGGER.logDebug("Got comm exception");
+            LOGGER.logExceptionDebug("Got comm exception", comm.getCommException());
             throw comm.getCommException();
         }
         
