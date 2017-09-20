@@ -89,9 +89,20 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
         readFromOtherExtractors = true;
     
         VariabilityModel varModel = PipelineConfigurator.instance().getVmProvider().getResult();
+        if (varModel == null) {
+            // null if the VM provider threw an exception instead
+            throw new ExtractorException("VariabilityModel is null, but Typechef is configured to use it "
+                    + "(set code.extractor.ignore_other_models=true to ignore file presence conditions)");
+        }
+        
         typechefConfig.setVariables(varModel.getVariables());
         
         buildModel = PipelineConfigurator.instance().getBmProvider().getResult();
+        if (buildModel == null) {
+            // null if the BM provider threw an exception instead
+            throw new ExtractorException("BuildModel is null, but Typechef is configured to use it "
+                    + "(set code.extractor.ignore_other_models=true to ignore file presence conditions)");
+        }
         cnfConverter = FormulaToCnfConverterFactory.create();
         try {
             satSolver = new SatSolver(new VmToCnfConverter().convertVmToCnf(varModel));
