@@ -2,7 +2,6 @@ package net.ssehub.kernel_haven.typechef.ast;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -13,7 +12,6 @@ import net.ssehub.kernel_haven.code_model.Block;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
-import net.ssehub.kernel_haven.util.logic.parser.ExpressionFormatException;
 import net.ssehub.kernel_haven.util.logic.parser.Parser;
 
 /**
@@ -25,66 +23,6 @@ public class TypeChefBlock extends Block implements Serializable {
     
     private static final long serialVersionUID = 3122358323396424111L;
     
-    /**
-     * A position in the source code, specified by file and line.
-     */
-    public static final class Position implements Serializable {
-        
-        private static final long serialVersionUID = 6178380565831457716L;
-
-        private File file;
-        
-        private int line;
-        
-        /**
-         * Creates a new position.
-         * 
-         * @param file The source file.
-         * @param line The line in the file.
-         */
-        public Position(File file, int line) {
-            this.file = file;
-            this.line = line;
-        }
-        
-        /**
-         * The source file.
-         * 
-         * @return The source file.
-         */
-        public File getFile() {
-            return file;
-        }
-        
-        /**
-         * The line in the source file.
-         * 
-         * @return The line in the source file.
-         */
-        public int getLine() {
-            return line;
-        }
-        
-        /**
-         * Sets the source file.
-         * 
-         * @param file The source file.
-         */
-        public void setFile(File file) {
-            this.file = file;
-        }
-        
-        /**
-         * Sets the line.
-         *  
-         * @param line The line.
-         */
-        public void setLine(int line) {
-            this.line = line;
-        }
-        
-    }
-
     private List<TypeChefBlock> childreen;
     
     private TypeChefBlock parent;
@@ -178,35 +116,7 @@ public class TypeChefBlock extends Block implements Serializable {
 
     @Override
     public List<String> serializeCsv() {
-        List<String> result = new ArrayList<>(3);
-        
-        String text;
-        if (type instanceof LiteralSyntaxElement) {
-            // TODO: remove escaping once the cache properly handles it
-            text = "Literal: " + ((LiteralSyntaxElement) type).getContent().replace("\\", "\\\\").replace(";", "\\,");
-        } else if (type instanceof ErrorSyntaxElement) {
-            // TODO: remove escaping once the cache properly handles it
-            text = "Error: " + ((ErrorSyntaxElement) type).getMessage().replace("\\", "\\\\").replace(";", "\\,");
-        } else if (type instanceof SyntaxElements) {
-            text = type.toString();
-        } else {
-            // TODO: error handling
-            text = "Error: Unkown type found in AST";
-        }
-        
-        result.add(text);
-        result.add(relation);
-        result.add(condition.toString());
-        
-        if (file != null) {
-            result.add(file);
-            result.add(line + "");
-        } else {
-            result.add("null");
-            result.add("null");
-        }
-        
-        return result;
+        return Arrays.asList(CsvUtil.blockToCsv(this));
     }
 
     @Override
@@ -310,51 +220,7 @@ public class TypeChefBlock extends Block implements Serializable {
      * @throws FormatException If the CSV is malformed.
      */
     public static TypeChefBlock createFromCsv(String[] csv, Parser<Formula> parser) throws FormatException {
-        if (csv.length != 5) {
-            throw new FormatException("Wrong number of CSV fields, expected 5 but got "
-                    + csv.length + ": " + Arrays.toString(csv));
-        }
-        
-        ISyntaxElement type;
-        String text = csv[0];
-        if (text.startsWith("Literal: ")) {
-            text = text.substring("Literal: ".length());
-            // TODO: remove escaping once the cache properly handles it
-            text = text.replaceAll("[^\\\\]\\\\,", ";").replace("\\\\", "\\");
-            type = new LiteralSyntaxElement(text);
-        } else if (text.startsWith("Error: ")) {
-            text = text.substring("Error: ".length());
-            // TODO: remove escaping once the cache properly handles it
-            text = text.replaceAll("[^\\\\]\\\\,", ";").replace("\\\\", "\\");
-            type = new ErrorSyntaxElement(text);
-        } else {
-            type = SyntaxElements.getByName(text);
-            if (type == null) {
-                throw new FormatException("Unkown SyntaxElement type: " + text);
-            }
-        }
-        
-        String relation = csv[1];
-        
-        Formula condition;
-        try {
-            condition = parser.parse(csv[2]);
-        } catch (ExpressionFormatException e) {
-            throw new FormatException(e);
-        }
-        
-        TypeChefBlock result = new TypeChefBlock(null, condition, type, relation);
-        
-        if (!csv[3].equals("null") && !csv[4].equals("null")) {
-            try {
-                result.file = csv[3];
-                result.line = Integer.parseInt(csv[4]);
-            } catch (NumberFormatException e) {
-                throw new FormatException(e);
-            }
-        }
-        
-        return result;
+        return CsvUtil.csvToBlock(csv, parser);
     }
     
     @Override
