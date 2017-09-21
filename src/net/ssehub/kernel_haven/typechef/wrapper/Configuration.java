@@ -80,7 +80,7 @@ public class Configuration {
      *  <li>
      *      <b>Optional</b>
      *      <ul>
-     *          <li>ccode.extractor.static_include.0</li>
+     *          <li>code.extractor.static_include.0</li>
      *          <li>code.extractor.post_include_dir.0</li>
      *          <li>code.extractor.source_include_dir.0</li>
      *          <li>code.extractor.add_linux_source_include_dirs</li>
