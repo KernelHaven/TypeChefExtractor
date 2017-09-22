@@ -196,7 +196,7 @@ public class Runner {
         }
         
 
-        times.put("token_conversion", System.currentTimeMillis() - t0);
+        times.put("token_reading", System.currentTimeMillis() - t0);
         
         return lexerTokens;
     }
