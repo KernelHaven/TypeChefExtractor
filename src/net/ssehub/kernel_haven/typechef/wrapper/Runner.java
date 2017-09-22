@@ -225,8 +225,8 @@ public class Runner {
         
         long t0 = System.currentTimeMillis();
         
-        ParserMain parser = new ParserMain(new CParser(null, false));
-        TranslationUnit unit = parser.parserMain(tokenReader, config, null);
+        ParserMain parser = new ParserMain(new CParser(config.getSmallFeatureModel(), false));
+        TranslationUnit unit = parser.parserMain(tokenReader, config, config.getFullFeatureModel());
         
 
         times.put("typechef_parser", System.currentTimeMillis() - t0);

@@ -34,6 +34,10 @@ public class Configuration {
     
     private File openVariablesFile;
     
+    private File smallFeatureModel;
+    
+    private File dimacsModel;
+    
     private File systemRoot;
     
     private List<File> staticIncludes;
@@ -131,17 +135,12 @@ public class Configuration {
         
         loadPerformanceSettings(config);
         
-        String platformHeader = config.getProperty("code.extractor.platform_header");
-        if (platformHeader != null) {
-            this.platformHeader = new File(platformHeader);
-        } else {
+        this.platformHeader = getFileOrNull("code.extractor.platform_header", config);
+        if (platformHeader == null) {
             this.platformHeader = new File(resDir, "platform.h");
             if (!this.platformHeader.isFile()) {
                 generatePlatformHeader();
             }
-        }
-        if (!this.platformHeader.isFile() || !this.platformHeader.canRead()) {
-            throw new SetUpException("Invalid platform header at " + this.platformHeader.getAbsolutePath());
         }
         
         this.systemRoot = new File(config.getProperty("code.extractor.system_root", "/"));
@@ -177,21 +176,35 @@ public class Configuration {
             this.preprocessorDefines.add(preprocessorDefine);
         }
         
-        String kbuildParamFile = config.getProperty("code.extractor.kbuildparam_file"); // TODO autogenerate?
+        File kbuildParamFile = getFileOrNull("code.extractor.kbuildparam_file", config);
         if (kbuildParamFile != null) {
             try {
-                this.kbuildParamFile = new KbuildParamFile(new File(kbuildParamFile), config.getSourceTree());
+                this.kbuildParamFile = new KbuildParamFile(kbuildParamFile, config.getSourceTree());
             } catch (IOException e) {
                 throw new SetUpException(e);
             }
         }
         
-        String openVariablesSetting = config.getProperty("code.extractor.open_variables");
-        if (openVariablesSetting != null) {
-            openVariablesFile = new File(openVariablesSetting);
-        }
+        openVariablesFile = getFileOrNull("code.extractor.open_variables", config);
+        smallFeatureModel = getFileOrNull("code.extractor.small_feature_model", config);
         
         loadDebugFromConfig(config);
+    }
+    
+    /**
+     * Returns a file, or null if the setting is not set.
+     * 
+     * @param setting The key in the properties file.
+     * @param config The configuration to read from;
+     * @return A file with the path read from the configuration, or null.
+     */
+    private File getFileOrNull(String setting, CodeExtractorConfiguration config) {
+        File result = null;
+        String value = config.getProperty(setting);
+        if (value != null) {
+            result = new File(value);
+        }
+        return result;
     }
     
     /**
@@ -271,44 +284,23 @@ public class Configuration {
      */
     private void checkParameters() throws SetUpException {
         // TODO: go through messages and checks
-        
-        if (sourceDir == null || !sourceDir.isDirectory()) {
-            throw new SetUpException("Source directory \"" + sourceDir + "\" is not a directory.");
-        }
-        if (!sourceDir.canRead()) {
-            throw new SetUpException("Source directory \"" + sourceDir + "\" is not readable.");
-        }
-        
-        if (platformHeader == null || !platformHeader.isFile()) {
-            throw new SetUpException("Platform header \"" + platformHeader + "\" does not exist");
-        }
-        if (!platformHeader.canRead()) {
-            throw new SetUpException("Platform header \"" + platformHeader + "\" is not readable");
-        }
+        checkFile(sourceDir, "source_tree", true, true);
+        checkFile(platformHeader, "platform_header", false, true);
         
         if (openVariablesFile != null) {
-            if (!openVariablesFile.isFile()) {
-                throw new SetUpException("open_variables is not a valid file");
-            }
-            if (!openVariablesFile.canRead()) {
-                throw new SetUpException("open_variables file can not be read");
-            }
+            checkFile(openVariablesFile, "open_variables", false, true);
+        }
+        if (smallFeatureModel != null) {
+            checkFile(smallFeatureModel, "small_feature_model", false, true);
         }
         
-        if (systemRoot == null || !systemRoot.isDirectory()) {
-            throw new SetUpException("System root \"" + systemRoot + "\" is not a directory.");
-        }
+        checkFile(systemRoot, "system_root", true, false);
         
         if (staticIncludes.isEmpty()) {
             LOGGER.logWarning("No static includes defined");
         }
         for (File staticInclude : staticIncludes) {
-            if (staticInclude == null || !staticInclude.isFile()) {
-                throw new SetUpException("Static include header \"" + staticInclude + "\" does not exist");
-            }
-            if (!staticInclude.canRead()) {
-                throw new SetUpException("Static include header \"" + staticInclude + "\" is not readable");
-            }
+            checkFile(staticInclude, "static_include", false, true);
         }
         
         if (postIncludeDirs.isEmpty()) {
@@ -316,25 +308,46 @@ public class Configuration {
         }
         for (File postIncludeDir : postIncludeDirs) {
             postIncludeDir = new File(systemRoot, postIncludeDir.getPath());
-            if (!postIncludeDir.isDirectory()) {
-                LOGGER.logWarning("Post include directory \"" + postIncludeDir + "\" is not a directory");
-            }
+            checkFile(postIncludeDir, "post_include_dir", true, false);
         }
         
         if (sourceIncludeDirs.isEmpty()) {
             LOGGER.logWarning("No source include directories specified");
         }
-        for (File sourceIncludeDir : sourceIncludeDirs) {
-            sourceIncludeDir = new File(sourceDir, sourceIncludeDir.getPath());
+//        for (File sourceIncludeDir : sourceIncludeDirs) {
+//            sourceIncludeDir = new File(sourceDir, sourceIncludeDir.getPath());
 //            if (!sourceIncludeDir.isDirectory()) {
 //                LOGGER.logWarning("Source include directory \"" + sourceIncludeDir + "\" is not a directory");
 //            }
-        }
+//        }
         
         // TODO: preprocessorDefines
         
         if (kbuildParamFile == null) {
             LOGGER.logWarning("No kbuildParamFile specified");
+            // whether a value is valid is already checked earlier, since its already parsed 
+        }
+    }
+    
+    /**
+     * Checks whether the given file exists.
+     * 
+     * @param toCheck The file to check.
+     * @param name The name to be used in error messages.
+     * @param directory Whether the file should be a directory (true) for a file (false).
+     * @param checkReadable Whether to check that the file is readable.
+     * 
+     * @throws SetUpException If the file doesn't exist or is not readable.
+     */
+    private void checkFile(File toCheck, String name, boolean directory, boolean checkReadable) throws SetUpException {
+        if (toCheck == null) {
+            throw new SetUpException(name + " not configured");
+        }
+        if ((!directory && !toCheck.isFile()) || (directory && !toCheck.isDirectory())) {
+            throw new SetUpException(name + " \"" + toCheck + "\" does not exist");
+        }
+        if (checkReadable && !toCheck.canRead()) {
+            throw new SetUpException(name + " \"" + toCheck + "\" is not readable");
         }
     }
     
@@ -377,19 +390,29 @@ public class Configuration {
         List<String> params = new ArrayList<>();
         
         // environment stuff
-        params.add("--platfromHeader=" + platformHeader.getAbsolutePath());
         params.add("--systemRoot=" + systemRoot.getAbsolutePath());
+        params.add("--platfromHeader=" + platformHeader.getAbsolutePath()); // the typo "platfrom" is from TypeChef
         
-        // typechef behavior
-        params.add("--lex");
+        // don't write lexer tokens to stdout
         params.add("--lexNoStdout");
-        params.add("--no-analysis");
-        
 
-        // Kconfig variables
-        params.add("--prefixonly=CONFIG_");
+        // variability variables
         if (openVariablesFile != null) {
             params.add("--openFeat=" + openVariablesFile.getAbsolutePath());
+        } else {
+            params.add("--prefixonly=CONFIG_");
+        }
+
+        // full DIMACS model (if provided to us by the VM provider)
+        // used by parts of the parser to throw away some invalid configurations
+        if (dimacsModel != null) {
+            params.add("--featureModelDimacs=" + dimacsModel.getAbsolutePath());
+        }
+        
+        // manually supplied approx.fm
+        // this is used by lexer and parser to quickly throw away some of the invalid configurations
+        if (smallFeatureModel != null) {
+            params.add("--smallFeatureModelFExpr=" + smallFeatureModel.getAbsolutePath());
         }
         
         // include stuff
@@ -479,6 +502,15 @@ public class Configuration {
         } catch (IOException e) {
             throw new ExtractorException("Can't write open variables file", e);
         }
+    }
+    
+    /**
+     * Sets the DIMACS model to be used by lexer and parser.
+     * 
+     * @param dimacsModel A file containing a DIMACS representation of the variability model.
+     */
+    public void setDimacsModel(File dimacsModel) {
+        this.dimacsModel = dimacsModel;
     }
     
     /**

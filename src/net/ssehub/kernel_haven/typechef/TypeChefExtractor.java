@@ -97,6 +97,9 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
         
         typechefConfig.setVariables(varModel.getVariables());
         
+        // set the DIMACS model, so that the parser can throw away some invalid configurations
+        typechefConfig.setDimacsModel(varModel.getConstraintModel());
+        
         buildModel = PipelineConfigurator.instance().getBmProvider().getResult();
         if (buildModel == null) {
             // null if the BM provider threw an exception instead
