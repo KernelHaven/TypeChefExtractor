@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
 
 /**
  * A communication between parent and sub-process that sends the AST as CSV (string arrays) over the Java
@@ -30,12 +30,12 @@ class CsvOverTcpSending extends AbstractCsvSending implements IComm {
     }
     
     @Override
-    public TypeChefBlock receiveResult() throws IOException {
+    public SyntaxElement receiveResult() throws IOException {
         return read(in);
     }
     
     @Override
-    public void sendResult(TypeChefBlock result) throws IOException {
+    public void sendResult(SyntaxElement result) throws IOException {
         write(result, out);
     }
     

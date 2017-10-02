@@ -168,6 +168,7 @@ public class TypeChefExtractorTest {
                 fail("Can't load file with expected ASt");
             }
             
+            System.out.println(actual);
             try {
                 assertThat(actual, is(expected));
             } catch (AssertionError e) {

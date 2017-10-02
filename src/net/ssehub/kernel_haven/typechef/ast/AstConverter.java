@@ -1,13 +1,21 @@
 package net.ssehub.kernel_haven.typechef.ast;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import de.fosd.typechef.conditional.Opt;
+import de.fosd.typechef.error.WithPosition;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.parser.c.*;
+import net.ssehub.kernel_haven.code_model.ErrorSyntaxElement;
+import net.ssehub.kernel_haven.code_model.ISyntaxElementType;
+import net.ssehub.kernel_haven.code_model.LiteralSyntaxElement;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
+import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.True;
 import net.ssehub.kernel_haven.util.logic.parser.ExpressionFormatException;
@@ -28,18 +36,18 @@ public class AstConverter {
      * 
      * @return The result of the conversion.
      */
-    public TypeChefBlock convertToFile(TranslationUnit unit) {
-        TypeChefBlock tmp = new TypeChefBlock(null, True.INSTANCE, new LiteralSyntaxElement(""), "");
+    public SyntaxElement convertToFile(TranslationUnit unit) {
+        SyntaxElement tmp = createSyntaxElement(null, True.INSTANCE, new LiteralSyntaxElement(""), "", null);
         convertTranslationUnit(tmp, True.INSTANCE, unit, "");
         
-        return (TypeChefBlock) tmp.iterator().next();
+        return (SyntaxElement) tmp.getNestedElement(0);
     }
     
     // CHECKSTYLE:OFF
     // this file is so ugly... might aswell disable checkstyle
 
     @SuppressWarnings("unused")
-    private static void convertAst(TypeChefBlock parent, Formula condition, AST ast, String relation) {
+    private static void convertAst(SyntaxElement parent, Formula condition, AST ast, String relation) {
         if (ast instanceof AbstractDeclarator) {
             convertAbstractDeclarator(parent, condition, (AbstractDeclarator) ast, relation);
         } else if (ast instanceof Attribute) {
@@ -89,11 +97,11 @@ public class AstConverter {
         } else if (ast instanceof OldParameterDeclaration) {
             convertOldParameterDeclaration(parent, condition, (OldParameterDeclaration) ast, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown AST element: " + ast.getClass()), relation, ast);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown AST element: " + ast.getClass()), relation, ast);
         }
     }
     
-    private static void convertStatement(TypeChefBlock parent, Formula condition, Statement statement, String relation) {
+    private static void convertStatement(SyntaxElement parent, Formula condition, Statement statement, String relation) {
         if (statement instanceof BreakStatement) {
             convertBreakStatement(parent, condition, (BreakStatement) statement, relation);
         } else if (statement instanceof CaseStatement) {
@@ -127,11 +135,11 @@ public class AstConverter {
         } else if (statement instanceof WhileStatement) {
             convertWhileStatement(parent, condition, (WhileStatement) statement, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown Statement: " + statement.getClass()), relation, statement);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown Statement: " + statement.getClass()), relation, statement);
         }
     }
     
-    private static void convertCompoundDeclaration(TypeChefBlock parent, Formula condition, CompoundDeclaration decl, String relation) {
+    private static void convertCompoundDeclaration(SyntaxElement parent, Formula condition, CompoundDeclaration decl, String relation) {
         if (decl instanceof DeclarationStatement) {
             convertDeclarationStatement(parent, condition, (DeclarationStatement) decl, relation);
         } else if (decl instanceof LocalLabelDeclaration) {
@@ -139,11 +147,11 @@ public class AstConverter {
         } else if (decl instanceof NestedFunctionDef) {
             convertNestedFunctionDef(parent, condition, (NestedFunctionDef) decl, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown CompoundDeclaration: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown CompoundDeclaration: " + decl.getClass()), relation, decl);
         }
     }
     
-    private static void convertCfgStmt(TypeChefBlock parent, Formula condition, CFGStmt stmt, String relation) {
+    private static void convertCfgStmt(SyntaxElement parent, Formula condition, CFGStmt stmt, String relation) {
         if (stmt instanceof BreakStatement) {
             convertBreakStatement(parent, condition, (BreakStatement) stmt, relation);
         } else if (stmt instanceof CaseStatement) {
@@ -169,23 +177,23 @@ public class AstConverter {
         } else if (stmt instanceof ExternalDef) {
             convertExternalDef(parent, condition, (ExternalDef) stmt, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown CFGStmt: " + stmt.getClass()), relation, stmt);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown CFGStmt: " + stmt.getClass()), relation, stmt);
         }
     }
     
-    private static void convertOldParameterDeclaration(TypeChefBlock parent, Formula condition, OldParameterDeclaration decl, String relation) {
+    private static void convertOldParameterDeclaration(SyntaxElement parent, Formula condition, OldParameterDeclaration decl, String relation) {
         if (decl instanceof Declaration) {
             convertDeclaration(parent, condition, (Declaration) decl, relation);
         } else if (decl instanceof VarArgs) {
             convertVarArgs(parent, condition, (VarArgs) decl, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown OldParameterDeclaration: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown OldParameterDeclaration: " + decl.getClass()), relation, decl);
         }
     }
     
-    private static void convertExternalDef(TypeChefBlock parent, Formula condition, ExternalDef externalDef, String relation) {
+    private static void convertExternalDef(SyntaxElement parent, Formula condition, ExternalDef externalDef, String relation) {
         if (externalDef instanceof AsmExpr) {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("TODO: " + externalDef.getClass()), relation, externalDef); // TODO
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("TODO: " + externalDef.getClass()), relation, externalDef); // TODO
         } else if (externalDef instanceof Declaration) {
             convertDeclaration(parent, condition, (Declaration) externalDef, relation);
         } else if (externalDef instanceof EmptyExternalDef) {
@@ -193,15 +201,15 @@ public class AstConverter {
         } else if (externalDef instanceof FunctionDef) {
             convertFunctionDef(parent, condition, (FunctionDef) externalDef, relation);
         } else if (externalDef instanceof Pragma) {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("TODO: " + externalDef.getClass()), relation, externalDef); // TODO
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("TODO: " + externalDef.getClass()), relation, externalDef); // TODO
         } else if (externalDef instanceof TypelessDeclaration) {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("TODO: " + externalDef.getClass()), relation, externalDef); // TODO
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("TODO: " + externalDef.getClass()), relation, externalDef); // TODO
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown ExternalDef: " + externalDef.getClass()), relation, externalDef);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown ExternalDef: " + externalDef.getClass()), relation, externalDef);
         }
     }
     
-    private static void convertExpr(TypeChefBlock parent, Formula condition, Expr expr, String relation) {
+    private static void convertExpr(SyntaxElement parent, Formula condition, Expr expr, String relation) {
         if (expr instanceof AlignOfExprT) {
             convertAlignOfExprT(parent, condition, (AlignOfExprT) expr, relation);
         } else if (expr instanceof AlignOfExprU) {
@@ -239,11 +247,11 @@ public class AstConverter {
         } else if (expr instanceof UnaryOpExpr) {
             convertUnaryOpExpr(parent, condition, (UnaryOpExpr) expr, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("TODO Expr: " + expr.getClass()), relation, expr); // TODO
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("TODO Expr: " + expr.getClass()), relation, expr); // TODO
         }
     }
     
-    private static void convertPrimaryExpression(TypeChefBlock parent, Formula condition, PrimaryExpr expr, String relation) {
+    private static void convertPrimaryExpression(SyntaxElement parent, Formula condition, PrimaryExpr expr, String relation) {
         if (expr instanceof BuiltinOffsetof) {
             convertBuiltinOffsetof(parent, condition, (BuiltinOffsetof) expr, relation);
         } else if (expr instanceof BuiltinTypesCompatible) {
@@ -257,21 +265,21 @@ public class AstConverter {
         } else if (expr instanceof StringLit) {
             convertStringLit(parent, condition, (StringLit) expr, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("TODO PrimaryExpr: " + expr.getClass()), relation, expr); // TODO
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("TODO PrimaryExpr: " + expr.getClass()), relation, expr); // TODO
         }
     }
     
-    private static void convertDeclarator(TypeChefBlock parent, Formula condition, Declarator decl, String relation) {
+    private static void convertDeclarator(SyntaxElement parent, Formula condition, Declarator decl, String relation) {
         if (decl instanceof AtomicNamedDeclarator) {
             convertAtomicNamedDeclarator(parent, condition, (AtomicNamedDeclarator) decl, relation);
         } else if (decl instanceof NestedNamedDeclarator) {
             convertNestedNamedDeclarator(parent, condition, (NestedNamedDeclarator) decl, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown Declarator: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown Declarator: " + decl.getClass()), relation, decl);
         }
     }
     
-    private static void convertSpecifier(TypeChefBlock parent, Formula condition, Specifier spec, String relation) {
+    private static void convertSpecifier(SyntaxElement parent, Formula condition, Specifier spec, String relation) {
         if (spec instanceof AttributeSpecifier) {
             convertAttributeSpecifier(parent, condition, (AttributeSpecifier) spec, relation);
         } else if (spec instanceof OtherSpecifier) {
@@ -281,25 +289,25 @@ public class AstConverter {
         } else if (spec instanceof TypeSpecifier) {
             convertTypeSpecifier(parent, condition, (TypeSpecifier) spec, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown Specifier: " + spec.getClass()), relation, spec);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown Specifier: " + spec.getClass()), relation, spec);
         }
     }
     
-    private static void convertAttributeSpecifier(TypeChefBlock parent, Formula condition, AttributeSpecifier spec, String relation) {
+    private static void convertAttributeSpecifier(SyntaxElement parent, Formula condition, AttributeSpecifier spec, String relation) {
         if (spec instanceof AsmAttributeSpecifier) {
             convertAsmAttributeSpecifier(parent, condition, (AsmAttributeSpecifier) spec, relation);
         } else if (spec instanceof GnuAttributeSpecifier) {
             convertGnuAttributeSpecifier(parent, condition, (GnuAttributeSpecifier) spec, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unknown AttributeSpecifier: " + spec.getClass()), relation, spec);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown AttributeSpecifier: " + spec.getClass()), relation, spec);
         }
     }
     
-    private static void convertOtherSpecifier(TypeChefBlock parent, Formula condition, OtherSpecifier spec, String relation) {
-        new TypeChefBlock(parent, condition, new LiteralSyntaxElement(spec.getClass().getSimpleName()), relation, spec);
+    private static void convertOtherSpecifier(SyntaxElement parent, Formula condition, OtherSpecifier spec, String relation) {
+        createSyntaxElement(parent, condition, new LiteralSyntaxElement(spec.getClass().getSimpleName()), relation, spec);
     }
     
-    private static void convertTypeSpecifier(TypeChefBlock parent, Formula condition, TypeSpecifier spec, String relation) {
+    private static void convertTypeSpecifier(SyntaxElement parent, Formula condition, TypeSpecifier spec, String relation) {
         if (spec instanceof EnumSpecifier) {
             convertEnumSpecifier(parent, condition, (EnumSpecifier) spec, relation);
         } else if (spec instanceof OtherPrimitiveTypeSpecifier) {
@@ -319,41 +327,41 @@ public class AstConverter {
         } else if (spec instanceof UnsignedSpecifier) {
             convertUnsignedSpecifier(parent, condition, (UnsignedSpecifier) spec, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown TypeSpecifier: " + spec.getClass()), relation, spec);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown TypeSpecifier: " + spec.getClass()), relation, spec);
         }
     }
     
-    private static void convertInitDeclarator(TypeChefBlock parent, Formula condition, InitDeclarator decl, String relation) {
+    private static void convertInitDeclarator(SyntaxElement parent, Formula condition, InitDeclarator decl, String relation) {
         if (decl instanceof InitDeclaratorE) {
             convertInitDeclaratorE(parent, condition, (InitDeclaratorE) decl, relation);
         } else if (decl instanceof InitDeclaratorI) {
             convertInitDeclaratorI(parent, condition, (InitDeclaratorI) decl, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown InitDeclarator: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown InitDeclarator: " + decl.getClass()), relation, decl);
         }
     }
     
-    private static void convertDeclarationExtension(TypeChefBlock parent, Formula condition, DeclaratorExtension ext, String relation) {
+    private static void convertDeclarationExtension(SyntaxElement parent, Formula condition, DeclaratorExtension ext, String relation) {
         if (ext instanceof DeclaratorAbstrExtension) {
             convertDeclaratorAbstrExtension(parent, condition, (DeclaratorAbstrExtension) ext, relation);
         } else if (ext instanceof DeclIdentifierList) {
             convertDeclIdentifierList(parent, condition, (DeclIdentifierList) ext, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown DeclaratorExtension: " + ext.getClass()), relation, ext);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown DeclaratorExtension: " + ext.getClass()), relation, ext);
         }
     }
     
-    private static void convertDeclaratorAbstrExtension(TypeChefBlock parent, Formula condition, DeclaratorAbstrExtension ext, String relation) {
+    private static void convertDeclaratorAbstrExtension(SyntaxElement parent, Formula condition, DeclaratorAbstrExtension ext, String relation) {
         if (ext instanceof DeclArrayAccess) {
             convertDeclArrayAccess(parent, condition, (DeclArrayAccess) ext, relation);
         } else if (ext instanceof DeclParameterDeclList) {
             convertDeclParameterDeclList(parent, condition, (DeclParameterDeclList) ext, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown DeclaratorAbstrExtension: " + ext.getClass()), relation, ext);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown DeclaratorAbstrExtension: " + ext.getClass()), relation, ext);
         }
     }
     
-    private static void convertPostfixSuffix(TypeChefBlock parent, Formula condition, PostfixSuffix suffix, String relation) {
+    private static void convertPostfixSuffix(SyntaxElement parent, Formula condition, PostfixSuffix suffix, String relation) {
         if (suffix instanceof ArrayAccess) {
             convertArrayAccess(parent, condition, (ArrayAccess) suffix, relation);
         } else if (suffix instanceof FunctionCall) {
@@ -363,11 +371,11 @@ public class AstConverter {
         } else if (suffix instanceof SimplePostfixSuffix) {
             convertSimplePostfixSuffix(parent, condition, (SimplePostfixSuffix) suffix, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown PostfixSuffix: " + suffix.getClass()), relation, suffix);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown PostfixSuffix: " + suffix.getClass()), relation, suffix);
         }
     }
     
-    private static void convertParameterDeclaration(TypeChefBlock parent, Formula condition, ParameterDeclaration decl, String relation) {
+    private static void convertParameterDeclaration(SyntaxElement parent, Formula condition, ParameterDeclaration decl, String relation) {
         if (decl instanceof ParameterDeclarationAD) {
             convertParameterDeclarationAD(parent, condition, (ParameterDeclarationAD) decl, relation);
         } else if (decl instanceof ParameterDeclarationD) {
@@ -377,61 +385,61 @@ public class AstConverter {
         } else if (decl instanceof VarArgs) {
             convertVarArgs(parent, condition, (VarArgs) decl, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown ParameterDeclaration: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown ParameterDeclaration: " + decl.getClass()), relation, decl);
         }
     }
     
-    private static void convertAttribute(TypeChefBlock parent, Formula condition, Attribute attr, String relation) {
+    private static void convertAttribute(SyntaxElement parent, Formula condition, Attribute attr, String relation) {
         if (attr instanceof AtomicAttribute) {
             convertAtomicAttribute(parent, condition, (AtomicAttribute) attr, relation);
         } else if (attr instanceof CompoundAttribute) {
             convertCompoundAttribute(parent, condition, (CompoundAttribute) attr, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown Attribute: " + attr.getClass()), relation, attr);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown Attribute: " + attr.getClass()), relation, attr);
         }
     }
     
-    private static void convertStructDecl(TypeChefBlock parent, Formula condition, StructDecl decl, String relation) {
+    private static void convertStructDecl(SyntaxElement parent, Formula condition, StructDecl decl, String relation) {
         if (decl instanceof StructDeclarator) {
             convertStructDeclarator(parent, condition, (StructDeclarator) decl, relation);
         } else if (decl instanceof StructInitializer) {
             convertStructInitializer(parent, condition, (StructInitializer) decl, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown StructDecl: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown StructDecl: " + decl.getClass()), relation, decl);
         }
     }
     
-    private static void convertAbstractDeclarator(TypeChefBlock parent, Formula condition, AbstractDeclarator decl, String relation) {
+    private static void convertAbstractDeclarator(SyntaxElement parent, Formula condition, AbstractDeclarator decl, String relation) {
         if (decl instanceof AtomicAbstractDeclarator) {
             convertAtomicAbstractDeclarator(parent, condition, (AtomicAbstractDeclarator) decl, relation);
         } else if (decl instanceof NestedAbstractDeclarator) {
             convertNestedAbstractDeclarator(parent, condition, (NestedAbstractDeclarator) decl, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown AbstractDeclarator: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown AbstractDeclarator: " + decl.getClass()), relation, decl);
         }
     }
     
-    private static void convertCDef(TypeChefBlock parent, Formula condition, CDef cdef, String relation) {
+    private static void convertCDef(SyntaxElement parent, Formula condition, CDef cdef, String relation) {
         if (cdef instanceof FunctionDef) {
             convertFunctionDef(parent, condition, (FunctionDef) cdef, relation);
         } else if (cdef instanceof NestedFunctionDef) {
             convertNestedFunctionDef(parent, condition, (NestedFunctionDef) cdef, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown CDef: " + cdef.getClass()), relation, cdef);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown CDef: " + cdef.getClass()), relation, cdef);
         }
     }
     
-    private static void convertOffsetofMemberDesignator(TypeChefBlock parent, Formula condition, OffsetofMemberDesignator des, String relation) {
+    private static void convertOffsetofMemberDesignator(SyntaxElement parent, Formula condition, OffsetofMemberDesignator des, String relation) {
         if (des instanceof OffsetofMemberDesignatorExpr) {
             convertOffsetofMemberDesignatorExpr(parent, condition, (OffsetofMemberDesignatorExpr) des, relation);
         } else if (des instanceof OffsetofMemberDesignatorID) {
             convertOffsetofMemberDesignatorID(parent, condition, (OffsetofMemberDesignatorID) des, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown OffsetofMemberDesignator: " + des.getClass()), relation, des);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown OffsetofMemberDesignator: " + des.getClass()), relation, des);
         }
     }
     
-    private static void convertInitializerElementLabel(TypeChefBlock parent, Formula condition, InitializerElementLabel lbl, String relation) {
+    private static void convertInitializerElementLabel(SyntaxElement parent, Formula condition, InitializerElementLabel lbl, String relation) {
         if (lbl instanceof InitializerArrayDesignator) {
             convertInitializerArrayDesignator(parent, condition, (InitializerArrayDesignator) lbl, relation);
         } else if (lbl instanceof InitializerAssigment) {
@@ -441,32 +449,32 @@ public class AstConverter {
         } else if (lbl instanceof InitializerDesignatorD) {
             convertInitializerDesignatorD(parent, condition, (InitializerDesignatorD) lbl, relation);
         } else {
-            new TypeChefBlock(parent, condition, new ErrorSyntaxElement("Unkown InitializerElementLabel: " + lbl.getClass()), relation, lbl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown InitializerElementLabel: " + lbl.getClass()), relation, lbl);
         }
     }
     
     //---------------------------------------
     
-    private static void convertAlignOfExprT(TypeChefBlock parent, Formula condition, AlignOfExprT expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ALIGN_OF_EXPR_T, relation, expr);
+    private static void convertAlignOfExprT(SyntaxElement parent, Formula condition, AlignOfExprT expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ALIGN_OF_EXPR_T, relation, expr);
         
         convertTypeName(block, True.INSTANCE, expr.typeName(), "Type");
     }
     
-    private static void convertAlignOfExprU(TypeChefBlock parent, Formula condition, AlignOfExprU expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ALIGN_OF_EXPR_U, relation, expr);
+    private static void convertAlignOfExprU(SyntaxElement parent, Formula condition, AlignOfExprU expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ALIGN_OF_EXPR_U, relation, expr);
         
         convertExpr(block, True.INSTANCE, expr.expr(), "Expression");
     }
     
-    private static void convertArrayAccess(TypeChefBlock parent, Formula condition, ArrayAccess access, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ARRAY_ACCESS, relation, access);
+    private static void convertArrayAccess(SyntaxElement parent, Formula condition, ArrayAccess access, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ARRAY_ACCESS, relation, access);
         
         convertExpr(block, True.INSTANCE, access.expr(), "Expression");
     }
     
-    private static void convertAtomicAbstractDeclarator(TypeChefBlock parent, Formula condition, AtomicAbstractDeclarator decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ATOMIC_ABSTRACT_DECLARATOR, relation, decl);
+    private static void convertAtomicAbstractDeclarator(SyntaxElement parent, Formula condition, AtomicAbstractDeclarator decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ATOMIC_ABSTRACT_DECLARATOR, relation, decl);
         
         for (Opt<Pointer> it : scalaIterator(decl.pointers())) {
             convertPointer(block, toFormula(it.condition()), it.entry(), "Pointer");
@@ -477,36 +485,36 @@ public class AstConverter {
         }
     }
     
-    private static void convertAtomicAttribute(TypeChefBlock parent, Formula condition, AtomicAttribute attr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ATOMIC_ATTRIBUTE, relation, attr);
+    private static void convertAtomicAttribute(SyntaxElement parent, Formula condition, AtomicAttribute attr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ATOMIC_ATTRIBUTE, relation, attr);
 
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(attr.n()), "Name");
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(attr.n()), "Name", attr);
     }
     
-    private static void convertAttributeSequence(TypeChefBlock parent, Formula condition, AttributeSequence seq, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ATTRIBUTE_SEQUENCE, relation, seq);
+    private static void convertAttributeSequence(SyntaxElement parent, Formula condition, AttributeSequence seq, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ATTRIBUTE_SEQUENCE, relation, seq);
         
         for (Opt<Attribute> it : scalaIterator(seq.attributes())) {
             convertAttribute(block, toFormula(it.condition()), it.entry(), "Attribute");
         }
     }
     
-    private static void convertAsmAttributeSpecifier(TypeChefBlock parent, Formula condition, AsmAttributeSpecifier spec, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ASM_ATTRIBUTE_SPECIFIER, relation, spec);
+    private static void convertAsmAttributeSpecifier(SyntaxElement parent, Formula condition, AsmAttributeSpecifier spec, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ASM_ATTRIBUTE_SPECIFIER, relation, spec);
         
         convertStringLit(block, True.INSTANCE, spec.stringConst(), "");
     }
     
-    private static void convertAssignExpr(TypeChefBlock parent, Formula condition, AssignExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ASSIGN_EXPR, relation, expr);
+    private static void convertAssignExpr(SyntaxElement parent, Formula condition, AssignExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ASSIGN_EXPR, relation, expr);
         
         convertExpr(block, True.INSTANCE, expr.target(), "Target");
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(expr.operation()), "Operator");
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(expr.operation()), "Operator", expr);
         convertExpr(block, True.INSTANCE, expr.source(), "Source");
     }
     
-    private static void convertAtomicNamedDeclarator(TypeChefBlock parent, Formula condition, AtomicNamedDeclarator decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ATOMIC_NAMED_DECLARATOR, relation, decl);
+    private static void convertAtomicNamedDeclarator(SyntaxElement parent, Formula condition, AtomicNamedDeclarator decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ATOMIC_NAMED_DECLARATOR, relation, decl);
         
         convertId(block, True.INSTANCE, decl.getId(), "ID");
         
@@ -519,12 +527,12 @@ public class AstConverter {
         }
     }
     
-    private static void convertBreakStatement(TypeChefBlock parent, Formula condition, BreakStatement statement, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.BREAK_STATEMENT, relation, statement);
+    private static void convertBreakStatement(SyntaxElement parent, Formula condition, BreakStatement statement, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.BREAK_STATEMENT, relation, statement);
     }
     
-    private static void convertBuiltinOffsetof(TypeChefBlock parent, Formula condition, BuiltinOffsetof expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.BUILTIN_OFFSETOF, relation, expr);
+    private static void convertBuiltinOffsetof(SyntaxElement parent, Formula condition, BuiltinOffsetof expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.BUILTIN_OFFSETOF, relation, expr);
         
         convertTypeName(block, True.INSTANCE, expr.typeName(), "Type");
         
@@ -533,50 +541,50 @@ public class AstConverter {
         }
     }
     
-    private static void convertBuiltinTypesCompatible(TypeChefBlock parent, Formula condition, BuiltinTypesCompatible expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.BUILTIN_TYPES_COMPATIBLE, relation, expr);
+    private static void convertBuiltinTypesCompatible(SyntaxElement parent, Formula condition, BuiltinTypesCompatible expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.BUILTIN_TYPES_COMPATIBLE, relation, expr);
         
         convertTypeName(block, True.INSTANCE, expr.typeName1(), "Type1");
         convertTypeName(block, True.INSTANCE, expr.typeName2(), "Type2");
     }
     
-    private static void convertCaseStatement(TypeChefBlock parent, Formula condition, CaseStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.CASE_STATEMENT, relation, statement);
+    private static void convertCaseStatement(SyntaxElement parent, Formula condition, CaseStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.CASE_STATEMENT, relation, statement);
         
         convertExpr(block, True.INSTANCE, statement.c(), "");
     }
     
-    private static void convertCastExpr(TypeChefBlock parent, Formula condition, CastExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.CAST_EXPR, relation, expr);
+    private static void convertCastExpr(SyntaxElement parent, Formula condition, CastExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.CAST_EXPR, relation, expr);
         
         convertTypeName(block, True.INSTANCE, expr.typeName(), "Type");
         convertExpr(block, True.INSTANCE, expr.expr(), "Expression");
     }
     
-    private static void convertCompoundAttribute(TypeChefBlock parent, Formula condition, CompoundAttribute attr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.COMPOUND_ATTRIBUTE, relation, attr);
+    private static void convertCompoundAttribute(SyntaxElement parent, Formula condition, CompoundAttribute attr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.COMPOUND_ATTRIBUTE, relation, attr);
         
         for (Opt<AttributeSequence> it : scalaIterator(attr.inner())) {
             convertAttributeSequence(block, toFormula(it.condition()), it.entry(), "Attribute");
         }
     }
     
-    private static void convertCompoundStatement(TypeChefBlock parent, Formula condition, CompoundStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.COMPOUND_STATEMENT, relation, statement);
+    private static void convertCompoundStatement(SyntaxElement parent, Formula condition, CompoundStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.COMPOUND_STATEMENT, relation, statement);
         
         for (Opt<Statement> it : scalaIterator(statement.innerStatements())) {
             convertStatement(block, toFormula(it.condition()), it.entry(), "");
         }
     }
     
-    private static void convertCompoundStatementExpr(TypeChefBlock parent, Formula condition, CompoundStatementExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.COMPOUND_STATEMENT_EXPR, relation, expr);
+    private static void convertCompoundStatementExpr(SyntaxElement parent, Formula condition, CompoundStatementExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.COMPOUND_STATEMENT_EXPR, relation, expr);
 
         convertCompoundStatement(block, True.INSTANCE, expr.compoundStatement(), "Statement");
     }
     
-    private static void convertConditionalExpr(TypeChefBlock parent, Formula condition, ConditionalExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.CONDITIONAL_EXPR, relation, expr);
+    private static void convertConditionalExpr(SyntaxElement parent, Formula condition, ConditionalExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.CONDITIONAL_EXPR, relation, expr);
         
         convertExpr(block, True.INSTANCE, expr.condition(), "Condition");
         
@@ -587,17 +595,17 @@ public class AstConverter {
         convertExpr(block, True.INSTANCE, expr.elseExpr(), "Else");
     }
     
-    private static void convertConstant(TypeChefBlock parent, Formula condition, Constant expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.CONSTANT, relation, expr);
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(expr.value()), "Value");
+    private static void convertConstant(SyntaxElement parent, Formula condition, Constant expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.CONSTANT, relation, expr);
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(expr.value()), "Value", expr);
     }
     
-    private static void convertContinueStatement(TypeChefBlock parent, Formula condition, ContinueStatement statement, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.CONTINUE_STATEMENT, relation, statement);
+    private static void convertContinueStatement(SyntaxElement parent, Formula condition, ContinueStatement statement, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.CONTINUE_STATEMENT, relation, statement);
     }
     
-    private static void convertDeclaration(TypeChefBlock parent, Formula condition, Declaration decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.DECLARATION, relation, decl);
+    private static void convertDeclaration(SyntaxElement parent, Formula condition, Declaration decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.DECLARATION, relation, decl);
         
         for (Opt<Specifier> it : scalaIterator(decl.declSpecs())) {
             convertSpecifier(block, toFormula(it.condition()), it.entry(), "Specifier");
@@ -608,42 +616,42 @@ public class AstConverter {
         }
     }
     
-    private static void convertDeclarationStatement(TypeChefBlock parent, Formula condition, DeclarationStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.DECLARATION_STATEMENT, relation, statement);
+    private static void convertDeclarationStatement(SyntaxElement parent, Formula condition, DeclarationStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.DECLARATION_STATEMENT, relation, statement);
         
         convertDeclaration(block, True.INSTANCE, statement.decl(), "");
     }
     
-    private static void convertDeclIdentifierList(TypeChefBlock parent, Formula condition, DeclIdentifierList decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.DECL_IDENTIFIER_LIST, relation, decl);
+    private static void convertDeclIdentifierList(SyntaxElement parent, Formula condition, DeclIdentifierList decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.DECL_IDENTIFIER_LIST, relation, decl);
         
         for (Opt<Id> it : scalaIterator(decl.idList())) {
             convertId(block, toFormula(it.condition()), it.entry(), "");
         }
     }
     
-    private static void convertDeclArrayAccess(TypeChefBlock parent, Formula condition, DeclArrayAccess decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.DECL_ARRAY_ACCESS, relation, decl);
+    private static void convertDeclArrayAccess(SyntaxElement parent, Formula condition, DeclArrayAccess decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.DECL_ARRAY_ACCESS, relation, decl);
         
         if (decl.expr().isDefined()) {
             convertExpr(block, True.INSTANCE, decl.expr().get(), "Expr");
         }
     }
     
-    private static void convertDeclParameterDeclList(TypeChefBlock parent, Formula condition, DeclParameterDeclList decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.DECL_PARAMETER_DECL_LIST, relation, decl);
+    private static void convertDeclParameterDeclList(SyntaxElement parent, Formula condition, DeclParameterDeclList decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.DECL_PARAMETER_DECL_LIST, relation, decl);
         
         for (Opt<ParameterDeclaration> it : scalaIterator(decl.parameterDecls())) {
             convertParameterDeclaration(block, toFormula(it.condition()), it.entry(), "Parameter");
         }
     }
     
-    private static void convertDefaultStatement(TypeChefBlock parent, Formula condition, DefaultStatement statement, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.DEFAULT_STATEMENT, relation, statement);
+    private static void convertDefaultStatement(SyntaxElement parent, Formula condition, DefaultStatement statement, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.DEFAULT_STATEMENT, relation, statement);
     }
     
-    private static void convertDoStatement(TypeChefBlock parent, Formula condition, DoStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.DO_STATEMENT, relation, statement);
+    private static void convertDoStatement(SyntaxElement parent, Formula condition, DoStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.DO_STATEMENT, relation, statement);
         
         convertExpr(block, True.INSTANCE, statement.expr(), "Expr");
         
@@ -652,8 +660,8 @@ public class AstConverter {
         }
     }
     
-    private static void convertElifStatement(TypeChefBlock parent, Formula condition, ElifStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ELIF_STATEMENT, relation, statement);
+    private static void convertElifStatement(SyntaxElement parent, Formula condition, ElifStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ELIF_STATEMENT, relation, statement);
         
         for (Opt<Expr> it : scalaIterator(statement.condition().toOptList())) {
             convertExpr(block, toFormula(it.condition()), it.entry(), "Expr");
@@ -664,16 +672,16 @@ public class AstConverter {
         }
     }
     
-    private static void convertEmptyExternalDef(TypeChefBlock parent, Formula condition, EmptyExternalDef statement, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.EMPTY_EXTERNAL_DEF, relation, statement);
+    private static void convertEmptyExternalDef(SyntaxElement parent, Formula condition, EmptyExternalDef statement, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.EMPTY_EXTERNAL_DEF, relation, statement);
     }
     
-    private static void convertEmptyStatement(TypeChefBlock parent, Formula condition, EmptyStatement statement, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.EMPTY_STATEMENT, relation, statement);
+    private static void convertEmptyStatement(SyntaxElement parent, Formula condition, EmptyStatement statement, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.EMPTY_STATEMENT, relation, statement);
     }
     
-    private static void convertEnumerator(TypeChefBlock parent, Formula condition, Enumerator spec, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ENUMERATOR, relation, spec);
+    private static void convertEnumerator(SyntaxElement parent, Formula condition, Enumerator spec, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ENUMERATOR, relation, spec);
         
         convertId(block, True.INSTANCE, spec.id(), "ID");
         
@@ -682,8 +690,8 @@ public class AstConverter {
         }
     }
     
-    private static void convertEnumSpecifier(TypeChefBlock parent, Formula condition, EnumSpecifier spec, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ENUM_SPECIFIER, relation, spec);
+    private static void convertEnumSpecifier(SyntaxElement parent, Formula condition, EnumSpecifier spec, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ENUM_SPECIFIER, relation, spec);
         
         if (spec.id().isDefined()) {
             convertId(block, True.INSTANCE, spec.id().get(), "ID");
@@ -696,22 +704,22 @@ public class AstConverter {
         }
     }
     
-    private static void convertExprList(TypeChefBlock parent, Formula condition, ExprList expr, String relation) {
-        TypeChefBlock block =  new TypeChefBlock(parent, condition, SyntaxElements.EXPR_LIST, relation, expr);
+    private static void convertExprList(SyntaxElement parent, Formula condition, ExprList expr, String relation) {
+        SyntaxElement block =  createSyntaxElement(parent, condition, SyntaxElementTypes.EXPR_LIST, relation, expr);
         
         for (Opt<Expr> it : scalaIterator(expr.exprs())) {
             convertExpr(block, toFormula(it.condition()), it.entry(), "");
         }
     }
     
-    private static void convertExprStatement(TypeChefBlock parent, Formula condition, ExprStatement statement, String relation) {
-        TypeChefBlock block =  new TypeChefBlock(parent, condition, SyntaxElements.EXPR_STATEMENT, relation, statement);
+    private static void convertExprStatement(SyntaxElement parent, Formula condition, ExprStatement statement, String relation) {
+        SyntaxElement block =  createSyntaxElement(parent, condition, SyntaxElementTypes.EXPR_STATEMENT, relation, statement);
         
         convertExpr(block, True.INSTANCE, statement.expr(), "");
     }
     
-    private static void convertForStatement(TypeChefBlock parent, Formula condition, ForStatement statement, String relation) {
-        TypeChefBlock block =  new TypeChefBlock(parent, condition, SyntaxElements.FOR_STATEMENT, relation, statement);
+    private static void convertForStatement(SyntaxElement parent, Formula condition, ForStatement statement, String relation) {
+        SyntaxElement block =  createSyntaxElement(parent, condition, SyntaxElementTypes.FOR_STATEMENT, relation, statement);
         
         if (statement.expr1().isDefined()) {
             convertExpr(block, True.INSTANCE, statement.expr1().get(), "Init");
@@ -728,14 +736,14 @@ public class AstConverter {
         }
     }
     
-    private static void convertFunctionCall(TypeChefBlock parent, Formula condition, FunctionCall call, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.FUNCTION_CALL, relation, call);
+    private static void convertFunctionCall(SyntaxElement parent, Formula condition, FunctionCall call, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.FUNCTION_CALL, relation, call);
         
         convertExprList(block, True.INSTANCE, call.params(), "Parameters");
     }
     
-    private static void convertFunctionDef(TypeChefBlock parent, Formula condition, FunctionDef functionDef, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.FUNCTION_DEF, relation, functionDef);
+    private static void convertFunctionDef(SyntaxElement parent, Formula condition, FunctionDef functionDef, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.FUNCTION_DEF, relation, functionDef);
         
         convertDeclarator(block, True.INSTANCE, functionDef.declarator(), "Declarator");
         
@@ -750,39 +758,39 @@ public class AstConverter {
         convertCompoundStatement(block, True.INSTANCE, functionDef.stmt(), "Body");
     }
     
-    private static void convertGnuAsmExpr(TypeChefBlock parent, Formula condition, GnuAsmExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.GNU_ASM_EXPR, relation, expr);
+    private static void convertGnuAsmExpr(SyntaxElement parent, Formula condition, GnuAsmExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.GNU_ASM_EXPR, relation, expr);
         
         convertStringLit(block, True.INSTANCE, expr.expr(), "Expression");
     }
     
-    private static void convertGnuAttributeSpecifier(TypeChefBlock parent, Formula condition, GnuAttributeSpecifier spec, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.GNU_ATTRIBUTE_SPECIFIER, relation, spec);
+    private static void convertGnuAttributeSpecifier(SyntaxElement parent, Formula condition, GnuAttributeSpecifier spec, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.GNU_ATTRIBUTE_SPECIFIER, relation, spec);
         
         for (Opt<AttributeSequence> it : scalaIterator(spec.attributeList())) {
             convertAttributeSequence(block, toFormula(it.condition()), it.entry(), "Attribute");
         }
     }
     
-    private static void convertGotoStatement(TypeChefBlock parent, Formula condition, GotoStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.GOTO_STATEMENT, relation, statement);
+    private static void convertGotoStatement(SyntaxElement parent, Formula condition, GotoStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.GOTO_STATEMENT, relation, statement);
         
         convertExpr(block, True.INSTANCE, statement.target(), "Target");
     }
     
-    private static void convertId(TypeChefBlock parent, Formula condition, Id id, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.ID, relation, id);
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(id.name()), "Name");
+    private static void convertId(SyntaxElement parent, Formula condition, Id id, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.ID, relation, id);
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(id.name()), "Name", id);
     }
     
-    private static void convertSimplePostfixSuffix(TypeChefBlock parent, Formula condition, SimplePostfixSuffix suffix, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.SIMPLE_POSTFIX_SUFFIX, relation, suffix);
+    private static void convertSimplePostfixSuffix(SyntaxElement parent, Formula condition, SimplePostfixSuffix suffix, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.SIMPLE_POSTFIX_SUFFIX, relation, suffix);
         
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(suffix.t()), "Operator");
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(suffix.t()), "Operator", suffix);
     }
     
-    private static void convertIfStatement(TypeChefBlock parent, Formula condition, IfStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.IF_STATEMENT, relation, statement);
+    private static void convertIfStatement(SyntaxElement parent, Formula condition, IfStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.IF_STATEMENT, relation, statement);
         
         for (Opt<Expr> it : scalaIterator(statement.condition().toOptList())) {
             convertExpr(block, toFormula(it.condition()), it.entry(), "Condition");
@@ -803,8 +811,8 @@ public class AstConverter {
         }
     }
     
-    private static void convertInitializer(TypeChefBlock parent, Formula condition, Initializer init, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.INITIALIZER, relation, init);
+    private static void convertInitializer(SyntaxElement parent, Formula condition, Initializer init, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.INITIALIZER, relation, init);
         
         convertExpr(block, True.INSTANCE, init.expr(), "Expr");
         
@@ -813,34 +821,34 @@ public class AstConverter {
         }
     }
     
-    private static void convertInitializerArrayDesignator(TypeChefBlock parent, Formula condition, InitializerArrayDesignator init, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.INITIALIZER_ARRAY_DESIGNATOR, relation, init);
+    private static void convertInitializerArrayDesignator(SyntaxElement parent, Formula condition, InitializerArrayDesignator init, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.INITIALIZER_ARRAY_DESIGNATOR, relation, init);
         
         convertExpr(block, True.INSTANCE, init.expr(), "Expression");
     }
     
-    private static void convertInitializerAssigment(TypeChefBlock parent, Formula condition, InitializerAssigment init, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.INITIALIZER_ASSIGMENT, relation, init);
+    private static void convertInitializerAssigment(SyntaxElement parent, Formula condition, InitializerAssigment init, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.INITIALIZER_ASSIGMENT, relation, init);
         
         for (Opt<InitializerElementLabel> it : scalaIterator(init.designators())) {
             convertInitializerElementLabel(block, toFormula(it.condition()), it.entry(), "Designator");
         }
     }
     
-    private static void convertInitializerDesignatorC(TypeChefBlock parent, Formula condition, InitializerDesignatorC init, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.INITIALIZER_DESIGNATOR_C, relation, init);
+    private static void convertInitializerDesignatorC(SyntaxElement parent, Formula condition, InitializerDesignatorC init, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.INITIALIZER_DESIGNATOR_C, relation, init);
 
         convertId(block, True.INSTANCE, init.id(), "ID");
     }
     
-    private static void convertInitializerDesignatorD(TypeChefBlock parent, Formula condition, InitializerDesignatorD init, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.INITIALIZER_DESIGNATOR_D, relation, init);
+    private static void convertInitializerDesignatorD(SyntaxElement parent, Formula condition, InitializerDesignatorD init, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.INITIALIZER_DESIGNATOR_D, relation, init);
         
         convertId(block, True.INSTANCE, init.id(), "ID");
     }
     
-    private static void convertInitDeclaratorE(TypeChefBlock parent, Formula condition, InitDeclaratorE decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.INIT_DECLARATOR_E, relation, decl);
+    private static void convertInitDeclaratorE(SyntaxElement parent, Formula condition, InitDeclaratorE decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.INIT_DECLARATOR_E, relation, decl);
         
         convertDeclarator(block, True.INSTANCE, decl.declarator(), "Declarator");
         
@@ -852,8 +860,8 @@ public class AstConverter {
         
     }
     
-    private static void convertInitDeclaratorI(TypeChefBlock parent, Formula condition, InitDeclaratorI decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.INIT_DECLARATOR_I, relation, decl);
+    private static void convertInitDeclaratorI(SyntaxElement parent, Formula condition, InitDeclaratorI decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.INIT_DECLARATOR_I, relation, decl);
         
         convertDeclarator(block, True.INSTANCE, decl.declarator(), "Declarator");
         
@@ -866,8 +874,8 @@ public class AstConverter {
         }
     }
     
-    private static void convertLabelStatement(TypeChefBlock parent, Formula condition, LabelStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.LABEL_STATEMENT, relation, statement);
+    private static void convertLabelStatement(SyntaxElement parent, Formula condition, LabelStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.LABEL_STATEMENT, relation, statement);
         
         if (statement.attribute().isDefined()) {
             convertAttributeSpecifier(block, True.INSTANCE, statement.attribute().get(), "Attribute");
@@ -876,24 +884,24 @@ public class AstConverter {
         convertId(block, True.INSTANCE, statement.id(), "Id");
     }
     
-    private static void convertLcurlyInitializer(TypeChefBlock parent, Formula condition, LcurlyInitializer init, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.LCURLY_INITIALIZER, relation, init);
+    private static void convertLcurlyInitializer(SyntaxElement parent, Formula condition, LcurlyInitializer init, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.LCURLY_INITIALIZER, relation, init);
         
         for (Opt<Initializer> it : scalaIterator(init.inits())) {
             convertInitializer(block, toFormula(it.condition()), it.entry(), "Initializer");
         }
     }
     
-    private static void convertLocalLabelDeclaration(TypeChefBlock parent, Formula condition, LocalLabelDeclaration decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.LOCAL_LABEL_DECLARATION, relation, decl);
+    private static void convertLocalLabelDeclaration(SyntaxElement parent, Formula condition, LocalLabelDeclaration decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.LOCAL_LABEL_DECLARATION, relation, decl);
         
         for (Opt<Id> it : scalaIterator(decl.ids())) {
             convertId(block, toFormula(it.condition()), it.entry(), "Id");
         }
     }
     
-    private static void convertNAryExpr(TypeChefBlock parent, Formula condition, NAryExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.N_ARY_EXPR, relation, expr);
+    private static void convertNAryExpr(SyntaxElement parent, Formula condition, NAryExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.N_ARY_EXPR, relation, expr);
         
         convertExpr(block, True.INSTANCE, expr.e(), "");
         
@@ -902,15 +910,15 @@ public class AstConverter {
         }
     }
     
-    private static void convertNArySubExpr(TypeChefBlock parent, Formula condition, NArySubExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.N_ARY_SUB_EXPR, relation, expr);
+    private static void convertNArySubExpr(SyntaxElement parent, Formula condition, NArySubExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.N_ARY_SUB_EXPR, relation, expr);
         
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(expr.op()), "Operator");
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(expr.op()), "Operator", expr);
         convertExpr(block, True.INSTANCE, expr.e(), "");
     }
     
-    private static void convertNestedAbstractDeclarator(TypeChefBlock parent, Formula condition, NestedAbstractDeclarator decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.NESTED_ABSTRACT_DECLARATOR, relation, decl);
+    private static void convertNestedAbstractDeclarator(SyntaxElement parent, Formula condition, NestedAbstractDeclarator decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.NESTED_ABSTRACT_DECLARATOR, relation, decl);
         
         for (Opt<Pointer> it : scalaIterator(decl.pointers())) {
             convertPointer(block, toFormula(it.condition()), it.entry(), "Pointer");
@@ -927,8 +935,8 @@ public class AstConverter {
         convertAbstractDeclarator(block, True.INSTANCE, decl.nestedDecl(), "NestedDeclarator");
     }
     
-    private static void convertNestedFunctionDef(TypeChefBlock parent, Formula condition, NestedFunctionDef def, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.NESTED_FUNCTION_DEF, relation, def);
+    private static void convertNestedFunctionDef(SyntaxElement parent, Formula condition, NestedFunctionDef def, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.NESTED_FUNCTION_DEF, relation, def);
         
         convertDeclarator(block, True.INSTANCE, def.declarator(), "Declarator");
         
@@ -944,8 +952,8 @@ public class AstConverter {
         convertCompoundStatement(block, True.INSTANCE, def.stmt(), "Body");
     }
     
-    private static void convertNestedNamedDeclarator(TypeChefBlock parent, Formula condition, NestedNamedDeclarator decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.NESTED_NAMED_DECLARATOR, relation, decl);
+    private static void convertNestedNamedDeclarator(SyntaxElement parent, Formula condition, NestedNamedDeclarator decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.NESTED_NAMED_DECLARATOR, relation, decl);
         
         convertId(block, True.INSTANCE, decl.getId(), "Id");
         
@@ -964,26 +972,26 @@ public class AstConverter {
         convertDeclarator(block, True.INSTANCE, decl.nestedDecl(), "NestedDecl");
     }
     
-    private static void convertOffsetofMemberDesignatorExpr(TypeChefBlock parent, Formula condition, OffsetofMemberDesignatorExpr offset, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.OFFSETOF_MEMBER_DESIGNATOR_EXPR, relation, offset);
+    private static void convertOffsetofMemberDesignatorExpr(SyntaxElement parent, Formula condition, OffsetofMemberDesignatorExpr offset, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.OFFSETOF_MEMBER_DESIGNATOR_EXPR, relation, offset);
         
         convertExpr(block, True.INSTANCE, offset.expr(), "Expression");
     }
     
-    private static void convertOffsetofMemberDesignatorID(TypeChefBlock parent, Formula condition, OffsetofMemberDesignatorID offset, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.OFFSETOF_MEMBER_DESIGNATOR_ID, relation, offset);
+    private static void convertOffsetofMemberDesignatorID(SyntaxElement parent, Formula condition, OffsetofMemberDesignatorID offset, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.OFFSETOF_MEMBER_DESIGNATOR_ID, relation, offset);
         
         convertId(block, True.INSTANCE, offset.id(), "ID");
     }
     
-    private static void convertOtherPrimitiveTypeSpecifier(TypeChefBlock parent, Formula condition, OtherPrimitiveTypeSpecifier spec, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.OTHER_PRIMITIVE_TYPE_SPECIFIER, relation, spec);
+    private static void convertOtherPrimitiveTypeSpecifier(SyntaxElement parent, Formula condition, OtherPrimitiveTypeSpecifier spec, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.OTHER_PRIMITIVE_TYPE_SPECIFIER, relation, spec);
         
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(spec.typeName()), "TypeName");
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(spec.typeName()), "TypeName", spec);
     }
     
-    private static void convertParameterDeclarationAD(TypeChefBlock parent, Formula condition, ParameterDeclarationAD decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.PARAMETER_DECLARATION_A_D, relation, decl);
+    private static void convertParameterDeclarationAD(SyntaxElement parent, Formula condition, ParameterDeclarationAD decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.PARAMETER_DECLARATION_A_D, relation, decl);
         
         for (Opt<Specifier> it : scalaIterator(decl.specifiers())) {
             convertSpecifier(block, toFormula(it.condition()), it.entry(), "Specifier");
@@ -996,8 +1004,8 @@ public class AstConverter {
         convertAbstractDeclarator(block, True.INSTANCE, decl.decl(), "Declarator");
     }
     
-    private static void convertParameterDeclarationD(TypeChefBlock parent, Formula condition, ParameterDeclarationD decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.PARAMETER_DECLARATION_D, relation, decl);
+    private static void convertParameterDeclarationD(SyntaxElement parent, Formula condition, ParameterDeclarationD decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.PARAMETER_DECLARATION_D, relation, decl);
         
         for (Opt<Specifier> it : scalaIterator(decl.specifiers())) {
             convertSpecifier(block, toFormula(it.condition()), it.entry(), "Specifier");
@@ -1010,8 +1018,8 @@ public class AstConverter {
         convertDeclarator(block, True.INSTANCE, decl.decl(), "Declarator");
     }
     
-    private static void convertPlainParameterDeclaration(TypeChefBlock parent, Formula condition, PlainParameterDeclaration decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.PLAIN_PARAMETER_DECLARATION, relation, decl);
+    private static void convertPlainParameterDeclaration(SyntaxElement parent, Formula condition, PlainParameterDeclaration decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.PLAIN_PARAMETER_DECLARATION, relation, decl);
         
         for (Opt<Specifier> it : scalaIterator(decl.specifiers())) {
             convertSpecifier(block, toFormula(it.condition()), it.entry(), "Specifier");
@@ -1022,89 +1030,89 @@ public class AstConverter {
         }
     }
     
-    private static void convertPrimitiveTypeSpecifier(TypeChefBlock parent, Formula condition, PrimitiveTypeSpecifier spec, String relation) {
-        new TypeChefBlock(parent, condition, new LiteralSyntaxElement(spec.getClass().getSimpleName()), relation, spec);
+    private static void convertPrimitiveTypeSpecifier(SyntaxElement parent, Formula condition, PrimitiveTypeSpecifier spec, String relation) {
+        createSyntaxElement(parent, condition, new LiteralSyntaxElement(spec.getClass().getSimpleName()), relation, spec);
     }
     
-    private static void convertPointer(TypeChefBlock parent, Formula condition, Pointer pointer, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.POINTER, relation, pointer);
+    private static void convertPointer(SyntaxElement parent, Formula condition, Pointer pointer, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.POINTER, relation, pointer);
         
         for (Opt<Specifier> it : scalaIterator(pointer.specifier())) {
             convertSpecifier(block, toFormula(it.condition()), it.entry(), "Specifier");
         }
     }
     
-    private static void convertPointerCreationExpr(TypeChefBlock parent, Formula condition, PointerCreationExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.POINTER_CREATION_EXPR, relation, expr);
+    private static void convertPointerCreationExpr(SyntaxElement parent, Formula condition, PointerCreationExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.POINTER_CREATION_EXPR, relation, expr);
         
         convertExpr(block, True.INSTANCE, expr.castExpr(), "Expression");
     }
     
-    private static void convertPointerDerefExpr(TypeChefBlock parent, Formula condition, PointerDerefExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.POINTER_DEREF_EXPR, relation, expr);
+    private static void convertPointerDerefExpr(SyntaxElement parent, Formula condition, PointerDerefExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.POINTER_DEREF_EXPR, relation, expr);
         
         convertExpr(block, True.INSTANCE, expr.castExpr(), "Expression");
     }
     
-    private static void convertPointerPostfixSuffix(TypeChefBlock parent, Formula condition, PointerPostfixSuffix suffix, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.POINTER_POSTFIX_SUFFIX, relation, suffix);
+    private static void convertPointerPostfixSuffix(SyntaxElement parent, Formula condition, PointerPostfixSuffix suffix, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.POINTER_POSTFIX_SUFFIX, relation, suffix);
         
         convertId(block, True.INSTANCE, suffix.id(), "ID");
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(suffix.kind()), "Kind");
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(suffix.kind()), "Kind", suffix);
     }
     
-    private static void convertPostfixExpr(TypeChefBlock parent, Formula condition, PostfixExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.POSTFIX_EXPR, relation, expr);
+    private static void convertPostfixExpr(SyntaxElement parent, Formula condition, PostfixExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.POSTFIX_EXPR, relation, expr);
         
         convertPostfixSuffix(block, True.INSTANCE, expr.s(), "Operator");
         convertExpr(block, True.INSTANCE, expr.p(), "Expr");
     }
     
-    private static void convertRangeExpr(TypeChefBlock parent, Formula condition, RangeExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.RANGE_EXPR, relation, expr);
+    private static void convertRangeExpr(SyntaxElement parent, Formula condition, RangeExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.RANGE_EXPR, relation, expr);
 
         convertExpr(block, True.INSTANCE, expr.from(), "From");
         convertExpr(block, True.INSTANCE, expr.to(), "To");
     }
     
-    private static void convertReturnStatement(TypeChefBlock parent, Formula condition, ReturnStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.RETURN_STATEMENT, relation, statement);
+    private static void convertReturnStatement(SyntaxElement parent, Formula condition, ReturnStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.RETURN_STATEMENT, relation, statement);
         
         if (statement.expr().isDefined()) {
             convertExpr(block, True.INSTANCE, statement.expr().get(), "Value");
         }
     }
     
-    private static void convertSignedSpecifier(TypeChefBlock parent, Formula condition, SignedSpecifier spec, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.SIGNED_SPECIFIER, relation, spec);
+    private static void convertSignedSpecifier(SyntaxElement parent, Formula condition, SignedSpecifier spec, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.SIGNED_SPECIFIER, relation, spec);
     }
     
-    private static void convertSizeOfExprT(TypeChefBlock parent, Formula condition, SizeOfExprT expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.SIZE_OF_EXPR_T, relation, expr);
+    private static void convertSizeOfExprT(SyntaxElement parent, Formula condition, SizeOfExprT expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.SIZE_OF_EXPR_T, relation, expr);
         
         convertTypeName(block, True.INSTANCE, expr.typeName(), "Type");
     }
     
-    private static void convertSizeOfExprU(TypeChefBlock parent, Formula condition, SizeOfExprU expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.SIZE_OF_EXPR_U, relation, expr);
+    private static void convertSizeOfExprU(SyntaxElement parent, Formula condition, SizeOfExprU expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.SIZE_OF_EXPR_U, relation, expr);
         
         convertExpr(block, True.INSTANCE, expr.expr(), "Expression");
     }
     
-    private static void convertStringLit(TypeChefBlock parent, Formula condition, StringLit lit, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.STRING_LIT, relation, lit);
+    private static void convertStringLit(SyntaxElement parent, Formula condition, StringLit lit, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.STRING_LIT, relation, lit);
 
         for (Opt<String> it : scalaIterator(lit.name())) {
-            new TypeChefBlock(block, toFormula(it.condition()), new LiteralSyntaxElement(it.entry()), "Value");
+            createSyntaxElement(block, toFormula(it.condition()), new LiteralSyntaxElement(it.entry()), "Value", lit);
         }
     }
     
-    private static void convertStructOrUnionSpecifier(TypeChefBlock parent, Formula condition, StructOrUnionSpecifier spec, String relation) {
-        TypeChefBlock block;
+    private static void convertStructOrUnionSpecifier(SyntaxElement parent, Formula condition, StructOrUnionSpecifier spec, String relation) {
+        SyntaxElement block;
         if (spec.isUnion()) {
-            block = new TypeChefBlock(parent, condition, SyntaxElements.UNION_SPECIFIER, relation, spec);
+            block = createSyntaxElement(parent, condition, SyntaxElementTypes.UNION_SPECIFIER, relation, spec);
         } else {
-            block = new TypeChefBlock(parent, condition, SyntaxElements.STRUCT_SPECIFIER, relation, spec);
+            block = createSyntaxElement(parent, condition, SyntaxElementTypes.STRUCT_SPECIFIER, relation, spec);
         }
         
         if (spec.id().isDefined()) {
@@ -1126,8 +1134,8 @@ public class AstConverter {
         
     }
     
-    private static void convertStructDeclaration(TypeChefBlock parent, Formula condition, StructDeclaration decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.STRUCT_DECLARATION, relation, decl);
+    private static void convertStructDeclaration(SyntaxElement parent, Formula condition, StructDeclaration decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.STRUCT_DECLARATION, relation, decl);
         
         for (Opt<Specifier> it : scalaIterator(decl.qualifierList())) {
             convertSpecifier(block, toFormula(it.condition()), it.entry(), "Qualifier");
@@ -1138,8 +1146,8 @@ public class AstConverter {
         }
     }
     
-    private static void convertStructDeclarator(TypeChefBlock parent, Formula condition, StructDeclarator decl, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.STRUCT_DECLARATOR, relation, decl);
+    private static void convertStructDeclarator(SyntaxElement parent, Formula condition, StructDeclarator decl, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.STRUCT_DECLARATOR, relation, decl);
         
         convertDeclarator(block, True.INSTANCE, decl.decl(), "Declarator");
         
@@ -1152,8 +1160,8 @@ public class AstConverter {
         }
     }
     
-    private static void convertStructInitializer(TypeChefBlock parent, Formula condition, StructInitializer init, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.STRUCT_INITIALIZER, relation, init);
+    private static void convertStructInitializer(SyntaxElement parent, Formula condition, StructInitializer init, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.STRUCT_INITIALIZER, relation, init);
         
         for (Opt<AttributeSpecifier> it : scalaIterator(init.attributes())) {
             convertAttributeSpecifier(block, toFormula(it.condition()), it.entry(), "Attribute");
@@ -1162,8 +1170,8 @@ public class AstConverter {
         convertExpr(block, True.INSTANCE, init.expr(), "Expression");
     }
     
-    private static void convertSwitchStatement(TypeChefBlock parent, Formula condition, SwitchStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.SWITCH_STATEMENT, relation, statement);
+    private static void convertSwitchStatement(SyntaxElement parent, Formula condition, SwitchStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.SWITCH_STATEMENT, relation, statement);
         
         convertExpr(block, True.INSTANCE, statement.expr(), "Expression");
         
@@ -1172,26 +1180,26 @@ public class AstConverter {
         }
     }
     
-    private static void convertTranslationUnit(TypeChefBlock parent, Formula condition, TranslationUnit unit, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.TRANSLATION_UNIT, relation, unit);
+    private static void convertTranslationUnit(SyntaxElement parent, Formula condition, TranslationUnit unit, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.TRANSLATION_UNIT, relation, unit);
         
         for (Opt<ExternalDef> it : scalaIterator(unit.defs())) {
             convertExternalDef(block, toFormula(it.condition()), it.entry(), "");
         }
     }
     
-    private static void convertTypeDefSpecifier(TypeChefBlock parent, Formula condition, TypedefSpecifier spec, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.TYPEDEF_SPECIFIER, relation, spec);
+    private static void convertTypeDefSpecifier(SyntaxElement parent, Formula condition, TypedefSpecifier spec, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.TYPEDEF_SPECIFIER, relation, spec);
     }
     
-    private static void convertTypeDefTypeSpecifier(TypeChefBlock parent, Formula condition, TypeDefTypeSpecifier spec, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.TYPE_DEF_TYPE_SPECIFIER, relation, spec);
+    private static void convertTypeDefTypeSpecifier(SyntaxElement parent, Formula condition, TypeDefTypeSpecifier spec, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.TYPE_DEF_TYPE_SPECIFIER, relation, spec);
         
         convertId(block, True.INSTANCE, spec.name(), "ID");
     }
     
-    private static void convertTypeName(TypeChefBlock parent, Formula condition, TypeName name, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.TYPE_NAME, relation, name);
+    private static void convertTypeName(SyntaxElement parent, Formula condition, TypeName name, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.TYPE_NAME, relation, name);
         
         if (name.decl().isDefined()) {
             convertAbstractDeclarator(block, True.INSTANCE, name.decl().get(), "Declaration");
@@ -1202,42 +1210,42 @@ public class AstConverter {
         }
     }
     
-    private static void convertTypeOfSpecifierT(TypeChefBlock parent, Formula condition, TypeOfSpecifierT spec, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.TYPE_OF_SPECIFIER_T, relation, spec);
+    private static void convertTypeOfSpecifierT(SyntaxElement parent, Formula condition, TypeOfSpecifierT spec, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.TYPE_OF_SPECIFIER_T, relation, spec);
         
         convertTypeName(block, True.INSTANCE, spec.typeName(), "Type");
     }
     
-    private static void convertTypeOfSpecifierU(TypeChefBlock parent, Formula condition, TypeOfSpecifierU spec, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.TYPE_OF_SPECIFIER_U, relation, spec);
+    private static void convertTypeOfSpecifierU(SyntaxElement parent, Formula condition, TypeOfSpecifierU spec, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.TYPE_OF_SPECIFIER_U, relation, spec);
         
         convertExpr(block, True.INSTANCE, spec.expr(), "Expression");
     }
     
-    private static void convertUnaryExpr(TypeChefBlock parent, Formula condition, UnaryExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.UNARY_EXPR, relation, expr);
+    private static void convertUnaryExpr(SyntaxElement parent, Formula condition, UnaryExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.UNARY_EXPR, relation, expr);
         
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(expr.kind()), "Operator");
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(expr.kind()), "Operator", expr);
         convertExpr(block, True.INSTANCE, expr.e(), "Expr");
     }
     
-    private static void convertUnaryOpExpr(TypeChefBlock parent, Formula condition, UnaryOpExpr expr, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.UNARY_OP_EXPR, relation, expr);
+    private static void convertUnaryOpExpr(SyntaxElement parent, Formula condition, UnaryOpExpr expr, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.UNARY_OP_EXPR, relation, expr);
         
-        new TypeChefBlock(block, True.INSTANCE, new LiteralSyntaxElement(expr.kind()), "Operator");
+        createSyntaxElement(block, True.INSTANCE, new LiteralSyntaxElement(expr.kind()), "Operator", expr);
         convertExpr(block, True.INSTANCE, expr.castExpr(), "Expr");
     }
     
-    private static void convertUnsignedSpecifier(TypeChefBlock parent, Formula condition, UnsignedSpecifier spec, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.UNSIGNED_SPECIFIER, relation, spec);
+    private static void convertUnsignedSpecifier(SyntaxElement parent, Formula condition, UnsignedSpecifier spec, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.UNSIGNED_SPECIFIER, relation, spec);
     }
     
-    private static void convertVarArgs(TypeChefBlock parent, Formula condition, VarArgs varargs, String relation) {
-        new TypeChefBlock(parent, condition, SyntaxElements.VAR_ARGS, relation, varargs);
+    private static void convertVarArgs(SyntaxElement parent, Formula condition, VarArgs varargs, String relation) {
+        createSyntaxElement(parent, condition, SyntaxElementTypes.VAR_ARGS, relation, varargs);
     }
     
-    private static void convertWhileStatement(TypeChefBlock parent, Formula condition, WhileStatement statement, String relation) {
-        TypeChefBlock block = new TypeChefBlock(parent, condition, SyntaxElements.WHILE_STATEMENT, relation, statement);
+    private static void convertWhileStatement(SyntaxElement parent, Formula condition, WhileStatement statement, String relation) {
+        SyntaxElement block = createSyntaxElement(parent, condition, SyntaxElementTypes.WHILE_STATEMENT, relation, statement);
         
         convertExpr(block, True.INSTANCE, statement.expr(), "Epxression");
         
@@ -1247,6 +1255,28 @@ public class AstConverter {
     }
     
     // -----------------------------------------------------------
+    
+    private static SyntaxElement createSyntaxElement(SyntaxElement parent, Formula condition,
+            ISyntaxElementType type, String relation, WithPosition position) {
+        
+        Formula pc = condition;
+        if (parent != null) {
+            pc = new Conjunction(parent.getPresenceCondition(), pc);
+        }
+        
+        SyntaxElement result = new SyntaxElement(type, condition, pc);
+        
+        if (parent != null) {
+            parent.addNestedElement(result, relation);
+        }
+        if (position != null) {
+            result.setLineStart(position.getPositionFrom().getLine());
+            result.setLineEnd(position.getPositionTo().getLine());
+            result.setSourceFile(new File(position.getPositionFrom().getFile())); // TODO: relativize and cache
+        }
+        
+        return result;
+    }
     
     private static final VariableCache CACHE = new VariableCache();
     

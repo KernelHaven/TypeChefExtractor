@@ -2,34 +2,34 @@
 	 [1] [test.c:1] Declaration
 		Specifier [1] [test.c:1] EnumSpecifier
 			ID [1] [test.c:1] Id
-				Name [1] Literal: Einum
+				Name [1] [test.c:1] Literal: Einum
 			Element [1] [test.c:2] Enumerator
 				ID [1] [test.c:2] Id
-					Name [1] Literal: E_A
+					Name [1] [test.c:2] Literal: E_A
 			Element [1] [test.c:3] Enumerator
 				ID [1] [test.c:3] Id
-					Name [1] Literal: E_B
+					Name [1] [test.c:3] Literal: E_B
 				Value [1] [test.c:3] Constant
-					Value [1] Literal: 3
+					Value [1] [test.c:3] Literal: 3
 			Element [1] [test.c:4] Enumerator
 				ID [1] [test.c:4] Id
-					Name [1] Literal: E_C
+					Name [1] [test.c:4] Literal: E_C
 	 [1] [test.c:7] Declaration
 		Specifier [1] [test.c:7] StructSpecifier
 			ID [1] [test.c:7] Id
-				Name [1] Literal: Struckt
+				Name [1] [test.c:7] Literal: Struckt
 			BodyElement [1] [test.c:8] StructDeclaration
 				Qualifier [1] [test.c:8] Literal: IntSpecifier
 				Declarator [1] [test.c:8] StructDeclarator
 					Declarator [1] [test.c:8] AtomicNamedDeclarator
 						ID [1] [test.c:8] Id
-							Name [1] Literal: a
+							Name [1] [test.c:8] Literal: a
 			BodyElement [1] [test.c:9] StructDeclaration
 				Qualifier [1] [test.c:9] Literal: CharSpecifier
 				Declarator [1] [test.c:9] StructDeclarator
 					Declarator [1] [test.c:9] AtomicNamedDeclarator
 						ID [1] [test.c:9] Id
-							Name [1] Literal: c
+							Name [1] [test.c:9] Literal: c
 	 [1] [test.c:12] Declaration
 		Specifier [1] [test.c:12] TypedefSpecifier
 		Specifier [1] [test.c:12] UnsignedSpecifier
@@ -37,62 +37,62 @@
 		InitDeclarator [1] [test.c:12] InitDeclaratorI
 			Declarator [1] [test.c:12] AtomicNamedDeclarator
 				ID [1] [test.c:12] Id
-					Name [1] Literal: u_int
+					Name [1] [test.c:12] Literal: u_int
 	 [1] [test.c:14] Declaration
 		Specifier [1] [test.c:14] UnionSpecifier
 			ID [1] [test.c:14] Id
-				Name [1] Literal: Gewerkschaft
+				Name [1] [test.c:14] Literal: Gewerkschaft
 			BodyElement [1] [test.c:15] StructDeclaration
 				Qualifier [1] [test.c:15] Literal: IntSpecifier
 				Declarator [1] [test.c:15] StructDeclarator
 					Declarator [1] [test.c:15] AtomicNamedDeclarator
 						ID [1] [test.c:15] Id
-							Name [1] Literal: a
+							Name [1] [test.c:15] Literal: a
 			BodyElement [1] [test.c:16] StructDeclaration
 				Qualifier [1] [test.c:16] Literal: FloatSpecifier
 				Declarator [1] [test.c:16] StructDeclarator
 					Declarator [1] [test.c:16] AtomicNamedDeclarator
 						ID [1] [test.c:16] Id
-							Name [1] Literal: f
+							Name [1] [test.c:16] Literal: f
 	 [1] [test.c:19] FunctionDef
 		Declarator [1] [test.c:19] AtomicNamedDeclarator
 			ID [1] [test.c:19] Id
-				Name [1] Literal: funcTypes
+				Name [1] [test.c:19] Literal: funcTypes
 			Extension [1] [test.c:19] DeclParameterDeclList
 				Parameter [1] [test.c:19] ParameterDeclarationD
 					Specifier [1] [test.c:19] EnumSpecifier
 						ID [1] [test.c:19] Id
-							Name [1] Literal: Einum
+							Name [1] [test.c:19] Literal: Einum
 					Declarator [1] [test.c:19] AtomicNamedDeclarator
 						ID [1] [test.c:19] Id
-							Name [1] Literal: v1
+							Name [1] [test.c:19] Literal: v1
 				Parameter [1] [test.c:19] ParameterDeclarationD
 					Specifier [1] [test.c:19] StructSpecifier
 						ID [1] [test.c:19] Id
-							Name [1] Literal: Struckt
+							Name [1] [test.c:19] Literal: Struckt
 					Declarator [1] [test.c:19] AtomicNamedDeclarator
 						ID [1] [test.c:19] Id
-							Name [1] Literal: v2
+							Name [1] [test.c:19] Literal: v2
 				Parameter [1] [test.c:19] ParameterDeclarationD
 					Specifier [1] [test.c:19] TypeDefTypeSpecifier
 						ID [1] [test.c:19] Id
-							Name [1] Literal: u_int
+							Name [1] [test.c:19] Literal: u_int
 					Declarator [1] [test.c:19] AtomicNamedDeclarator
 						ID [1] [test.c:19] Id
-							Name [1] Literal: v3
+							Name [1] [test.c:19] Literal: v3
 				Parameter [1] [test.c:19] ParameterDeclarationD
 					Specifier [1] [test.c:19] UnionSpecifier
 						ID [1] [test.c:19] Id
-							Name [1] Literal: Gewerkschaft
+							Name [1] [test.c:19] Literal: Gewerkschaft
 					Declarator [1] [test.c:19] AtomicNamedDeclarator
 						ID [1] [test.c:19] Id
-							Name [1] Literal: v4
+							Name [1] [test.c:19] Literal: v4
 		Specifier [1] [test.c:19] Literal: VoidSpecifier
 		Body [1] [test.c:19] CompoundStatement
 	 [1] [test.c:23] FunctionDef
 		Declarator [1] [test.c:23] AtomicNamedDeclarator
 			ID [1] [test.c:23] Id
-				Name [1] Literal: funcSizeof
+				Name [1] [test.c:23] Literal: funcSizeof
 			Extension [1] [test.c:23] DeclIdentifierList
 		Specifier [1] [test.c:23] Literal: VoidSpecifier
 		Body [1] [test.c:23] CompoundStatement
@@ -102,7 +102,7 @@
 					InitDeclarator [1] [test.c:24] InitDeclaratorI
 						Declarator [1] [test.c:24] AtomicNamedDeclarator
 							ID [1] [test.c:24] Id
-								Name [1] Literal: a
+								Name [1] [test.c:24] Literal: a
 						Initializer [1] [test.c:24] Initializer
 							Expr [1] [test.c:24] SizeOfExprT
 								Type [1] [test.c:24] TypeName
@@ -110,13 +110,13 @@
 	 [1] [test.c:27] FunctionDef
 		Declarator [1] [test.c:27] AtomicNamedDeclarator
 			ID [1] [test.c:27] Id
-				Name [1] Literal: funcGoto
+				Name [1] [test.c:27] Literal: funcGoto
 			Extension [1] [test.c:27] DeclParameterDeclList
 				Parameter [1] [test.c:27] ParameterDeclarationD
 					Specifier [1] [test.c:27] Literal: IntSpecifier
 					Declarator [1] [test.c:27] AtomicNamedDeclarator
 						ID [1] [test.c:27] Id
-							Name [1] Literal: a
+							Name [1] [test.c:27] Literal: a
 		Specifier [1] [test.c:27] Literal: VoidSpecifier
 		Body [1] [test.c:27] CompoundStatement
 			 [1] [test.c:29] DeclarationStatement
@@ -125,57 +125,57 @@
 					InitDeclarator [1] [test.c:29] InitDeclaratorI
 						Declarator [1] [test.c:29] AtomicNamedDeclarator
 							ID [1] [test.c:29] Id
-								Name [1] Literal: c
+								Name [1] [test.c:29] Literal: c
 						Initializer [1] [test.c:29] Initializer
 							Expr [1] [test.c:29] Constant
-								Value [1] Literal: 'a'
+								Value [1] [test.c:29] Literal: 'a'
 			 [1] [test.c:30] DeclarationStatement
 				 [1] [test.c:30] Declaration
 					Specifier [1] [test.c:30] Literal: IntSpecifier
 					InitDeclarator [1] [test.c:30] InitDeclaratorI
 						Declarator [1] [test.c:30] AtomicNamedDeclarator
 							ID [1] [test.c:30] Id
-								Name [1] Literal: i
+								Name [1] [test.c:30] Literal: i
 						Initializer [1] [test.c:30] Initializer
 							Expr [1] [test.c:30] Constant
-								Value [1] Literal: 0
+								Value [1] [test.c:30] Literal: 0
 			 [1] [test.c:31] LabelStatement
 				Id [1] [test.c:31] Id
-					Name [1] Literal: loop
+					Name [1] [test.c:31] Literal: loop
 			 [1] [test.c:33] ExprStatement
 				 [1] [test.c:33] PostfixExpr
 					Operator [1] [test.c:33] SimplePostfixSuffix
-						Operator [1] Literal: ++
+						Operator [1] [test.c:33] Literal: ++
 					Expr [1] [test.c:33] Id
-						Name [1] Literal: c
+						Name [1] [test.c:33] Literal: c
 			 [1] [test.c:34] ExprStatement
 				 [1] [test.c:34] PostfixExpr
 					Operator [1] [test.c:34] SimplePostfixSuffix
-						Operator [1] Literal: ++
+						Operator [1] [test.c:34] Literal: ++
 					Expr [1] [test.c:34] Id
-						Name [1] Literal: i
+						Name [1] [test.c:34] Literal: i
 			 [1] [test.c:36] IfStatement
 				Condition [1] [test.c:36] NAryExpr
 					 [1] [test.c:36] Id
-						Name [1] Literal: i
+						Name [1] [test.c:36] Literal: i
 					 [1] [test.c:36] NArySubExpr
-						Operator [1] Literal: <
+						Operator [1] [test.c:36] Literal: <
 						 [1] [test.c:36] Id
-							Name [1] Literal: a
+							Name [1] [test.c:36] Literal: a
 				Then [1] [test.c:36] CompoundStatement
 					 [1] [test.c:37] GotoStatement
 						Target [1] [test.c:37] Id
-							Name [1] Literal: loop
+							Name [1] [test.c:37] Literal: loop
 	 [1] [test.c:42] FunctionDef
 		Declarator [1] [test.c:42] AtomicNamedDeclarator
 			ID [1] [test.c:42] Id
-				Name [1] Literal: functDoWhile
+				Name [1] [test.c:42] Literal: functDoWhile
 			Extension [1] [test.c:42] DeclParameterDeclList
 				Parameter [1] [test.c:42] ParameterDeclarationD
 					Specifier [1] [test.c:42] Literal: IntSpecifier
 					Declarator [1] [test.c:42] AtomicNamedDeclarator
 						ID [1] [test.c:42] Id
-							Name [1] Literal: a
+							Name [1] [test.c:42] Literal: a
 		Specifier [1] [test.c:42] Literal: VoidSpecifier
 		Body [1] [test.c:42] CompoundStatement
 			 [1] [test.c:44] DeclarationStatement
@@ -184,71 +184,71 @@
 					InitDeclarator [1] [test.c:44] InitDeclaratorI
 						Declarator [1] [test.c:44] AtomicNamedDeclarator
 							ID [1] [test.c:44] Id
-								Name [1] Literal: c
+								Name [1] [test.c:44] Literal: c
 						Initializer [1] [test.c:44] Initializer
 							Expr [1] [test.c:44] Constant
-								Value [1] Literal: 'a'
+								Value [1] [test.c:44] Literal: 'a'
 			 [1] [test.c:45] DeclarationStatement
 				 [1] [test.c:45] Declaration
 					Specifier [1] [test.c:45] Literal: IntSpecifier
 					InitDeclarator [1] [test.c:45] InitDeclaratorI
 						Declarator [1] [test.c:45] AtomicNamedDeclarator
 							ID [1] [test.c:45] Id
-								Name [1] Literal: i
+								Name [1] [test.c:45] Literal: i
 						Initializer [1] [test.c:45] Initializer
 							Expr [1] [test.c:45] Constant
-								Value [1] Literal: 0
+								Value [1] [test.c:45] Literal: 0
 			 [1] [test.c:46] DoStatement
 				Expr [1] [test.c:58] NAryExpr
 					 [1] [test.c:58] Id
-						Name [1] Literal: i
+						Name [1] [test.c:58] Literal: i
 					 [1] [test.c:58] NArySubExpr
-						Operator [1] Literal: <
+						Operator [1] [test.c:58] Literal: <
 						 [1] [test.c:58] Id
-							Name [1] Literal: a
+							Name [1] [test.c:58] Literal: a
 				Body [1] [test.c:46] CompoundStatement
 					 [1] [test.c:47] ExprStatement
 						 [1] [test.c:47] PostfixExpr
 							Operator [1] [test.c:47] SimplePostfixSuffix
-								Operator [1] Literal: ++
+								Operator [1] [test.c:47] Literal: ++
 							Expr [1] [test.c:47] Id
-								Name [1] Literal: c
+								Name [1] [test.c:47] Literal: c
 					 [1] [test.c:49] IfStatement
 						Condition [1] [test.c:49] NAryExpr
 							 [1] [test.c:49] Id
-								Name [1] Literal: c
+								Name [1] [test.c:49] Literal: c
 							 [1] [test.c:49] NArySubExpr
-								Operator [1] Literal: ==
+								Operator [1] [test.c:49] Literal: ==
 								 [1] [test.c:49] Constant
-									Value [1] Literal: 'c'
+									Value [1] [test.c:49] Literal: 'c'
 						Then [1] [test.c:49] CompoundStatement
 							 [1] [test.c:50] ContinueStatement
 					 [1] [test.c:53] IfStatement
 						Condition [1] [test.c:53] NAryExpr
 							 [1] [test.c:53] Id
-								Name [1] Literal: c
+								Name [1] [test.c:53] Literal: c
 							 [1] [test.c:53] NArySubExpr
-								Operator [1] Literal: ==
+								Operator [1] [test.c:53] Literal: ==
 								 [1] [test.c:53] Constant
-									Value [1] Literal: 'z'
+									Value [1] [test.c:53] Literal: 'z'
 						Then [1] [test.c:53] CompoundStatement
 							 [1] [test.c:54] BreakStatement
 					 [1] [test.c:57] ExprStatement
 						 [1] [test.c:57] PostfixExpr
 							Operator [1] [test.c:57] SimplePostfixSuffix
-								Operator [1] Literal: ++
+								Operator [1] [test.c:57] Literal: ++
 							Expr [1] [test.c:57] Id
-								Name [1] Literal: i
+								Name [1] [test.c:57] Literal: i
 	 [1] [test.c:62] FunctionDef
 		Declarator [1] [test.c:62] AtomicNamedDeclarator
 			ID [1] [test.c:62] Id
-				Name [1] Literal: funcFor
+				Name [1] [test.c:62] Literal: funcFor
 			Extension [1] [test.c:62] DeclParameterDeclList
 				Parameter [1] [test.c:62] ParameterDeclarationD
 					Specifier [1] [test.c:62] Literal: IntSpecifier
 					Declarator [1] [test.c:62] AtomicNamedDeclarator
 						ID [1] [test.c:62] Id
-							Name [1] Literal: a
+							Name [1] [test.c:62] Literal: a
 		Specifier [1] [test.c:62] Literal: VoidSpecifier
 		Body [1] [test.c:62] CompoundStatement
 			 [1] [test.c:63] DeclarationStatement
@@ -257,73 +257,73 @@
 					InitDeclarator [1] [test.c:63] InitDeclaratorI
 						Declarator [1] [test.c:63] AtomicNamedDeclarator
 							ID [1] [test.c:63] Id
-								Name [1] Literal: c
+								Name [1] [test.c:63] Literal: c
 						Initializer [1] [test.c:63] Initializer
 							Expr [1] [test.c:63] Constant
-								Value [1] Literal: 'a'
+								Value [1] [test.c:63] Literal: 'a'
 			 [1] [test.c:64] DeclarationStatement
 				 [1] [test.c:64] Declaration
 					Specifier [1] [test.c:64] Literal: IntSpecifier
 					InitDeclarator [1] [test.c:64] InitDeclaratorI
 						Declarator [1] [test.c:64] AtomicNamedDeclarator
 							ID [1] [test.c:64] Id
-								Name [1] Literal: i
+								Name [1] [test.c:64] Literal: i
 			 [1] [test.c:65] ForStatement
 				Init [1] [test.c:65] AssignExpr
 					Target [1] [test.c:65] Id
-						Name [1] Literal: i
-					Operator [1] Literal: =
+						Name [1] [test.c:65] Literal: i
+					Operator [1] [test.c:65] Literal: =
 					Source [1] [test.c:65] Constant
-						Value [1] Literal: 0
+						Value [1] [test.c:65] Literal: 0
 				Condition [1] [test.c:65] NAryExpr
 					 [1] [test.c:65] Id
-						Name [1] Literal: i
+						Name [1] [test.c:65] Literal: i
 					 [1] [test.c:65] NArySubExpr
-						Operator [1] Literal: <
+						Operator [1] [test.c:65] Literal: <
 						 [1] [test.c:65] Id
-							Name [1] Literal: a
+							Name [1] [test.c:65] Literal: a
 				Increment [1] [test.c:65] PostfixExpr
 					Operator [1] [test.c:65] SimplePostfixSuffix
-						Operator [1] Literal: ++
+						Operator [1] [test.c:65] Literal: ++
 					Expr [1] [test.c:65] Id
-						Name [1] Literal: i
+						Name [1] [test.c:65] Literal: i
 				Body [1] [test.c:65] CompoundStatement
 					 [1] [test.c:66] ExprStatement
 						 [1] [test.c:66] PostfixExpr
 							Operator [1] [test.c:66] SimplePostfixSuffix
-								Operator [1] Literal: ++
+								Operator [1] [test.c:66] Literal: ++
 							Expr [1] [test.c:66] Id
-								Name [1] Literal: c
+								Name [1] [test.c:66] Literal: c
 					 [1] [test.c:68] IfStatement
 						Condition [1] [test.c:68] NAryExpr
 							 [1] [test.c:68] Id
-								Name [1] Literal: c
+								Name [1] [test.c:68] Literal: c
 							 [1] [test.c:68] NArySubExpr
-								Operator [1] Literal: ==
+								Operator [1] [test.c:68] Literal: ==
 								 [1] [test.c:68] Constant
-									Value [1] Literal: 'c'
+									Value [1] [test.c:68] Literal: 'c'
 						Then [1] [test.c:68] CompoundStatement
 							 [1] [test.c:69] ContinueStatement
 					 [1] [test.c:72] IfStatement
 						Condition [1] [test.c:72] NAryExpr
 							 [1] [test.c:72] Id
-								Name [1] Literal: c
+								Name [1] [test.c:72] Literal: c
 							 [1] [test.c:72] NArySubExpr
-								Operator [1] Literal: ==
+								Operator [1] [test.c:72] Literal: ==
 								 [1] [test.c:72] Constant
-									Value [1] Literal: 'z'
+									Value [1] [test.c:72] Literal: 'z'
 						Then [1] [test.c:72] CompoundStatement
 							 [1] [test.c:73] BreakStatement
 	 [1] [test.c:79] FunctionDef
 		Declarator [1] [test.c:79] AtomicNamedDeclarator
 			ID [1] [test.c:79] Id
-				Name [1] Literal: funcWhile
+				Name [1] [test.c:79] Literal: funcWhile
 			Extension [1] [test.c:79] DeclParameterDeclList
 				Parameter [1] [test.c:79] ParameterDeclarationD
 					Specifier [1] [test.c:79] Literal: IntSpecifier
 					Declarator [1] [test.c:79] AtomicNamedDeclarator
 						ID [1] [test.c:79] Id
-							Name [1] Literal: a
+							Name [1] [test.c:79] Literal: a
 		Specifier [1] [test.c:79] Literal: VoidSpecifier
 		Body [1] [test.c:79] CompoundStatement
 			 [1] [test.c:80] DeclarationStatement
@@ -332,72 +332,72 @@
 					InitDeclarator [1] [test.c:80] InitDeclaratorI
 						Declarator [1] [test.c:80] AtomicNamedDeclarator
 							ID [1] [test.c:80] Id
-								Name [1] Literal: c
+								Name [1] [test.c:80] Literal: c
 						Initializer [1] [test.c:80] Initializer
 							Expr [1] [test.c:80] Constant
-								Value [1] Literal: 'a'
+								Value [1] [test.c:80] Literal: 'a'
 			 [1] [test.c:81] DeclarationStatement
 				 [1] [test.c:81] Declaration
 					Specifier [1] [test.c:81] Literal: IntSpecifier
 					InitDeclarator [1] [test.c:81] InitDeclaratorI
 						Declarator [1] [test.c:81] AtomicNamedDeclarator
 							ID [1] [test.c:81] Id
-								Name [1] Literal: i
+								Name [1] [test.c:81] Literal: i
 						Initializer [1] [test.c:81] Initializer
 							Expr [1] [test.c:81] Constant
-								Value [1] Literal: 0
+								Value [1] [test.c:81] Literal: 0
 			 [1] [test.c:82] WhileStatement
 				Epxression [1] [test.c:82] UnaryOpExpr
-					Operator [1] Literal: !
+					Operator [1] [test.c:82] Literal: !
 					Expr [1] [test.c:82] NAryExpr
 						 [1] [test.c:82] Id
-							Name [1] Literal: i
+							Name [1] [test.c:82] Literal: i
 						 [1] [test.c:82] NArySubExpr
-							Operator [1] Literal: <
+							Operator [1] [test.c:82] Literal: <
 							 [1] [test.c:82] Id
-								Name [1] Literal: a
+								Name [1] [test.c:82] Literal: a
 				Body [1] [test.c:82] CompoundStatement
 					 [1] [test.c:83] ExprStatement
 						 [1] [test.c:83] UnaryExpr
-							Operator [1] Literal: ++
+							Operator [1] [test.c:83] Literal: ++
 							Expr [1] [test.c:83] Id
-								Name [1] Literal: c
+								Name [1] [test.c:83] Literal: c
 					 [1] [test.c:85] IfStatement
 						Condition [1] [test.c:85] NAryExpr
 							 [1] [test.c:85] Id
-								Name [1] Literal: c
+								Name [1] [test.c:85] Literal: c
 							 [1] [test.c:85] NArySubExpr
-								Operator [1] Literal: ==
+								Operator [1] [test.c:85] Literal: ==
 								 [1] [test.c:85] Constant
-									Value [1] Literal: 'c'
+									Value [1] [test.c:85] Literal: 'c'
 						Then [1] [test.c:85] CompoundStatement
 							 [1] [test.c:86] ContinueStatement
 					 [1] [test.c:89] IfStatement
 						Condition [1] [test.c:89] NAryExpr
 							 [1] [test.c:89] Id
-								Name [1] Literal: c
+								Name [1] [test.c:89] Literal: c
 							 [1] [test.c:89] NArySubExpr
-								Operator [1] Literal: ==
+								Operator [1] [test.c:89] Literal: ==
 								 [1] [test.c:89] Constant
-									Value [1] Literal: 'z'
+									Value [1] [test.c:89] Literal: 'z'
 						Then [1] [test.c:89] CompoundStatement
 							 [1] [test.c:90] BreakStatement
 					 [1] [test.c:93] ExprStatement
 						 [1] [test.c:93] PostfixExpr
 							Operator [1] [test.c:93] SimplePostfixSuffix
-								Operator [1] Literal: ++
+								Operator [1] [test.c:93] Literal: ++
 							Expr [1] [test.c:93] Id
-								Name [1] Literal: i
+								Name [1] [test.c:93] Literal: i
 	 [1] [test.c:97] FunctionDef
 		Declarator [1] [test.c:97] AtomicNamedDeclarator
 			ID [1] [test.c:97] Id
-				Name [1] Literal: funcSwitch
+				Name [1] [test.c:97] Literal: funcSwitch
 			Extension [1] [test.c:97] DeclParameterDeclList
 				Parameter [1] [test.c:97] ParameterDeclarationD
 					Specifier [1] [test.c:97] Literal: IntSpecifier
 					Declarator [1] [test.c:97] AtomicNamedDeclarator
 						ID [1] [test.c:97] Id
-							Name [1] Literal: a
+							Name [1] [test.c:97] Literal: a
 		Specifier [1] [test.c:97] Literal: CharSpecifier
 		Body [1] [test.c:97] CompoundStatement
 			 [1] [test.c:98] DeclarationStatement
@@ -406,60 +406,60 @@
 					InitDeclarator [1] [test.c:98] InitDeclaratorI
 						Declarator [1] [test.c:98] AtomicNamedDeclarator
 							ID [1] [test.c:98] Id
-								Name [1] Literal: result
+								Name [1] [test.c:98] Literal: result
 						Initializer [1] [test.c:98] Initializer
 							Expr [1] [test.c:98] Constant
-								Value [1] Literal: '\0'
+								Value [1] [test.c:98] Literal: '\0'
 			 [1] [test.c:100] SwitchStatement
 				Expression [1] [test.c:100] Id
-					Name [1] Literal: a
+					Name [1] [test.c:100] Literal: a
 				Body [1] [test.c:100] CompoundStatement
 					 [1] [test.c:101] CaseStatement
 						 [1] [test.c:101] Constant
-							Value [1] Literal: 0
+							Value [1] [test.c:101] Literal: 0
 					 [1] [test.c:102] ExprStatement
 						 [1] [test.c:102] AssignExpr
 							Target [1] [test.c:102] Id
-								Name [1] Literal: result
-							Operator [1] Literal: =
+								Name [1] [test.c:102] Literal: result
+							Operator [1] [test.c:102] Literal: =
 							Source [1] [test.c:102] Constant
-								Value [1] Literal: 'a'
+								Value [1] [test.c:102] Literal: 'a'
 					 [1] [test.c:103] BreakStatement
 					 [1] [test.c:105] CaseStatement
 						 [1] [test.c:105] Constant
-							Value [1] Literal: 1
+							Value [1] [test.c:105] Literal: 1
 					 [1] [test.c:106] CaseStatement
 						 [1] [test.c:106] Constant
-							Value [1] Literal: 2
+							Value [1] [test.c:106] Literal: 2
 					 [1] [test.c:107] ExprStatement
 						 [1] [test.c:107] AssignExpr
 							Target [1] [test.c:107] Id
-								Name [1] Literal: result
-							Operator [1] Literal: =
+								Name [1] [test.c:107] Literal: result
+							Operator [1] [test.c:107] Literal: =
 							Source [1] [test.c:107] Constant
-								Value [1] Literal: 'b'
+								Value [1] [test.c:107] Literal: 'b'
 					 [1] [test.c:108] BreakStatement
 					 [1] [test.c:110] DefaultStatement
 					 [1] [test.c:111] ExprStatement
 						 [1] [test.c:111] AssignExpr
 							Target [1] [test.c:111] Id
-								Name [1] Literal: result
-							Operator [1] Literal: =
+								Name [1] [test.c:111] Literal: result
+							Operator [1] [test.c:111] Literal: =
 							Source [1] [test.c:111] Constant
-								Value [1] Literal: 'c'
+								Value [1] [test.c:111] Literal: 'c'
 			 [1] [test.c:114] ReturnStatement
 				Value [1] [test.c:114] Id
-					Name [1] Literal: result
+					Name [1] [test.c:114] Literal: result
 	 [1] [test.c:117] FunctionDef
 		Declarator [1] [test.c:117] AtomicNamedDeclarator
 			ID [1] [test.c:117] Id
-				Name [1] Literal: funcIf
+				Name [1] [test.c:117] Literal: funcIf
 			Extension [1] [test.c:117] DeclParameterDeclList
 				Parameter [1] [test.c:117] ParameterDeclarationD
 					Specifier [1] [test.c:117] Literal: IntSpecifier
 					Declarator [1] [test.c:117] AtomicNamedDeclarator
 						ID [1] [test.c:117] Id
-							Name [1] Literal: a
+							Name [1] [test.c:117] Literal: a
 		Specifier [1] [test.c:117] Literal: CharSpecifier
 		Body [1] [test.c:117] CompoundStatement
 			 [1] [test.c:118] DeclarationStatement
@@ -468,78 +468,78 @@
 					InitDeclarator [1] [test.c:118] InitDeclaratorI
 						Declarator [1] [test.c:118] AtomicNamedDeclarator
 							ID [1] [test.c:118] Id
-								Name [1] Literal: result
+								Name [1] [test.c:118] Literal: result
 						Initializer [1] [test.c:118] Initializer
 							Expr [1] [test.c:118] Constant
-								Value [1] Literal: '\0'
+								Value [1] [test.c:118] Literal: '\0'
 			 [1] [test.c:120] IfStatement
 				Condition [1] [test.c:120] NAryExpr
 					 [1] [test.c:120] Id
-						Name [1] Literal: a
+						Name [1] [test.c:120] Literal: a
 					 [1] [test.c:120] NArySubExpr
-						Operator [1] Literal: ==
+						Operator [1] [test.c:120] Literal: ==
 						 [1] [test.c:120] Constant
-							Value [1] Literal: 0
+							Value [1] [test.c:120] Literal: 0
 				Then [1] [test.c:120] CompoundStatement
 					 [1] [test.c:121] ExprStatement
 						 [1] [test.c:121] AssignExpr
 							Target [1] [test.c:121] Id
-								Name [1] Literal: result
-							Operator [1] Literal: =
+								Name [1] [test.c:121] Literal: result
+							Operator [1] [test.c:121] Literal: =
 							Source [1] [test.c:121] Constant
-								Value [1] Literal: 'a'
+								Value [1] [test.c:121] Literal: 'a'
 				Elif [1] [test.c:122] ElifStatement
 					Expr [1] [test.c:122] NAryExpr
 						 [1] [test.c:122] NAryExpr
 							 [1] [test.c:122] Id
-								Name [1] Literal: a
+								Name [1] [test.c:122] Literal: a
 							 [1] [test.c:122] NArySubExpr
-								Operator [1] Literal: ==
+								Operator [1] [test.c:122] Literal: ==
 								 [1] [test.c:122] Constant
-									Value [1] Literal: 1
+									Value [1] [test.c:122] Literal: 1
 						 [1] [test.c:122] NArySubExpr
-							Operator [1] Literal: ||
+							Operator [1] [test.c:122] Literal: ||
 							 [1] [test.c:122] NAryExpr
 								 [1] [test.c:122] Id
-									Name [1] Literal: a
+									Name [1] [test.c:122] Literal: a
 								 [1] [test.c:122] NArySubExpr
-									Operator [1] Literal: ==
+									Operator [1] [test.c:122] Literal: ==
 									 [1] [test.c:122] Constant
-										Value [1] Literal: 2
+										Value [1] [test.c:122] Literal: 2
 					Then [1] [test.c:122] CompoundStatement
 						 [1] [test.c:123] ExprStatement
 							 [1] [test.c:123] AssignExpr
 								Target [1] [test.c:123] Id
-									Name [1] Literal: result
-								Operator [1] Literal: =
+									Name [1] [test.c:123] Literal: result
+								Operator [1] [test.c:123] Literal: =
 								Source [1] [test.c:123] Constant
-									Value [1] Literal: 'b'
+									Value [1] [test.c:123] Literal: 'b'
 				Else [1] [test.c:124] CompoundStatement
 					 [1] [test.c:125] ExprStatement
 						 [1] [test.c:125] AssignExpr
 							Target [1] [test.c:125] Id
-								Name [1] Literal: result
-							Operator [1] Literal: =
+								Name [1] [test.c:125] Literal: result
+							Operator [1] [test.c:125] Literal: =
 							Source [1] [test.c:125] Constant
-								Value [1] Literal: 'c'
+								Value [1] [test.c:125] Literal: 'c'
 			 [1] [test.c:128] ReturnStatement
 				Value [1] [test.c:128] Id
-					Name [1] Literal: result
+					Name [1] [test.c:128] Literal: result
 	 [1] [test.c:131] FunctionDef
 		Declarator [1] [test.c:131] AtomicNamedDeclarator
 			ID [1] [test.c:131] Id
-				Name [1] Literal: funcEmptyStatement
+				Name [1] [test.c:131] Literal: funcEmptyStatement
 			Extension [1] [test.c:131] DeclIdentifierList
 		Specifier [1] [test.c:131] Literal: VoidSpecifier
 		Body [1] [test.c:131] CompoundStatement
 			 [1] [test.c:132] WhileStatement
 				Epxression [1] [test.c:132] Constant
-					Value [1] Literal: 1
+					Value [1] [test.c:132] Literal: 1
 				Body [1] [test.c:132] EmptyStatement
 	 [1] [test.c:135] FunctionDef
 		Declarator [1] [test.c:135] AtomicNamedDeclarator
 			ID [1] [test.c:135] Id
-				Name [1] Literal: funcPointers
+				Name [1] [test.c:135] Literal: funcPointers
 			Extension [1] [test.c:135] DeclIdentifierList
 		Specifier [1] [test.c:135] Literal: VoidSpecifier
 		Body [1] [test.c:135] CompoundStatement
@@ -549,62 +549,62 @@
 					InitDeclarator [1] [test.c:136] InitDeclaratorI
 						Declarator [1] [test.c:136] AtomicNamedDeclarator
 							ID [1] [test.c:136] Id
-								Name [1] Literal: a
+								Name [1] [test.c:136] Literal: a
 						Initializer [1] [test.c:136] Initializer
 							Expr [1] [test.c:136] Constant
-								Value [1] Literal: 3
+								Value [1] [test.c:136] Literal: 3
 			 [1] [test.c:137] DeclarationStatement
 				 [1] [test.c:137] Declaration
 					Specifier [1] [test.c:137] Literal: IntSpecifier
 					InitDeclarator [1] [test.c:137] InitDeclaratorI
 						Declarator [1] [test.c:137] AtomicNamedDeclarator
 							ID [1] [test.c:137] Id
-								Name [1] Literal: pa
+								Name [1] [test.c:137] Literal: pa
 							Pointer [1] [test.c:137] Pointer
 						Initializer [1] [test.c:137] Initializer
 							Expr [1] [test.c:137] PointerCreationExpr
 								Expression [1] [test.c:137] Id
-									Name [1] Literal: a
+									Name [1] [test.c:137] Literal: a
 			 [1] [test.c:138] DeclarationStatement
 				 [1] [test.c:138] Declaration
 					Specifier [1] [test.c:138] Literal: IntSpecifier
 					InitDeclarator [1] [test.c:138] InitDeclaratorI
 						Declarator [1] [test.c:138] AtomicNamedDeclarator
 							ID [1] [test.c:138] Id
-								Name [1] Literal: ppa
+								Name [1] [test.c:138] Literal: ppa
 							Pointer [1] [test.c:138] Pointer
 							Pointer [1] [test.c:138] Pointer
 						Initializer [1] [test.c:138] Initializer
 							Expr [1] [test.c:138] PointerCreationExpr
 								Expression [1] [test.c:138] Id
-									Name [1] Literal: pa
+									Name [1] [test.c:138] Literal: pa
 			 [1] [test.c:139] ExprStatement
 				 [1] [test.c:139] AssignExpr
 					Target [1] [test.c:139] PointerDerefExpr
 						Expression [1] [test.c:139] Id
-							Name [1] Literal: pa
-					Operator [1] Literal: =
+							Name [1] [test.c:139] Literal: pa
+					Operator [1] [test.c:139] Literal: =
 					Source [1] [test.c:139] Constant
-						Value [1] Literal: 3
+						Value [1] [test.c:139] Literal: 3
 			 [1] [test.c:140] ExprStatement
 				 [1] [test.c:140] AssignExpr
 					Target [1] [test.c:140] PointerDerefExpr
 						Expression [1] [test.c:140] PointerDerefExpr
 							Expression [1] [test.c:140] Id
-								Name [1] Literal: ppa
-					Operator [1] Literal: =
+								Name [1] [test.c:140] Literal: ppa
+					Operator [1] [test.c:140] Literal: =
 					Source [1] [test.c:140] NAryExpr
 						 [1] [test.c:140] PointerDerefExpr
 							Expression [1] [test.c:140] Id
-								Name [1] Literal: pa
+								Name [1] [test.c:140] Literal: pa
 						 [1] [test.c:140] NArySubExpr
-							Operator [1] Literal: +
+							Operator [1] [test.c:140] Literal: +
 							 [1] [test.c:140] Id
-								Name [1] Literal: a
+								Name [1] [test.c:140] Literal: a
 	 [1] [test.c:143] FunctionDef
 		Declarator [1] [test.c:143] AtomicNamedDeclarator
 			ID [1] [test.c:143] Id
-				Name [1] Literal: funcComplexTypes
+				Name [1] [test.c:143] Literal: funcComplexTypes
 			Extension [1] [test.c:143] DeclIdentifierList
 		Specifier [1] [test.c:143] Literal: VoidSpecifier
 		Body [1] [test.c:143] CompoundStatement
@@ -614,18 +614,18 @@
 					InitDeclarator [1] [test.c:145] InitDeclaratorI
 						Declarator [1] [test.c:145] AtomicNamedDeclarator
 							ID [1] [test.c:145] Id
-								Name [1] Literal: a
+								Name [1] [test.c:145] Literal: a
 							Pointer [1] [test.c:145] Pointer
 							Extension [1] [test.c:145] DeclArrayAccess
 								Expr [1] [test.c:145] Constant
-									Value [1] Literal: 4
+									Value [1] [test.c:145] Literal: 4
 			 [1] [test.c:147] DeclarationStatement
 				 [1] [test.c:147] Declaration
 					Specifier [1] [test.c:147] Literal: IntSpecifier
 					InitDeclarator [1] [test.c:147] InitDeclaratorI
 						Declarator [1] [test.c:147] NestedNamedDeclarator
 							Id [1] [test.c:147] Id
-								Name [1] Literal: b
+								Name [1] [test.c:147] Literal: b
 							Pointer [1] [test.c:147] Pointer
 							Extension [1] [test.c:147] DeclParameterDeclList
 								Parameter [1] [test.c:147] PlainParameterDeclaration
@@ -637,14 +637,14 @@
 										Extension [1] [test.c:147] DeclArrayAccess
 							NestedDecl [1] [test.c:147] NestedNamedDeclarator
 								Id [1] [test.c:147] Id
-									Name [1] Literal: b
+									Name [1] [test.c:147] Literal: b
 								Pointer [1] [test.c:147] Pointer
 								Extension [1] [test.c:147] DeclArrayAccess
 									Expr [1] [test.c:147] Constant
-										Value [1] Literal: 4
+										Value [1] [test.c:147] Literal: 4
 								NestedDecl [1] [test.c:147] AtomicNamedDeclarator
 									ID [1] [test.c:147] Id
-										Name [1] Literal: b
+										Name [1] [test.c:147] Literal: b
 									Pointer [1] [test.c:147] Pointer
 			 [1] [test.c:149] DeclarationStatement
 				 [1] [test.c:149] Declaration
@@ -653,7 +653,7 @@
 					InitDeclarator [1] [test.c:149] InitDeclaratorI
 						Declarator [1] [test.c:149] NestedNamedDeclarator
 							Id [1] [test.c:149] Id
-								Name [1] Literal: BinaryIntFunction
+								Name [1] [test.c:149] Literal: BinaryIntFunction
 							Extension [1] [test.c:149] DeclParameterDeclList
 								Parameter [1] [test.c:149] PlainParameterDeclaration
 									Specifier [1] [test.c:149] Literal: IntSpecifier
@@ -661,12 +661,12 @@
 									Specifier [1] [test.c:149] Literal: IntSpecifier
 							NestedDecl [1] [test.c:149] AtomicNamedDeclarator
 								ID [1] [test.c:149] Id
-									Name [1] Literal: BinaryIntFunction
+									Name [1] [test.c:149] Literal: BinaryIntFunction
 								Pointer [1] [test.c:149] Pointer
 	 [1] [test.c:153] FunctionDef
 		Declarator [1] [test.c:153] AtomicNamedDeclarator
 			ID [1] [test.c:153] Id
-				Name [1] Literal: funcAttrs
+				Name [1] [test.c:153] Literal: funcAttrs
 			Extension [1] [test.c:153] DeclIdentifierList
 		Specifier [1] [test.c:153] Literal: StaticSpecifier
 		Specifier [1] [test.c:153] Literal: InlineSpecifier
@@ -677,4 +677,4 @@
 					Operator [1] [test.c:154] FunctionCall
 						Parameters [1] [test.c:154] ExprList
 					Expr [1] [test.c:154] Id
-						Name [1] Literal: funcComplexTypes
+						Name [1] [test.c:154] Literal: funcComplexTypes

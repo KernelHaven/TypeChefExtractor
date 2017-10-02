@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.typechef.wrapper.comm;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -7,9 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import net.ssehub.kernel_haven.code_model.Block;
-import net.ssehub.kernel_haven.typechef.ast.CsvUtil;
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.SyntaxElementCsvUtil;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.logic.Formula;
@@ -32,7 +32,7 @@ public class AbstractCsvSending {
      * 
      * @throws IOException If reading fails.
      */
-    protected TypeChefBlock read(ObjectInputStream in) throws IOException {
+    protected SyntaxElement read(ObjectInputStream in) throws IOException {
         try {
             in.readUnshared(); // first integer, always 0
             
@@ -51,7 +51,7 @@ public class AbstractCsvSending {
      * 
      * @throws IOException If writing the AST fails.
      */
-    protected void write(TypeChefBlock result, ObjectOutputStream out) throws IOException {
+    protected void write(SyntaxElement result, ObjectOutputStream out) throws IOException {
         sendSingleBlock(out, result, 0);
         
         // signal end of hierarchy
@@ -66,12 +66,12 @@ public class AbstractCsvSending {
      * @param nesting The nesting level of this block.
      * @throws IOException If writing the block or its children throws an IOException.
      */
-    private void sendSingleBlock(ObjectOutputStream out, TypeChefBlock block, int nesting) throws IOException {
+    private void sendSingleBlock(ObjectOutputStream out, SyntaxElement block, int nesting) throws IOException {
         out.writeUnshared(nesting);
         out.writeUnshared(block.serializeCsv().toArray(new String[0]));
         
-        for (Block child : block) {
-            sendSingleBlock(out, (TypeChefBlock) child, nesting + 1);
+        for (SyntaxElement child : block.iterateNestedSyntaxElements()) {
+            sendSingleBlock(out, (SyntaxElement) child, nesting + 1);
         }
     }
     
@@ -82,29 +82,29 @@ public class AbstractCsvSending {
      * @return The root node.
      * @throws IOException If reading the stream fails.
      */
-    private TypeChefBlock readCsvListResult(ObjectInputStream in) throws IOException {
+    private SyntaxElement readCsvListResult(ObjectInputStream in) throws IOException {
         VariableCache cache = new VariableCache();
         Parser<Formula> parser = new Parser<>(new CStyleBooleanGrammar(cache));
         
         Map<String, Formula> formulaCache = new HashMap<>(15000);
-        Map<String, String> filenameCache = new HashMap<>(1000);
+        Map<String, File> filenameCache = new HashMap<>(1000);
         
         try {
-            TypeChefBlock root = TypeChefBlock.createFromCsv((String[]) in.readUnshared(), parser);
-            Stack<TypeChefBlock> nesting = new Stack<>();
+            SyntaxElement root = SyntaxElement.createFromCsv((String[]) in.readUnshared(), parser);
+            Stack<SyntaxElement> nesting = new Stack<>();
             nesting.push(root);
             
             Object read = in.readUnshared();
             while (read instanceof Integer) {
                 
                 int level = (Integer) read;
-                TypeChefBlock block = CsvUtil.csvToBlock((String[]) in.readUnshared(), parser,
+                SyntaxElement block = SyntaxElementCsvUtil.csvToElement((String[]) in.readUnshared(), parser,
                         formulaCache, filenameCache);
                 
                 while (level < nesting.size()) {
                     nesting.pop();
                 }
-                nesting.peek().addChild(block);
+                nesting.peek().addNestedElement(block);
                 
                 nesting.push(block);
                 

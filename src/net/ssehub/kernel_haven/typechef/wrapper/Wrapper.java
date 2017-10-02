@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.ssehub.kernel_haven.code_model.SourceFile;
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.typechef.util.OutputVoider;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.IComm;
@@ -93,7 +93,7 @@ public class Wrapper {
         
         private List<String> params;
         
-        private TypeChefBlock result;
+        private SyntaxElement result;
         
         private List<String> lexerErrors;
         
@@ -123,7 +123,7 @@ public class Wrapper {
          * 
          * @return The result, may be null.
          */
-        public TypeChefBlock getResult() {
+        public SyntaxElement getResult() {
             return result;
         }
         
@@ -332,7 +332,7 @@ public class Wrapper {
      * @throws IOException If the TypeChef execution or communication with the sub-process throws an IOException.
      * @throws ExtractorException If Typechef or the output conversion fails.
      */
-    private TypeChefBlock runTypeChef(File file) throws IOException, ExtractorException {
+    private SyntaxElement runTypeChef(File file) throws IOException, ExtractorException {
         List<String> params = config.buildParameters(file);
         
         if (config.logCallParams()) {
@@ -379,7 +379,7 @@ public class Wrapper {
             throw comm.getCommException();
         }
         
-        TypeChefBlock result = comm.getResult();
+        SyntaxElement result = comm.getResult();
         
         if (result == null) {
             LOGGER.logDebug("Got neither exception nor result");
@@ -388,8 +388,9 @@ public class Wrapper {
         
         // manually set the location of the result, since Typechef creates a temporary command-line input so we
         // don't get proper filenames for the top-block
-        result.setFile(file.getPath());
-        result.setLine(1);
+        result.setSourceFile(file);
+        result.setLineStart(1);
+//        result.setLineEnd(-1); // TODO?
         
         LOGGER.logDebug("Got result");
         
@@ -409,8 +410,8 @@ public class Wrapper {
     public SourceFile runOnFile(File file) throws IOException, ExtractorException {
         SourceFile result = new SourceFile(file);
         
-        TypeChefBlock block = runTypeChef(file);
-        result.addBlock(block);
+        SyntaxElement block = runTypeChef(file);
+        result.addElement(block);
         
         return result;
     }

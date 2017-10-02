@@ -1,5 +1,6 @@
 package net.ssehub.kernel_haven.typechef.wrapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -28,10 +29,10 @@ import de.fosd.typechef.parser.c.CParser;
 import de.fosd.typechef.parser.c.CTypeContext;
 import de.fosd.typechef.parser.c.ParserMain;
 import de.fosd.typechef.parser.c.TranslationUnit;
+import net.ssehub.kernel_haven.code_model.LiteralSyntaxElement;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
 import net.ssehub.kernel_haven.typechef.ast.AstConverter;
-import net.ssehub.kernel_haven.typechef.ast.LiteralSyntaxElement;
-import net.ssehub.kernel_haven.typechef.ast.SyntaxElements;
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
 import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.IComm;
@@ -93,7 +94,7 @@ public class Runner {
             readParameters();
             List<LexerToken> lexerTokens = runLexer();
             
-            TypeChefBlock parsed;
+            SyntaxElement parsed;
             
             if (parseToAst) {
                 parsed = parseToAst(lexerTokens);
@@ -210,7 +211,7 @@ public class Runner {
      * 
      * @throws ExtractorException If the parser fails.
      */
-    private TypeChefBlock parseToAst(List<LexerToken> lexerTokens) throws ExtractorException {
+    private SyntaxElement parseToAst(List<LexerToken> lexerTokens) throws ExtractorException {
         System.out.println("parseToAst()");
 
         LexerSuccess wrapper = new LexerSuccess(lexerTokens);
@@ -231,7 +232,7 @@ public class Runner {
 
         times.put("typechef_parser", System.currentTimeMillis() - t0);
         
-        TypeChefBlock parsed = null;
+        SyntaxElement parsed = null;
         
         if (unit != null) {
             t0 = System.currentTimeMillis();
@@ -258,12 +259,12 @@ public class Runner {
      * 
      * @throws ExtractorException If conversion fails.
      */
-    private TypeChefBlock parseToFlatPcs(List<LexerToken> lexerTokens) throws ExtractorException {
+    private SyntaxElement parseToFlatPcs(List<LexerToken> lexerTokens) throws ExtractorException {
         System.out.println("parseToFlatPcs()");
         
         long t0 = System.currentTimeMillis();
         
-        TypeChefBlock parsed = new TypeChefBlock(null, True.INSTANCE, SyntaxElements.TRANSLATION_UNIT, "");
+        SyntaxElement parsed = new SyntaxElement(SyntaxElementTypes.TRANSLATION_UNIT, True.INSTANCE, True.INSTANCE); 
         String previous = "";
         
         VariableCache varCache = new VariableCache();
@@ -277,10 +278,11 @@ public class Runner {
                 previous = expr;
                 try {
                     Formula pc = parser.parse(expr);
-                    TypeChefBlock block = new TypeChefBlock(parsed, pc,
-                            new LiteralSyntaxElement("PresenceCondition"), "");
-                    block.setFile(token.getSourceName());
-                    block.setLine(token.getLine());
+                    SyntaxElement block = new SyntaxElement(new LiteralSyntaxElement("PresenceCondition"), 
+                            pc, pc);
+                    block.setSourceFile(new File(token.getSourceName())); // TODO: relativize and cache
+                    block.setLineStart(token.getLine());
+                    block.setLineEnd(token.getLine());
                     
                 } catch (ExpressionFormatException e) {
                     throw new ExtractorException(e);
@@ -300,7 +302,7 @@ public class Runner {
      * 
      * @param parsed The result to send.
      */
-    private void sendResult(TypeChefBlock parsed) {
+    private void sendResult(SyntaxElement parsed) {
         System.out.println("sendResult()");
         try {
             out.writeUnshared(Message.RESULT);

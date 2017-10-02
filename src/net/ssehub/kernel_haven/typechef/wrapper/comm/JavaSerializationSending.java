@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
 
 /**
  * A communication between parent and sub-process that utilizes Java serialization to send the AST. 
@@ -30,14 +30,14 @@ class JavaSerializationSending implements IComm {
     
     
     @Override
-    public void sendResult(TypeChefBlock result) throws IOException {
+    public void sendResult(SyntaxElement result) throws IOException {
         out.writeUnshared(result);
     }
 
     @Override
-    public TypeChefBlock receiveResult() throws IOException {
+    public SyntaxElement receiveResult() throws IOException {
         try {
-            return (TypeChefBlock) in.readUnshared();
+            return (SyntaxElement) in.readUnshared();
         } catch (ClassNotFoundException e) {
             throw new IOException(e);
         }

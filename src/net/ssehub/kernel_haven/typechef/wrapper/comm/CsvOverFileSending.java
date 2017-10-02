@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
 
 /**
  * A communication between parent and sub-process that creates an file for a Java serialization of the AST represented
@@ -33,7 +33,7 @@ class CsvOverFileSending extends AbstractCsvSending implements IComm {
     }
     
     @Override
-    public void sendResult(TypeChefBlock result) throws IOException {
+    public void sendResult(SyntaxElement result) throws IOException {
         File file = File.createTempFile("typechef_result", ".java_serialization");
         file.deleteOnExit();
         
@@ -51,11 +51,11 @@ class CsvOverFileSending extends AbstractCsvSending implements IComm {
     }
 
     @Override
-    public TypeChefBlock receiveResult() throws IOException {
+    public SyntaxElement receiveResult() throws IOException {
         try {
             File file = (File) in.readUnshared();
             
-            TypeChefBlock result;
+            SyntaxElement result;
             
             try (ObjectInputStream fileIn = new ObjectInputStream(new FileInputStream(file))) {
                 result = read(fileIn);

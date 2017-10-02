@@ -2,7 +2,7 @@ package net.ssehub.kernel_haven.typechef.util;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AbstractAnalysis;
-import net.ssehub.kernel_haven.code_model.Block;
+import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.CodeExtractorException;
@@ -32,7 +32,7 @@ public class DummyAnalysis extends AbstractAnalysis {
             
             SourceFile file;
             while ((file = cmProvider.getNextResult()) != null) {
-                for (Block block : file) {
+                for (CodeElement block : file) {
                     String[] lines = block.toString().split("\n");
                     LOGGER.logInfo(lines);
                 }

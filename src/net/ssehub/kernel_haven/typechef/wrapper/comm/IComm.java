@@ -2,7 +2,7 @@ package net.ssehub.kernel_haven.typechef.wrapper.comm;
 
 import java.io.IOException;
 
-import net.ssehub.kernel_haven.typechef.ast.TypeChefBlock;
+import net.ssehub.kernel_haven.code_model.SyntaxElement;
 
 /**
  * A communication strategy for the result AST of a TypeChef execution.
@@ -18,7 +18,7 @@ public interface IComm {
      * 
      * @throws IOException If reading the result fails.
      */
-    public TypeChefBlock receiveResult() throws IOException;
+    public SyntaxElement receiveResult() throws IOException;
     
     /**
      * Sends the result.
@@ -27,6 +27,6 @@ public interface IComm {
      * 
      * @throws IOException If sending the result fails.
      */
-    public void sendResult(TypeChefBlock result) throws IOException;
+    public void sendResult(SyntaxElement result) throws IOException;
 
 }
