@@ -103,11 +103,10 @@ public class Runner {
             }
                  
             sendResult(parsed);
+            close();
              
         } catch (ExtractorException e) {
             sendException(e);
-
-        } finally {
             close();
         }
     }
@@ -358,6 +357,22 @@ public class Runner {
         }
     }
     
+    
+    /**
+     * Sends an uncaught exception.
+     * 
+     * @param exc The crash.
+     */
+    private void sendCrash(Throwable exc) {
+        System.out.println("sendCrash()");
+        try {
+            out.writeUnshared(Message.CRASH);
+            out.writeUnshared(exc);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     /**
      * Close the sockets.
      */
@@ -382,6 +397,16 @@ public class Runner {
         int port = Integer.parseInt(args[0]);
         
         Runner runner = new Runner(port);
+        
+        Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            
+            @Override
+            public void uncaughtException(Thread th, Throwable exc) {
+                runner.sendCrash(exc);
+                runner.close();
+            }
+        });
+        
         
         runner.run();
     }

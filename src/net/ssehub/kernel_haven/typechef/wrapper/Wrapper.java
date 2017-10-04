@@ -194,14 +194,12 @@ public class Wrapper {
                 socket = serSock.accept();
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                
                 out.writeBoolean(config.isParseToAst());
                 out.writeUnshared(params);
                 
                 Message type;
                 while ((type = (Message) in.readUnshared()) != Message.END) {
                     LOGGER.logDebug("Got message: " + type);
-                    
                     switch (type) {
                     case RESULT: {
                         checkAndWaitReceivingLimit();
@@ -209,14 +207,12 @@ public class Wrapper {
                         
                         Runtime rt = Runtime.getRuntime();
                         long usedMemoryBefore = rt.totalMemory() - rt.freeMemory();
-                        
                         IComm receiver = CommFactory.createComm(in, out);
                         this.result = receiver.receiveResult();
                         
                         long usedMemoryAfter = rt.totalMemory() - rt.freeMemory();
                         LOGGER.logDebug("Memory usage before we got the result: " + Util.formatBytes(usedMemoryBefore),
                                 "Memory usage after we got the result: " + Util.formatBytes(usedMemoryAfter));
-                        
                         break;
                     }
                     case LEXER_ERRORS: {
@@ -230,6 +226,11 @@ public class Wrapper {
                     case TIMINGS: {
                         Map<String, Long> times = (Map<String, Long>) in.readUnshared();
                         LOGGER.logDebug("Timing reported by runner (in ms):", times.toString());
+                        break;
+                    }
+                    case CRASH: {
+                        Throwable th = (Throwable) in.readUnshared();
+                        LOGGER.logException("TypeChef runner crashed", th);
                         break;
                     }
                     default:

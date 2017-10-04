@@ -13,5 +13,6 @@ public enum Message {
     EXCEPTION,
     TIMINGS,
     END,
+    CRASH,
 
 }
