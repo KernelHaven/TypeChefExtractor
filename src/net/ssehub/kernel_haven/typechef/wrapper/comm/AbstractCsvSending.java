@@ -52,26 +52,26 @@ public class AbstractCsvSending {
      * @throws IOException If writing the AST fails.
      */
     protected void write(SyntaxElement result, ObjectOutputStream out) throws IOException {
-        sendSingleBlock(out, result, 0);
+        sendSingleElement(out, result, 0);
         
         // signal end of hierarchy
         out.writeUnshared(new Byte((byte) 0));
     }
     
     /**
-     * Recursively sends this block and its children.
+     * Recursively sends this element and its children.
      * 
-     * @param out The stream to send the block over.
-     * @param block The block to send.
-     * @param nesting The nesting level of this block.
-     * @throws IOException If writing the block or its children throws an IOException.
+     * @param out The stream to send the element over.
+     * @param element The element to send.
+     * @param nesting The nesting level of this element.
+     * @throws IOException If writing the element or its children throws an IOException.
      */
-    private void sendSingleBlock(ObjectOutputStream out, SyntaxElement block, int nesting) throws IOException {
+    private void sendSingleElement(ObjectOutputStream out, SyntaxElement element, int nesting) throws IOException {
         out.writeUnshared(nesting);
-        out.writeUnshared(block.serializeCsv().toArray(new String[0]));
+        out.writeUnshared(element.serializeCsv().toArray(new String[0]));
         
-        for (SyntaxElement child : block.iterateNestedSyntaxElements()) {
-            sendSingleBlock(out, (SyntaxElement) child, nesting + 1);
+        for (SyntaxElement child : element.iterateNestedSyntaxElements()) {
+            sendSingleElement(out, (SyntaxElement) child, nesting + 1);
         }
     }
     
@@ -98,15 +98,15 @@ public class AbstractCsvSending {
             while (read instanceof Integer) {
                 
                 int level = (Integer) read;
-                SyntaxElement block = SyntaxElementCsvUtil.csvToElement((String[]) in.readUnshared(), parser,
+                SyntaxElement element = SyntaxElementCsvUtil.csvToElement((String[]) in.readUnshared(), parser,
                         formulaCache, filenameCache);
                 
                 while (level < nesting.size()) {
                     nesting.pop();
                 }
-                nesting.peek().addNestedElement(block);
+                nesting.peek().addNestedElement(element);
                 
-                nesting.push(block);
+                nesting.push(element);
                 
                 read = in.readUnshared();
             }

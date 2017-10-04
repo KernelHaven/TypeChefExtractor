@@ -32,8 +32,8 @@ public class DummyAnalysis extends AbstractAnalysis {
             
             SourceFile file;
             while ((file = cmProvider.getNextResult()) != null) {
-                for (CodeElement block : file) {
-                    String[] lines = block.toString().split("\n");
+                for (CodeElement element : file) {
+                    String[] lines = element.toString().split("\n");
                     LOGGER.logInfo(lines);
                 }
             }

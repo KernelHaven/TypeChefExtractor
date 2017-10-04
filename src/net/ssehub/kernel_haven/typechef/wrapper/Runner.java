@@ -207,7 +207,7 @@ public class Runner {
     
     /**
      * Uses the Typechef parser to parse the tokens into an AST. The AST is then converted into our
-     * {@link TypeChefBlock} hierarchy.
+     * {@link SyntaxElement} hierarchy.
      * 
      * @param lexerTokens The result of the lexer.
      * @return The parsed and converted AST.
@@ -257,7 +257,7 @@ public class Runner {
      * Goes through the tokens and creates a flat list of presence conditions. This is much faster than parsing.
      * 
      * @param lexerTokens The result of the lexer.
-     * @return A {@link TypeChefBlock} containing a flat list of {@link TypeChefBlock}s with all found presence
+     * @return A {@link SyntaxElement} containing a flat list of {@link SyntaxElement}s with all found presence
      *      conditions.
      * 
      * @throws ExtractorException If conversion fails.
@@ -290,7 +290,7 @@ public class Runner {
                 previous = expr;
                 try {
                     Formula pc = parser.parse(expr);
-                    SyntaxElement block = new SyntaxElement(new LiteralSyntaxElement("PresenceCondition"), 
+                    SyntaxElement element = new SyntaxElement(new LiteralSyntaxElement("PresenceCondition"), 
                             pc, pc);
                     
                     String filename = token.getSourceName();
@@ -305,10 +305,10 @@ public class Runner {
                             e.printStackTrace();
                         }
                     }
-                    block.setSourceFile(new File(filename)); // TODO: cache
-                    block.setLineStart(token.getLine());
-                    block.setLineEnd(token.getLine());
-                    parsed.addNestedElement(block);
+                    element.setSourceFile(new File(filename)); // TODO: cache
+                    element.setLineStart(token.getLine());
+                    element.setLineEnd(token.getLine());
+                    parsed.addNestedElement(element);
                     
                 } catch (ExpressionFormatException e) {
                     throw new ExtractorException(e);
@@ -355,7 +355,7 @@ public class Runner {
     }
     
     /**
-     * Sends an exception to the main process. Call this instead of {@link #sendResult(TypeChefBlock)} if we
+     * Sends an exception to the main process. Call this instead of {@link #sendResult(SyntaxElement)} if we
      * can't produce a result.
      * 
      * @param exc The exception to send.

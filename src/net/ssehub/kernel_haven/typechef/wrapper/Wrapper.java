@@ -328,7 +328,7 @@ public class Wrapper {
      * 
      * @param file The file to run on. Relative to the source_tree in the configuration passed to
      *          the constructor of this wrapper.
-     * @return A {@link TypeChefBlock} representing the whole file (as an AST).
+     * @return A {@link SyntaxElement} representing the whole file (as an AST).
      * 
      * @throws IOException If the TypeChef execution or communication with the sub-process throws an IOException.
      * @throws ExtractorException If Typechef or the output conversion fails.
@@ -388,7 +388,7 @@ public class Wrapper {
         }
         
         // manually set the location of the result, since Typechef creates a temporary command-line input so we
-        // don't get proper filenames for the top-block
+        // don't get proper filenames for the top-element
         result.setSourceFile(file);
         result.setLineStart(1);
 //        result.setLineEnd(-1); // TODO?
@@ -411,8 +411,8 @@ public class Wrapper {
     public SourceFile runOnFile(File file) throws IOException, ExtractorException {
         SourceFile result = new SourceFile(file);
         
-        SyntaxElement block = runTypeChef(file);
-        result.addElement(block);
+        SyntaxElement element = runTypeChef(file);
+        result.addElement(element);
         
         return result;
     }
