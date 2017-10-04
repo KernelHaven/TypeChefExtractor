@@ -96,7 +96,6 @@ public class TypeChefExtractorTest {
             SourceFile result = extractor.runOnFile(sourceFile);
             
             String actual = result.iterator().next().toString();
-            actual.replaceAll("", "");
             String expected = "";
             try {
                 InputStream in = new FileInputStream("testdata/src1/ast.txt");
@@ -156,7 +155,6 @@ public class TypeChefExtractorTest {
             SourceFile result = extractor.runOnFile(sourceFile);
             
             String actual = result.iterator().next().toString();
-            actual.replaceAll("", "");
             String expected = "";
             try {
                 InputStream in = new FileInputStream("testdata/src1/ast.txt");

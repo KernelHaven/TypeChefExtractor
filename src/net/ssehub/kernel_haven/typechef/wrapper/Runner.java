@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,6 +60,8 @@ public class Runner {
     private ObjectInputStream in;
     
     private boolean parseToAst;
+    
+    private File sourceTree;
     
     private FrontendOptionsWithConfigFiles config;
     
@@ -121,25 +124,26 @@ public class Runner {
     private void readParameters() throws IOException, ExtractorException {
         System.out.println("readParameters()");
         
-        parseToAst = in.readBoolean();
-        
-        List<String> params;
         try {
+            parseToAst = in.readBoolean();
+            sourceTree = (File) in.readUnshared();
+        
+            List<String> params;
             params = (List<String>) in.readUnshared();
+            config = new FrontendOptionsWithConfigFiles() {
+                @Override
+                public boolean isPrintLexingSuccess() {
+                    return false;
+                }
+            };
+            
+            try {
+                config.parseOptions(params.toArray(new String[0]));
+            } catch (OptionException e) {
+                throw new ExtractorException("Invalid parameters passed to typechef", e);
+            }
         } catch (ClassNotFoundException e) {
             throw new IOException(e);
-        }
-        config = new FrontendOptionsWithConfigFiles() {
-            @Override
-            public boolean isPrintLexingSuccess() {
-                return false;
-            }
-        };
-        
-        try {
-            config.parseOptions(params.toArray(new String[0]));
-        } catch (OptionException e) {
-            throw new ExtractorException("Invalid parameters passed to typechef", e);
         }
     }
     
@@ -238,7 +242,7 @@ public class Runner {
             
             System.out.println("Converting AST...");
             AstConverter converter = new AstConverter();
-            parsed = converter.convertToFile(unit);
+            parsed = converter.convertToFile(unit, sourceTree);
             
             times.put("ast_converter", System.currentTimeMillis() - t0);
             
@@ -262,13 +266,22 @@ public class Runner {
         System.out.println("parseToFlatPcs()");
         
         long t0 = System.currentTimeMillis();
-        
+
+        // TODO: use CodeBlocks instead
         SyntaxElement parsed = new SyntaxElement(SyntaxElementTypes.TRANSLATION_UNIT, True.INSTANCE, True.INSTANCE); 
         String previous = "";
         
         VariableCache varCache = new VariableCache();
         TypeChefPresenceConditionGrammar grammar = new TypeChefPresenceConditionGrammar(varCache);
         Parser<Formula> parser = new Parser<>(grammar);
+        
+        Path sourceTree = null;
+        try {
+            sourceTree = this.sourceTree.getCanonicalFile().toPath();
+        } catch (IOException e1) {
+            // TODO
+            e1.printStackTrace();
+        }
         
         for (LexerToken token : lexerTokens) {
             String expr = token.getFeature().toTextExpr();
@@ -279,9 +292,23 @@ public class Runner {
                     Formula pc = parser.parse(expr);
                     SyntaxElement block = new SyntaxElement(new LiteralSyntaxElement("PresenceCondition"), 
                             pc, pc);
-                    block.setSourceFile(new File(token.getSourceName())); // TODO: relativize and cache
+                    
+                    String filename = token.getSourceName();
+                    if (filename == null) {
+                        filename = "<unkown>";
+                    } else if (sourceTree != null) {
+                        try {
+                            Path file = new File(filename).getCanonicalFile().toPath();
+                            filename = sourceTree.relativize(file).toString();
+                        } catch (IOException e) {
+                            // TODO
+                            e.printStackTrace();
+                        }
+                    }
+                    block.setSourceFile(new File(filename)); // TODO: cache
                     block.setLineStart(token.getLine());
                     block.setLineEnd(token.getLine());
+                    parsed.addNestedElement(block);
                     
                 } catch (ExpressionFormatException e) {
                     throw new ExtractorException(e);

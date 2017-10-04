@@ -195,8 +195,8 @@ public class Wrapper {
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                 out.writeBoolean(config.isParseToAst());
+                out.writeUnshared(config.getSourceDir());
                 out.writeUnshared(params);
-                
                 Message type;
                 while ((type = (Message) in.readUnshared()) != Message.END) {
                     LOGGER.logDebug("Got message: " + type);

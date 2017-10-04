@@ -1,6 +1,8 @@
 package net.ssehub.kernel_haven.typechef.ast;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -29,14 +31,24 @@ import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
  */
 public class AstConverter {
     
+    private static Path sourceTree;
+    
     /**
-     * Converts the given Typechef AST to our own format.
+     * Converts the given Typechef AST to our own format. Not thread safe.
      * 
      * @param unit The AST to convert.
+     * @param sourceTree The path to the source tree for relativizing filenames.
      * 
      * @return The result of the conversion.
      */
-    public SyntaxElement convertToFile(TranslationUnit unit) {
+    public SyntaxElement convertToFile(TranslationUnit unit, File sourceTree) {
+        try {
+            AstConverter.sourceTree = sourceTree.getCanonicalFile().toPath();
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
+        
         SyntaxElement tmp = createSyntaxElement(null, True.INSTANCE, new LiteralSyntaxElement(""), "", null);
         convertTranslationUnit(tmp, True.INSTANCE, unit, "");
         
@@ -1275,8 +1287,17 @@ public class AstConverter {
             String filename = position.getPositionFrom().getFile();
             if (filename == null) {
                 filename = "<unknown>";
+            } else if (sourceTree != null) {
+                try {
+                    Path file = new File(filename).getCanonicalFile().toPath();
+                    filename = sourceTree.relativize(file).toString();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
-            result.setSourceFile(new File(filename)); // TODO: relativize and cache
+            
+            result.setSourceFile(new File(filename)); // TODO: cache
         }
         
         return result;

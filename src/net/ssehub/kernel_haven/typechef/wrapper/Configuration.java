@@ -550,4 +550,13 @@ public class Configuration {
         return maxReceivingThreads;
     }
     
+    /**
+     * Returns the location of the source tree.
+     * 
+     * @return The source directory of the pipeline to analyze.
+     */
+    public File getSourceDir() {
+        return sourceDir;
+    }
+    
 }
