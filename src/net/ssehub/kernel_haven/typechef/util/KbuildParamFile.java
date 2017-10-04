@@ -64,7 +64,7 @@ public class KbuildParamFile {
                 }
                 
                 if (param.indexOf('$') != -1) {
-                    Logger.get().logWarning("Unkown variable in KbuildParamFile:", param);
+                    Logger.get().logWarning("Unknown variable in KbuildParamFile:", param);
                 }
                 result.set(i, param);
             }

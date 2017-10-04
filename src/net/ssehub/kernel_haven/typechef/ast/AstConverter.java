@@ -327,7 +327,7 @@ public class AstConverter {
         } else if (spec instanceof UnsignedSpecifier) {
             convertUnsignedSpecifier(parent, condition, (UnsignedSpecifier) spec, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown TypeSpecifier: " + spec.getClass()), relation, spec);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown TypeSpecifier: " + spec.getClass()), relation, spec);
         }
     }
     
@@ -337,7 +337,7 @@ public class AstConverter {
         } else if (decl instanceof InitDeclaratorI) {
             convertInitDeclaratorI(parent, condition, (InitDeclaratorI) decl, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown InitDeclarator: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown InitDeclarator: " + decl.getClass()), relation, decl);
         }
     }
     
@@ -347,7 +347,7 @@ public class AstConverter {
         } else if (ext instanceof DeclIdentifierList) {
             convertDeclIdentifierList(parent, condition, (DeclIdentifierList) ext, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown DeclaratorExtension: " + ext.getClass()), relation, ext);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown DeclaratorExtension: " + ext.getClass()), relation, ext);
         }
     }
     
@@ -357,7 +357,7 @@ public class AstConverter {
         } else if (ext instanceof DeclParameterDeclList) {
             convertDeclParameterDeclList(parent, condition, (DeclParameterDeclList) ext, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown DeclaratorAbstrExtension: " + ext.getClass()), relation, ext);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown DeclaratorAbstrExtension: " + ext.getClass()), relation, ext);
         }
     }
     
@@ -371,7 +371,7 @@ public class AstConverter {
         } else if (suffix instanceof SimplePostfixSuffix) {
             convertSimplePostfixSuffix(parent, condition, (SimplePostfixSuffix) suffix, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown PostfixSuffix: " + suffix.getClass()), relation, suffix);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown PostfixSuffix: " + suffix.getClass()), relation, suffix);
         }
     }
     
@@ -385,7 +385,7 @@ public class AstConverter {
         } else if (decl instanceof VarArgs) {
             convertVarArgs(parent, condition, (VarArgs) decl, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown ParameterDeclaration: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown ParameterDeclaration: " + decl.getClass()), relation, decl);
         }
     }
     
@@ -395,7 +395,7 @@ public class AstConverter {
         } else if (attr instanceof CompoundAttribute) {
             convertCompoundAttribute(parent, condition, (CompoundAttribute) attr, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown Attribute: " + attr.getClass()), relation, attr);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown Attribute: " + attr.getClass()), relation, attr);
         }
     }
     
@@ -405,7 +405,7 @@ public class AstConverter {
         } else if (decl instanceof StructInitializer) {
             convertStructInitializer(parent, condition, (StructInitializer) decl, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown StructDecl: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown StructDecl: " + decl.getClass()), relation, decl);
         }
     }
     
@@ -415,7 +415,7 @@ public class AstConverter {
         } else if (decl instanceof NestedAbstractDeclarator) {
             convertNestedAbstractDeclarator(parent, condition, (NestedAbstractDeclarator) decl, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown AbstractDeclarator: " + decl.getClass()), relation, decl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown AbstractDeclarator: " + decl.getClass()), relation, decl);
         }
     }
     
@@ -425,7 +425,7 @@ public class AstConverter {
         } else if (cdef instanceof NestedFunctionDef) {
             convertNestedFunctionDef(parent, condition, (NestedFunctionDef) cdef, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown CDef: " + cdef.getClass()), relation, cdef);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown CDef: " + cdef.getClass()), relation, cdef);
         }
     }
     
@@ -435,7 +435,7 @@ public class AstConverter {
         } else if (des instanceof OffsetofMemberDesignatorID) {
             convertOffsetofMemberDesignatorID(parent, condition, (OffsetofMemberDesignatorID) des, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown OffsetofMemberDesignator: " + des.getClass()), relation, des);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown OffsetofMemberDesignator: " + des.getClass()), relation, des);
         }
     }
     
@@ -449,7 +449,7 @@ public class AstConverter {
         } else if (lbl instanceof InitializerDesignatorD) {
             convertInitializerDesignatorD(parent, condition, (InitializerDesignatorD) lbl, relation);
         } else {
-            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unkown InitializerElementLabel: " + lbl.getClass()), relation, lbl);
+            createSyntaxElement(parent, condition, new ErrorSyntaxElement("Unknown InitializerElementLabel: " + lbl.getClass()), relation, lbl);
         }
     }
     
@@ -1272,7 +1272,11 @@ public class AstConverter {
         if (position != null) {
             result.setLineStart(position.getPositionFrom().getLine());
             result.setLineEnd(position.getPositionTo().getLine());
-            result.setSourceFile(new File(position.getPositionFrom().getFile())); // TODO: relativize and cache
+            String filename = position.getPositionFrom().getFile();
+            if (filename == null) {
+                filename = "<unknown>";
+            }
+            result.setSourceFile(new File(filename)); // TODO: relativize and cache
         }
         
         return result;
