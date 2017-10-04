@@ -295,7 +295,7 @@ public class Runner {
                     
                     String filename = token.getSourceName();
                     if (filename == null) {
-                        filename = "<unkown>";
+                        filename = "<unknown>";
                     } else if (sourceTree != null) {
                         try {
                             Path file = new File(filename).getCanonicalFile().toPath();
