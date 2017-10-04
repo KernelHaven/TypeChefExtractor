@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.typechef.wrapper.Wrapper;
 
 /**
  * A communication between parent and sub-process that creates an file for a Java serialization of the AST represented
@@ -44,7 +45,8 @@ class CsvOverFileSending extends AbstractCsvSending implements IComm {
         out.writeUnshared(file);
         
         try {
-            in.readUnshared(); // read a single object, that indicates that the other side finished with reading
+            // read a single object, that indicates that the other side finished with reading
+            Wrapper.CommThread.readObject(in);
         } catch (ClassNotFoundException e) {
             throw new IOException(e);
         }
@@ -53,7 +55,7 @@ class CsvOverFileSending extends AbstractCsvSending implements IComm {
     @Override
     public SyntaxElement receiveResult() throws IOException {
         try {
-            File file = (File) in.readUnshared();
+            File file = Wrapper.CommThread.readObject(in);
             
             SyntaxElement result;
             

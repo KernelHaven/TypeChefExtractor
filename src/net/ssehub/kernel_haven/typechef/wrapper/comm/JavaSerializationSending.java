@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.typechef.wrapper.Wrapper;
 
 /**
  * A communication between parent and sub-process that utilizes Java serialization to send the AST. 
@@ -37,7 +38,7 @@ class JavaSerializationSending implements IComm {
     @Override
     public SyntaxElement receiveResult() throws IOException {
         try {
-            return (SyntaxElement) in.readUnshared();
+            return Wrapper.CommThread.readObject(in);
         } catch (ClassNotFoundException e) {
             throw new IOException(e);
         }

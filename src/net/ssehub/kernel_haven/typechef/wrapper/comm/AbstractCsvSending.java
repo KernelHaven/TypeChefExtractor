@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.typechef.wrapper.comm;
 
+import static net.ssehub.kernel_haven.typechef.wrapper.Wrapper.CommThread.readObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -34,7 +36,7 @@ public class AbstractCsvSending {
      */
     protected SyntaxElement read(ObjectInputStream in) throws IOException {
         try {
-            in.readUnshared(); // first integer, always 0
+            readObject(in); // first integer, always 0
             
             return readCsvListResult(in);
             
@@ -90,15 +92,15 @@ public class AbstractCsvSending {
         Map<String, File> filenameCache = new HashMap<>(1000);
         
         try {
-            SyntaxElement root = SyntaxElement.createFromCsv((String[]) in.readUnshared(), parser);
+            SyntaxElement root = SyntaxElement.createFromCsv(readObject(in), parser);
             Stack<SyntaxElement> nesting = new Stack<>();
             nesting.push(root);
             
-            Object read = in.readUnshared();
+            Object read = readObject(in);
             while (read instanceof Integer) {
                 
                 int level = (Integer) read;
-                SyntaxElement element = SyntaxElementCsvUtil.csvToElement((String[]) in.readUnshared(), parser,
+                SyntaxElement element = SyntaxElementCsvUtil.csvToElement(readObject(in), parser,
                         formulaCache, filenameCache);
                 
                 while (level < nesting.size()) {
@@ -108,7 +110,7 @@ public class AbstractCsvSending {
                 
                 nesting.push(element);
                 
-                read = in.readUnshared();
+                read = readObject(in);
             }
 
             Logger.get().logDebug("Final formulaCache size: " + formulaCache.size(),

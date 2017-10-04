@@ -79,7 +79,7 @@ public class Wrapper {
      * 
      * @author Adam
      */
-    private static class CommThread extends Thread {
+    public static class CommThread extends Thread {
         
         private static int numRecieving = 0;
         
@@ -187,18 +187,19 @@ public class Wrapper {
         }
         
         @Override
-        @SuppressWarnings("unchecked")
         public void run() {
             boolean numReceivingIncreased = false;
             try {
                 socket = serSock.accept();
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                
                 out.writeBoolean(config.isParseToAst());
                 out.writeUnshared(config.getSourceDir());
                 out.writeUnshared(params);
+                
                 Message type;
-                while ((type = (Message) in.readUnshared()) != Message.END) {
+                while ((type = readObject(in)) != Message.END) {
                     LOGGER.logDebug("Got message: " + type);
                     switch (type) {
                     case RESULT: {
@@ -216,21 +217,16 @@ public class Wrapper {
                         break;
                     }
                     case LEXER_ERRORS: {
-                        lexerErrors = (List<String>) in.readUnshared();
+                        lexerErrors = readObject(in);
                         break;
                     }
                     case EXCEPTION: {
-                        this.extractorException = (ExtractorException) in.readUnshared();
+                        this.extractorException = readObject(in);
                         break;
                     }
                     case TIMINGS: {
-                        Map<String, Long> times = (Map<String, Long>) in.readUnshared();
+                        Map<String, Long> times = readObject(in);
                         LOGGER.logDebug("Timing reported by runner (in ms):", times.toString());
-                        break;
-                    }
-                    case CRASH: {
-                        Throwable th = (Throwable) in.readUnshared();
-                        LOGGER.logException("TypeChef runner crashed", th);
                         break;
                     }
                     default:
@@ -257,6 +253,28 @@ public class Wrapper {
                     }
                 }
             }
+        }
+        
+        /**
+         * Reads an object from the {@link ObjectInputStream}. This method properly handles CRASH messages.
+         * 
+         * @param in The {@link ObjectInputStream} to read the object from.
+         * @param <T> The type of object to read.
+         * @return The read object.
+         * @throws ClassNotFoundException If the class of the sent object is not known.
+         * @throws IOException If reading fails.
+         */
+        @SuppressWarnings("unchecked")
+        public static <T> T readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+            Object read = in.readUnshared();
+            
+            if (read == Message.CRASH) {
+                Throwable th = readObject(in);
+                LOGGER.logException("TypeChef runner crashed", th);
+                throw new IOException("TypeChef runner crashed");
+            }
+            
+            return (T) read;
         }
         
     }
