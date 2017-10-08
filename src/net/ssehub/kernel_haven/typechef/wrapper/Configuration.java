@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
-import net.ssehub.kernel_haven.config.CodeExtractorConfiguration;
+import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.typechef.TypeChefExtractor;
 import net.ssehub.kernel_haven.typechef.util.KbuildParamFile;
 import net.ssehub.kernel_haven.typechef.util.OutputVoider;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.Logger;
+import net.ssehub.kernel_haven.util.Util;
 import net.ssehub.kernel_haven.variability_model.VariabilityVariable;
 
 /**
@@ -63,7 +63,7 @@ public class Configuration {
     private int maxReceivingThreads;
     
     /**
-     * Creates a Typechef configuration from the given {@link CodeExtractorConfiguration}.
+     * Creates a Typechef configuration from the given {@link net.ssehub.kernel_haven.config.Configuration}.
      * It uses the following keys:
      * <ul>
      *  <li>
@@ -111,7 +111,7 @@ public class Configuration {
      * 
      * @throws SetUpException If any of the mandatory settings can't be read, or some auto-generation fails.
      */
-    public Configuration(CodeExtractorConfiguration config) throws SetUpException {
+    public Configuration(net.ssehub.kernel_haven.config.Configuration config) throws SetUpException {
         staticIncludes = new ArrayList<>();
         postIncludeDirs = new ArrayList<>();
         sourceIncludeDirs = new ArrayList<>();
@@ -128,14 +128,14 @@ public class Configuration {
      * 
      * @throws SetUpException If generating files fails.
      */
-    private void loadFromConfig(CodeExtractorConfiguration config) throws SetUpException {
-        this.resDir = config.getExtractorResourceDir(TypeChefExtractor.class);
-        this.sourceDir = config.getSourceTree();
-        this.parseToAst = Boolean.parseBoolean(config.getProperty("code.extractor.parse_to_ast", "false"));
+    private void loadFromConfig(net.ssehub.kernel_haven.config.Configuration config) throws SetUpException {
+        this.resDir = Util.getExtractorResourceDir(config, TypeChefExtractor.class);
+        this.sourceDir = config.getValue(DefaultSettings.SOURCE_TREE);
+        this.parseToAst = config.getValue(TypeChefSettings.PARSE_TO_AST);
         
         loadPerformanceSettings(config);
         
-        this.platformHeader = getFileOrNull("code.extractor.platform_header", config);
+        this.platformHeader = config.getValue(TypeChefSettings.PLATFORM_HEADER);
         if (platformHeader == null) {
             this.platformHeader = new File(resDir, "platform.h");
             if (!this.platformHeader.isFile()) {
@@ -143,68 +143,51 @@ public class Configuration {
             }
         }
         
-        this.systemRoot = new File(config.getProperty("code.extractor.system_root", "/"));
+        this.systemRoot = config.getValue(TypeChefSettings.SYSTEM_ROOT);
         
-        for (String staticInclude : getSettingList(config, "code.extractor.static_include.")) {
+        for (String staticInclude : config.getValue(TypeChefSettings.STATIC_INCLUDES)) {
             this.staticIncludes.add(new File(staticInclude));
         }
         
-        for (String postIncludeDir : getSettingList(config, "code.extractor.post_include_dir.")) {
+        for (String postIncludeDir : config.getValue(TypeChefSettings.POST_INCLUDE_DIRS)) {
             this.postIncludeDirs.add(new File(postIncludeDir));
         }
-        if (!Boolean.parseBoolean(config.getProperty("code.extractor.skip_default_include_dirs", "false"))) {
+        if (!config.getValue(TypeChefSettings.SKIP_DEFAULT_INCLUDE_DIRS)) {
             this.postIncludeDirs.add(new File("usr/lib/gcc/x86_64-linux-gnu/5/include"));
             this.postIncludeDirs.add(new File("usr/include/x86_64-linux-gnu"));
             this.postIncludeDirs.add(new File("usr/include"));
         }
         
-        for (String sourceIncludeDir : getSettingList(config, "code.extractor.source_include_dir.")) {
+        for (String sourceIncludeDir : config.getValue(TypeChefSettings.SOURCE_INCLUDE_DIRS)) {
             this.sourceIncludeDirs.add(new File(sourceIncludeDir));
         }
         
-        boolean addLinuxDirs = Boolean.parseBoolean(config.getProperty(
-                "code.extractor.add_linux_source_include_dirs", "false"));
-        if (addLinuxDirs) {
-            if (config.getArch() == null) {
+        if (config.getValue(TypeChefSettings.ADD_LINUX_SOURCE_INCLUDE_DIRS)) {
+            if (config.getValue(DefaultSettings.ARCH) == null) {
                 throw new SetUpException(
                         "No arch specified; this is needed for code.extractor.add_linux_source_include_dirs");
             }
-            addDefaultLinuxDirs(config.getArch());
+            addDefaultLinuxDirs(config.getValue(DefaultSettings.ARCH));
         }
         
-        for (String preprocessorDefine : getSettingList(config, "code.extractor.preprocessor_define.")) {
+        for (String preprocessorDefine : config.getValue(TypeChefSettings.PREPROCESSOR_DEFINES)) {
             this.preprocessorDefines.add(preprocessorDefine);
         }
         
-        File kbuildParamFile = getFileOrNull("code.extractor.kbuildparam_file", config);
+        File kbuildParamFile = config.getValue(TypeChefSettings.KBUILDPARAM_FILE);
         if (kbuildParamFile != null) {
             try {
-                this.kbuildParamFile = new KbuildParamFile(kbuildParamFile, config.getSourceTree());
+                this.kbuildParamFile = new KbuildParamFile(kbuildParamFile,
+                        config.getValue(DefaultSettings.SOURCE_TREE));
             } catch (IOException e) {
                 throw new SetUpException(e);
             }
         }
         
-        openVariablesFile = getFileOrNull("code.extractor.open_variables", config);
-        smallFeatureModel = getFileOrNull("code.extractor.small_feature_model", config);
+        openVariablesFile = config.getValue(TypeChefSettings.OPEN_VARIABLES_FILE);
+        smallFeatureModel = config.getValue(TypeChefSettings.SMALL_FEATURE_MODEL_FILE);
         
         loadDebugFromConfig(config);
-    }
-    
-    /**
-     * Returns a file, or null if the setting is not set.
-     * 
-     * @param setting The key in the properties file.
-     * @param config The configuration to read from;
-     * @return A file with the path read from the configuration, or null.
-     */
-    private File getFileOrNull(String setting, CodeExtractorConfiguration config) {
-        File result = null;
-        String value = config.getProperty(setting);
-        if (value != null) {
-            result = new File(value);
-        }
-        return result;
     }
     
     /**
@@ -213,17 +196,9 @@ public class Configuration {
      * @param config The configurations to load from.
      * @throws SetUpException If the settings are invalid.
      */
-    private void loadPerformanceSettings(CodeExtractorConfiguration config) throws SetUpException {
-
-        this.processRam = config.getProperty("code.extractor.process_ram", "15g");
-        
-        if (config.getProperty("code.extractor.max_receiving_threads") != null) {
-            try {
-                this.maxReceivingThreads = Integer.parseInt(config.getProperty("code.extractor.max_receiving_threads"));
-            } catch (NumberFormatException e) {
-                throw new SetUpException("code.extractor.max_receiving_threads is not a valid integer", e);
-            }
-        }
+    private void loadPerformanceSettings(net.ssehub.kernel_haven.config.Configuration config) throws SetUpException {
+        this.processRam = config.getValue(TypeChefSettings.PROCES_RAM);
+        this.maxReceivingThreads = config.getValue(TypeChefSettings.MAX_RECEIVING_THREADS);
     }
 
     /**
@@ -249,34 +224,12 @@ public class Configuration {
      * 
      * @param config The configuration to load the debug settings from.
      */
-    private void loadDebugFromConfig(CodeExtractorConfiguration config) {
-        callInSameVm = Boolean.parseBoolean(config.getProperty("code.extractor.debug.call_in_same_vm"));
-        logCallParams = Boolean.parseBoolean(config.getProperty("code.extractor.debug.log_call_params"));
-        inheritOutput = Boolean.parseBoolean(config.getProperty("code.extractor.debug.inherit_output"));
+    private void loadDebugFromConfig(net.ssehub.kernel_haven.config.Configuration config) {
+        callInSameVm = config.getValue(TypeChefSettings.DEBUG_CALL_IN_SAME_VM);
+        logCallParams = config.getValue(TypeChefSettings.DEBUG_LOG_CALL_PARAMS);
+        inheritOutput = config.getValue(TypeChefSettings.DEBUG_INHERIT_OUTPUT);
     }
     
-    /**
-     * Helper method for reading a list of keys that is denoted by ending in ".0", ".1", ".2", etc.
-     * 
-     * @param config The config to read from.
-     * @param prefix The common prefix of the setting keys, up to the number (including the ".").
-     * 
-     * @return The list of setting values; never null; can be an empty list.
-     */
-    private List<String> getSettingList(CodeExtractorConfiguration config, String prefix) {
-        int index = 0;
-        
-        List<String> result = new LinkedList<>();
-        
-        String setting;
-        while ((setting = config.getProperty(prefix + index)) != null) {
-            result.add(setting);
-            index++;
-        }
-        
-        return result;
-    }
-
     /**
      * Checks the sanity of the given settings. This mostly checks for null and if files exists and are readable.
      * 

@@ -14,8 +14,8 @@ import net.ssehub.kernel_haven.cnf.SolverException;
 import net.ssehub.kernel_haven.cnf.VmToCnfConverter;
 import net.ssehub.kernel_haven.code_model.AbstractCodeModelExtractor;
 import net.ssehub.kernel_haven.code_model.SourceFile;
-import net.ssehub.kernel_haven.config.CodeExtractorConfiguration;
 import net.ssehub.kernel_haven.typechef.wrapper.Configuration;
+import net.ssehub.kernel_haven.typechef.wrapper.TypeChefSettings;
 import net.ssehub.kernel_haven.typechef.wrapper.Wrapper;
 import net.ssehub.kernel_haven.util.CodeExtractorException;
 import net.ssehub.kernel_haven.util.ExtractorException;
@@ -46,8 +46,9 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
     private IFormulaToCnfConverter cnfConverter;
     
     @Override
-    protected void init(CodeExtractorConfiguration config) throws SetUpException {
-        ignoreOtherModels = Boolean.parseBoolean(config.getProperty("code.extractor.ignore_other_models"));
+    protected void init(net.ssehub.kernel_haven.config.Configuration config) throws SetUpException {
+        TypeChefSettings.registerAllSettings(config);
+        ignoreOtherModels = config.getValue(TypeChefSettings.IGNORE_OTHER_MODELS);
         typechefConfig = new Configuration(config);
         readFromOtherExtractors = false;
     }
@@ -146,5 +147,5 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
         
         return shouldParse;
     }
-    
+
 }

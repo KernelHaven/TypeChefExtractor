@@ -92,7 +92,7 @@ public class TypeChefExtractorTest {
             TestConfiguration testConfig = new TestConfiguration(props);
             
             TypeChefExtractor extractor = new TypeChefExtractor();
-            extractor.init(testConfig.getCodeConfiguration());
+            extractor.init(testConfig);
             SourceFile result = extractor.runOnFile(sourceFile);
             
             String actual = result.iterator().next().toString();
@@ -151,7 +151,7 @@ public class TypeChefExtractorTest {
             TestConfiguration testConfig = new TestConfiguration(props);
             
             TypeChefExtractor extractor = new TypeChefExtractor();
-            extractor.init(testConfig.getCodeConfiguration());
+            extractor.init(testConfig);
             SourceFile result = extractor.runOnFile(sourceFile);
             
             String actual = result.iterator().next().toString();
