@@ -120,7 +120,6 @@ public class Runner {
      * @throws IOException If communication fails.
      * @throws ExtractorException If the parameters can't be parsed by Typechef.
      */
-    @SuppressWarnings("unchecked")
     private void readParameters() throws IOException, ExtractorException {
         System.out.println("readParameters()");
         
@@ -128,8 +127,8 @@ public class Runner {
             parseToAst = in.readBoolean();
             sourceTree = (File) in.readUnshared();
         
-            List<String> params;
-            params = (List<String>) in.readUnshared();
+            @SuppressWarnings("unchecked")
+            List<String> params = (List<String>) in.readUnshared();
             config = new FrontendOptionsWithConfigFiles() {
                 @Override
                 public boolean isPrintLexingSuccess() {
