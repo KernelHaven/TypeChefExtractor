@@ -25,6 +25,8 @@ import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
  * @author Adam
  */
 public class AbstractCsvSending {
+    
+    private String[] buffer = new String[100];
 
     /**
      * Reads the AST from the given stream.
@@ -70,7 +72,7 @@ public class AbstractCsvSending {
      */
     private void sendSingleElement(ObjectOutputStream out, SyntaxElement element, int nesting) throws IOException {
         out.writeUnshared(nesting);
-        out.writeUnshared(element.serializeCsv().toArray(new String[0]));
+        out.writeUnshared(element.serializeCsv().toArray(buffer));
         
         for (SyntaxElement child : element.iterateNestedSyntaxElements()) {
             sendSingleElement(out, (SyntaxElement) child, nesting + 1);
