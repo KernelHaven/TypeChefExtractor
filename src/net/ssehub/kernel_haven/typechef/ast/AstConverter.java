@@ -1272,7 +1272,7 @@ public class AstConverter {
             ISyntaxElementType type, String relation, WithPosition position) {
         
         Formula pc = condition;
-        if (parent != null) {
+        if (parent != null && parent.getPresenceCondition() != True.INSTANCE) {
             pc = new Conjunction(parent.getPresenceCondition(), pc);
         }
         
@@ -1317,6 +1317,7 @@ public class AstConverter {
         if (result == null) {
             try {
                 result = PARSER.parse(text);
+                // TODO: shorten here?
                 formulaCache.put(text, result);
             } catch (ExpressionFormatException e) {
                 // TODO
