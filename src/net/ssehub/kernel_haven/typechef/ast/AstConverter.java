@@ -1276,11 +1276,13 @@ public class AstConverter {
         if (parent != null) {
             Formula parentCondition = parent.getPresenceCondition();
             if (parentCondition != True.INSTANCE && !pc.equals(parentCondition)) {
-                // Avoid repeating of parent conditions 
-                pc = new Conjunction(parentCondition, pc);
-            } else if (condition == True.INSTANCE) {
-                // Avoid conjunction of a TRUE statement to a non-empty pc
-                pc = parentCondition;
+                if (condition != True.INSTANCE) {
+                    // Avoid repeating of parent conditions 
+                    pc = new Conjunction(parentCondition, pc);
+                } else {
+                    // Avoid conjunction of a TRUE statement to a non-empty pc
+                    pc = parentCondition;
+                }
             }
         }
         
