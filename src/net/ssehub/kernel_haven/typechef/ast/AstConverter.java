@@ -1272,10 +1272,16 @@ public class AstConverter {
             ISyntaxElementType type, String relation, WithPosition position) {
         
         Formula pc = condition;
-        if (parent != null && parent.getPresenceCondition() != True.INSTANCE
-            && !pc.equals(parent.getPresenceCondition())) {
-            
-            pc = new Conjunction(parent.getPresenceCondition(), pc);
+        
+        if (parent != null) {
+            Formula parentCondition = parent.getPresenceCondition();
+            if (parentCondition != True.INSTANCE && !pc.equals(parentCondition)) {
+                // Avoid repeating of parent conditions 
+                pc = new Conjunction(parent.getPresenceCondition(), pc);
+            } else if (condition == True.INSTANCE) {
+                // Avoid conjunction of a TRUE statement to a non-empty pc
+                pc = parentCondition;
+            }
         }
         
         SyntaxElement result = new SyntaxElement(type, condition, pc);
