@@ -1277,7 +1277,7 @@ public class AstConverter {
             Formula parentCondition = parent.getPresenceCondition();
             if (parentCondition != True.INSTANCE && !pc.equals(parentCondition)) {
                 // Avoid repeating of parent conditions 
-                pc = new Conjunction(parent.getPresenceCondition(), pc);
+                pc = new Conjunction(parentCondition, pc);
             } else if (condition == True.INSTANCE) {
                 // Avoid conjunction of a TRUE statement to a non-empty pc
                 pc = parentCondition;
