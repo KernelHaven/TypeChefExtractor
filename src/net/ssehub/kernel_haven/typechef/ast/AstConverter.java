@@ -1272,7 +1272,9 @@ public class AstConverter {
             ISyntaxElementType type, String relation, WithPosition position) {
         
         Formula pc = condition;
-        if (parent != null && parent.getPresenceCondition() != True.INSTANCE) {
+        if (parent != null && parent.getPresenceCondition() != True.INSTANCE
+            && pc.equals(parent.getPresenceCondition())) {
+            
             pc = new Conjunction(parent.getPresenceCondition(), pc);
         }
         
