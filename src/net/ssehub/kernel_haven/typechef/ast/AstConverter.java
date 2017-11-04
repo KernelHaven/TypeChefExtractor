@@ -1273,7 +1273,7 @@ public class AstConverter {
         
         Formula pc = condition;
         if (parent != null && parent.getPresenceCondition() != True.INSTANCE
-            && pc.equals(parent.getPresenceCondition())) {
+            && !pc.equals(parent.getPresenceCondition())) {
             
             pc = new Conjunction(parent.getPresenceCondition(), pc);
         }
