@@ -13,6 +13,7 @@ import java.util.Stack;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementCsvUtil;
 import net.ssehub.kernel_haven.util.FormatException;
+import net.ssehub.kernel_haven.util.FormulaCache;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.parser.CStyleBooleanGrammar;
@@ -56,7 +57,8 @@ public class AbstractCsvSending {
      * @throws IOException If writing the AST fails.
      */
     protected void write(SyntaxElement result, ObjectOutputStream out) throws IOException {
-        sendSingleElement(out, result, 0);
+        FormulaCache cache = new FormulaCache();
+        sendSingleElement(out, result, 0, cache);
         
         // signal end of hierarchy
         out.writeUnshared(new Byte((byte) 0));
@@ -70,12 +72,14 @@ public class AbstractCsvSending {
      * @param nesting The nesting level of this element.
      * @throws IOException If writing the element or its children throws an IOException.
      */
-    private void sendSingleElement(ObjectOutputStream out, SyntaxElement element, int nesting) throws IOException {
+    private void sendSingleElement(ObjectOutputStream out, SyntaxElement element, int nesting,
+        FormulaCache cache) throws IOException {
+        
         out.writeUnshared(nesting);
         out.writeUnshared(element.serializeCsv().toArray(buffer));
         
         for (SyntaxElement child : element.iterateNestedSyntaxElements()) {
-            sendSingleElement(out, (SyntaxElement) child, nesting + 1);
+            sendSingleElement(out, (SyntaxElement) child, nesting + 1, cache);
         }
     }
     
