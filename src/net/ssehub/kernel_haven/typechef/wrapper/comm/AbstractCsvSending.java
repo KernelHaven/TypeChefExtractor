@@ -70,13 +70,15 @@ public class AbstractCsvSending {
      * @param out The stream to send the element over.
      * @param element The element to send.
      * @param nesting The nesting level of this element.
+     * @param cache A {@link FormulaCache} to use for serializing elements.
+     * 
      * @throws IOException If writing the element or its children throws an IOException.
      */
     private void sendSingleElement(ObjectOutputStream out, SyntaxElement element, int nesting,
         FormulaCache cache) throws IOException {
         
         out.writeUnshared(nesting);
-        out.writeUnshared(element.serializeCsv().toArray(buffer));
+        out.writeUnshared(element.serializeCsv(cache).toArray(buffer));
         
         for (SyntaxElement child : element.iterateNestedSyntaxElements()) {
             sendSingleElement(out, (SyntaxElement) child, nesting + 1, cache);
