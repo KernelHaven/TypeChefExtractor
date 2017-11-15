@@ -146,12 +146,28 @@ public class TypeChefExtractorTest {
         // Allowed PCs
         Formula varAdd = new Variable("CONFIG_ADDITION");
         Formula varSub = new Variable("CONFIG_SUBTRACTION");
-        Formula elseCondition = new Conjunction(new Negation(varAdd), varSub);
+        Formula elseIfCondition = new Conjunction(new Negation(varAdd), varSub);
+        Formula elseCondition = new Conjunction(new Negation(varAdd), new Negation(varSub));
         List<Formula> allowedPCs = new ArrayList<>();
         allowedPCs.add(varAdd);
+        allowedPCs.add(elseIfCondition);
+        /*
+        /* printf depends on if-Block, TypeChef computes for this reason also a presence condition for
+         * the not existing else block
+         */
         allowedPCs.add(elseCondition);
         
         // Check for valid PCs
+        assertConditions(unit, varAstParts, allowedPCs);
+    }
+
+    /**
+     * Checks that the specified AST elements contain only allowed presence conditions.
+     * @param unit The complete AST, required for printing debug messages in case of a detected error.
+     * @param varAstParts The AST elements to test (should be a subset of the <tt>unit</tt>).
+     * @param allowedPCs The exüected presence conditions.
+     */
+    private void assertConditions(CodeElement unit, List<CodeElement> varAstParts, List<Formula> allowedPCs) {
         for (CodeElement astElem : varAstParts) {
             Formula pc = astElem.getPresenceCondition();
             boolean contained = false;
@@ -160,12 +176,17 @@ public class TypeChefExtractorTest {
             }
             if (!contained) {
                 SyntaxElement syntaxElement = (SyntaxElement) astElem;
-                String elem = syntaxElement.getType() + " " + syntaxElement.getRelation(0) 
-                    + " in Line " + syntaxElement.getLineStart();
-                Assert.fail("AST element \"" + elem + "\" containes an invalid presence condtion: " + pc);
+                String elem = syntaxElement.getType().toString();
+                if (syntaxElement.getNestedElementCount() > 0) {
+                    elem += " " + syntaxElement.getRelation(0);
+                }
+                elem += " in Line " + syntaxElement.getLineStart();
+                String msg = "AST element \"" + elem + "\" containes an invalid presence condtion: "
+                    + pc + "\nComplete AST:\n" + unit;
+                System.err.println(msg);
+                Assert.fail(msg);
             }
         }
-        
     }
     
     /**
