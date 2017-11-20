@@ -39,7 +39,17 @@ public class TypeChefSettings {
     }
     
     public static final Setting<ParseType> PARSE_TYPE
-        = new EnumSetting<ParseType>("code.extractor.parse_type", ParseType.class, true, null, "TODO"); // TODO SE
+        = new EnumSetting<ParseType>("code.extractor.parse_type", ParseType.class, true, null,
+            "Specifies the granularity of the translation result:\n"
+            + " - " + ParseType.LEXER + ": Stops the translation after the lexer and returns a flat list of presence "
+            + "conditions only\n"
+            + " - " + ParseType.ONLY_C_AST + ": Translates the content of the C-Code only. This includes also embedded "
+            + "marco class of a C-functions. However, this will skip all header-specific elements, which are not "
+            + "nested inside a C-code element. For instance, these may be structs or function declarations.\n"
+            + " - " + ParseType.FULL_AST + ": These will generate a full AST. This will also include definitions of "
+            + "included headers, even if this code is not embedded of a C-code. This facilitates more detailed "
+            + "analyses like data flow analysis. However, this requires significantly more hard drive space if the "
+            + "result is cached.");
     
     public static final Setting<File> SYSTEM_ROOT
         = new Setting<>("code.extractor.system_root", DIRECTORY, true, "/", "TODO");
