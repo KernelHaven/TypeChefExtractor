@@ -33,8 +33,11 @@ import de.fosd.typechef.parser.c.TranslationUnit;
 import net.ssehub.kernel_haven.code_model.LiteralSyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
+import net.ssehub.kernel_haven.typechef.ast.CAstConverter;
 import net.ssehub.kernel_haven.typechef.ast.FullAstConverter;
+import net.ssehub.kernel_haven.typechef.ast.IAstConverter;
 import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
+import net.ssehub.kernel_haven.typechef.wrapper.TypeChefSettings.ParseType;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.IComm;
 import net.ssehub.kernel_haven.util.ExtractorException;
@@ -59,7 +62,7 @@ public class Runner {
     
     private ObjectInputStream in;
     
-    private boolean parseToAst;
+    private ParseType parseType;
     
     private File sourceTree;
     
@@ -99,12 +102,20 @@ public class Runner {
             
             SyntaxElement parsed;
             
-            if (parseToAst) {
-                parsed = parseToAst(lexerTokens);
-            } else {
+            switch (parseType) {
+            case LEXER:
                 parsed = parseToFlatPcs(lexerTokens);
+                break;
+                
+            case FULL_AST:
+            case ONLY_C_AST:
+                parsed = parseToAst(lexerTokens, parseType == ParseType.ONLY_C_AST);
+                break;
+                
+            default:
+                throw new IOException("Unkown ParseType: " + parseType);
             }
-                 
+            
             sendResult(parsed);
             close();
              
@@ -124,7 +135,7 @@ public class Runner {
         System.out.println("readParameters()");
         
         try {
-            parseToAst = in.readBoolean();
+            parseType = (ParseType) in.readUnshared();
             sourceTree = (File) in.readUnshared();
         
             @SuppressWarnings("unchecked")
@@ -209,11 +220,13 @@ public class Runner {
      * {@link SyntaxElement} hierarchy.
      * 
      * @param lexerTokens The result of the lexer.
+     * @param filterHeaders Whether to filter header AST elements from the result or not.
+     * 
      * @return The parsed and converted AST.
      * 
      * @throws ExtractorException If the parser fails.
      */
-    private SyntaxElement parseToAst(List<LexerToken> lexerTokens) throws ExtractorException {
+    private SyntaxElement parseToAst(List<LexerToken> lexerTokens, boolean filterHeaders) throws ExtractorException {
         System.out.println("parseToAst()");
 
         LexerSuccess wrapper = new LexerSuccess(lexerTokens);
@@ -240,7 +253,12 @@ public class Runner {
             t0 = System.currentTimeMillis();
             
             System.out.println("Converting AST...");
-            FullAstConverter converter = new FullAstConverter();
+            IAstConverter converter;
+            if (filterHeaders) {
+                converter = new CAstConverter();
+            } else {
+                converter = new FullAstConverter();
+            }
             parsed = converter.convertToFile(unit, sourceTree);
             
             times.put("ast_converter", System.currentTimeMillis() - t0);

@@ -30,7 +30,7 @@ import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
  * 
  * @author Adam
  */
-public class FullAstConverter {
+public class FullAstConverter implements IAstConverter {
     
     /**
      * The root of the analyzed source tree. This is used to compute relative path structures.
@@ -39,14 +39,7 @@ public class FullAstConverter {
     static Path sourceTree;
     // CHECKSTYLE:ON
     
-    /**
-     * Converts the given Typechef AST to our own format. Not thread safe.
-     * 
-     * @param unit The AST to convert.
-     * @param sourceTree The path to the source tree for relativizing filenames.
-     * 
-     * @return The result of the conversion.
-     */
+    @Override
     public SyntaxElement convertToFile(TranslationUnit unit, File sourceTree) {
         try {
             FullAstConverter.sourceTree = sourceTree.getCanonicalFile().toPath();

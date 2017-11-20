@@ -20,17 +20,11 @@ import scala.Option;
  * @author El-Sharkawy
  *
  */
-public class CAstConverter {
+public class CAstConverter implements IAstConverter {
+    
     private static boolean isCCode = false;
     
-    /**
-     * Converts the given Typechef AST to our own format. Not thread safe.
-     * 
-     * @param unit The AST to convert.
-     * @param sourceTree The path to the source tree for relativizing filenames.
-     * 
-     * @return The result of the conversion.
-     */
+    @Override
     public SyntaxElement convertToFile(TranslationUnit unit, File sourceTree) {
         try {
             FullAstConverter.sourceTree = sourceTree.getCanonicalFile().toPath();

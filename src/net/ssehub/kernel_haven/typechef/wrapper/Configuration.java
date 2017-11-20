@@ -12,6 +12,7 @@ import net.ssehub.kernel_haven.config.DefaultSettings;
 import net.ssehub.kernel_haven.typechef.TypeChefExtractor;
 import net.ssehub.kernel_haven.typechef.util.KbuildParamFile;
 import net.ssehub.kernel_haven.typechef.util.OutputVoider;
+import net.ssehub.kernel_haven.typechef.wrapper.TypeChefSettings.ParseType;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
@@ -50,7 +51,7 @@ public class Configuration {
     
     private KbuildParamFile kbuildParamFile;
     
-    private boolean parseToAst;
+    private ParseType parseType;
     
     private String processRam;
     
@@ -131,7 +132,7 @@ public class Configuration {
     private void loadFromConfig(net.ssehub.kernel_haven.config.Configuration config) throws SetUpException {
         this.resDir = Util.getExtractorResourceDir(config, TypeChefExtractor.class);
         this.sourceDir = config.getValue(DefaultSettings.SOURCE_TREE);
-        this.parseToAst = config.getValue(TypeChefSettings.PARSE_TO_AST);
+        this.parseType = config.getValue(TypeChefSettings.PARSE_TYPE);
         
         loadPerformanceSettings(config);
         
@@ -396,12 +397,12 @@ public class Configuration {
     }
     
     /**
-     * Whether to parse the result of Typechef into an AST or simply keeping a flat list of presence conditions.
+     * Which parse result should be produced.
      * 
-     * @return The boolean setting read from the user.
+     * @return The value defined by the user.
      */
-    public boolean isParseToAst() {
-        return parseToAst;
+    public ParseType getParseType() {
+        return parseType;
     }
     
     /**

@@ -16,6 +16,7 @@ import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
+import net.ssehub.kernel_haven.config.EnumSetting;
 import net.ssehub.kernel_haven.config.Setting;
 
 /**
@@ -28,8 +29,17 @@ public class TypeChefSettings {
     public static final Setting<Boolean> IGNORE_OTHER_MODELS
         = new Setting<>("code.extractor.ignore_other_models", BOOLEAN, true, "false", "TODO");
     
-    public static final Setting<Boolean> PARSE_TO_AST
-        = new Setting<>("code.extractor.parse_to_ast", BOOLEAN, true, "false", "TODO");
+    /**
+     * Different types of parsing results.
+     */
+    public static enum ParseType {
+        FULL_AST,
+        ONLY_C_AST,
+        LEXER,
+    }
+    
+    public static final Setting<ParseType> PARSE_TYPE
+        = new EnumSetting<ParseType>("code.extractor.parse_type", ParseType.class, true, null, "TODO"); // TODO SE
     
     public static final Setting<File> SYSTEM_ROOT
         = new Setting<>("code.extractor.system_root", DIRECTORY, true, "/", "TODO");

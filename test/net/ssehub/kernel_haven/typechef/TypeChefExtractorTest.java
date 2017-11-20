@@ -23,6 +23,7 @@ import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
+import net.ssehub.kernel_haven.typechef.wrapper.TypeChefSettings.ParseType;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
@@ -79,7 +80,7 @@ public class TypeChefExtractorTest {
      */
     @Test
     public void testSeparateProcess() {
-        SourceFile result = parseFile(new File("test.c"), "src1", false);
+        SourceFile result = parseFile(new File("test.c"), "src1", false, ParseType.FULL_AST);
         
         String actual = result.iterator().next().toString();
         String expected = "";
@@ -108,7 +109,7 @@ public class TypeChefExtractorTest {
      */
     @Test
     public void testSameProcess() {
-        SourceFile result = parseFile(new File("test.c"), "src1", true);
+        SourceFile result = parseFile(new File("test.c"), "src1", true, ParseType.FULL_AST);
         
         String actual = result.iterator().next().toString();
         String expected = "";
@@ -136,7 +137,7 @@ public class TypeChefExtractorTest {
      */
     @Test
     public void testPCsOfAST() {
-        SourceFile result = parseFile(new File("calc.c"), "varAST", true);
+        SourceFile result = parseFile(new File("calc.c"), "varAST", false, ParseType.FULL_AST);
         
         // Collect all elements, whose presence condition is not TRUE
         CodeElement unit = result.iterator().next();
@@ -169,7 +170,7 @@ public class TypeChefExtractorTest {
     @Test
     public void testCAst() {
         File testFile = new File("main.c");
-        SourceFile result = parseFile(testFile, "includeHeader", true);
+        SourceFile result = parseFile(testFile, "includeHeader", false, ParseType.ONLY_C_AST);
         
         // Collect all elements, whose presence condition is not TRUE
         CodeElement unit = result.iterator().next();
@@ -193,7 +194,7 @@ public class TypeChefExtractorTest {
     @Test
     public void testFullAst() {
         File testFile = new File("main.c");
-        SourceFile result = parseFile(testFile, "includeHeader", true);
+        SourceFile result = parseFile(testFile, "includeHeader", false, ParseType.FULL_AST);
         
         // Collect all elements, whose presence condition is not TRUE
         CodeElement unit = result.iterator().next();
@@ -259,17 +260,19 @@ public class TypeChefExtractorTest {
      * @param sourceFile The source file to parse, should be placed somewhere in testdata.
      * @param srcDir The source directory relative to testdata.
      * @param inSameVm <tt>true</tt> Calls {@link TypeChefExtractor} in the same Java VM <tt>false</tt> calls TypeChef
-     *     in a separate process.
+     *     in a separate process. Only one test case may set this to true.
+     * @param parseType The type of result that should be produced.
+     *     
      * @return The parsed file, won't be <tt>null</tt>.
      */
-    private SourceFile parseFile(File sourceFile, String srcDir, boolean inSameVm) {
+    private SourceFile parseFile(File sourceFile, String srcDir, boolean inSameVm, ParseType parseType) {
         
         // Configure extractor
         Properties props = new Properties();
         props.setProperty("source_tree", "testdata/" + srcDir);
         props.setProperty("resource_dir", RES_DIR.getPath());
         props.setProperty("code.extractor.skip_default_include_dirs", "true");
-        props.setProperty("code.extractor.parse_to_ast", "true");
+        props.setProperty("code.extractor.parse_type", parseType.name());
         
         props.setProperty("code.extractor.process_ram", "200m");
         props.setProperty("code.extractor.ignore_other_models", "true");

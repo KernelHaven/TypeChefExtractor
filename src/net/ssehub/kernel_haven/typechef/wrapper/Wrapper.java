@@ -194,7 +194,7 @@ public class Wrapper {
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
                 
-                out.writeBoolean(config.isParseToAst());
+                out.writeUnshared(config.getParseType());
                 out.writeUnshared(config.getSourceDir());
                 out.writeUnshared(params);
                 
