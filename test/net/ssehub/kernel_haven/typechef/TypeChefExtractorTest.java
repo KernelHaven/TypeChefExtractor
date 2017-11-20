@@ -132,7 +132,7 @@ public class TypeChefExtractorTest {
     }
     
     /**
-     * Tests that the aSTs contain the expected presence conditions.
+     * Tests that the ASTs contain the expected presence conditions.
      */
     @Test
     public void testPCsOfAST() {
@@ -160,12 +160,63 @@ public class TypeChefExtractorTest {
         // Check for valid PCs
         assertConditions(unit, varAstParts, allowedPCs);
     }
+    
+    /**
+     * Tests that the (unused) included header macros (includes at the beginning of a file) can optionally be
+     * omitted during AST generation.
+     * @see #testFullAst()
+     */
+    @Test
+    public void testCAst() {
+        File testFile = new File("main.c");
+        SourceFile result = parseFile(testFile, "includeHeader", true);
+        
+        // Collect all elements, whose presence condition is not TRUE
+        CodeElement unit = result.iterator().next();
+        
+        /*
+         * Test file contains 1 header element (which should be skipped) and 2 C elements
+         */
+        int nElements = unit.getNestedElementCount();
+        Assert.assertEquals(2, nElements);
+        for (int i = 0; i < nElements; i++) {
+            CodeElement astElement = unit.getNestedElement(i);
+            Assert.assertEquals(testFile, astElement.getSourceFile());
+        }
+    }
+    
+    /**
+     * Tests that the (unused) included header macros (includes at the beginning of a file) can optionally be
+     * kept during AST generation.
+     * @see #testCAst()
+     */
+    @Test
+    public void testFullAst() {
+        File testFile = new File("main.c");
+        SourceFile result = parseFile(testFile, "includeHeader", true);
+        
+        // Collect all elements, whose presence condition is not TRUE
+        CodeElement unit = result.iterator().next();
+        
+        /*
+         * Test file contains 1 header element (which should be skipped) and 2 C elements
+         */
+        int nElements = unit.getNestedElementCount();
+        Assert.assertEquals(3, nElements);
+        // First element is struct definition from header
+        CodeElement headerElement = unit.getNestedElement(0);
+        Assert.assertEquals(new File("logging.h"), headerElement.getSourceFile());
+        for (int i = 1; i < nElements; i++) {
+            CodeElement astElement = unit.getNestedElement(i);
+            Assert.assertEquals(testFile, astElement.getSourceFile());
+        }
+    }
 
     /**
      * Checks that the specified AST elements contain only allowed presence conditions.
      * @param unit The complete AST, required for printing debug messages in case of a detected error.
      * @param varAstParts The AST elements to test (should be a subset of the <tt>unit</tt>).
-     * @param allowedPCs The exüected presence conditions.
+     * @param allowedPCs The expected presence conditions.
      */
     private void assertConditions(CodeElement unit, List<CodeElement> varAstParts, List<Formula> allowedPCs) {
         for (CodeElement astElem : varAstParts) {

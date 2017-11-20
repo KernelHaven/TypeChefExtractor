@@ -33,7 +33,7 @@ import de.fosd.typechef.parser.c.TranslationUnit;
 import net.ssehub.kernel_haven.code_model.LiteralSyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElement;
 import net.ssehub.kernel_haven.code_model.SyntaxElementTypes;
-import net.ssehub.kernel_haven.typechef.ast.AstConverter;
+import net.ssehub.kernel_haven.typechef.ast.FullAstConverter;
 import net.ssehub.kernel_haven.typechef.util.TypeChefPresenceConditionGrammar;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.IComm;
@@ -240,7 +240,7 @@ public class Runner {
             t0 = System.currentTimeMillis();
             
             System.out.println("Converting AST...");
-            AstConverter converter = new AstConverter();
+            FullAstConverter converter = new FullAstConverter();
             parsed = converter.convertToFile(unit, sourceTree);
             
             times.put("ast_converter", System.currentTimeMillis() - t0);

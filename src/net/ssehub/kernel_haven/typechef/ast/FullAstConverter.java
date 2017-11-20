@@ -25,13 +25,19 @@ import net.ssehub.kernel_haven.util.logic.parser.Parser;
 import net.ssehub.kernel_haven.util.logic.parser.VariableCache;
 
 /**
- * Converts an AST created by Typechef into our own format.
+ * Converts the complete AST of TypeChef into the AST-structure provided by KernelHaven, this includes also all macro
+ * definitions of header files.
  * 
  * @author Adam
  */
-public class AstConverter {
+public class FullAstConverter {
     
-    private static Path sourceTree;
+    /**
+     * The root of the analyzed source tree. This is used to compute relative path structures.
+     */
+    // CHECKSTYLE:OFF
+    static Path sourceTree;
+    // CHECKSTYLE:ON
     
     /**
      * Converts the given Typechef AST to our own format. Not thread safe.
@@ -43,7 +49,7 @@ public class AstConverter {
      */
     public SyntaxElement convertToFile(TranslationUnit unit, File sourceTree) {
         try {
-            AstConverter.sourceTree = sourceTree.getCanonicalFile().toPath();
+            FullAstConverter.sourceTree = sourceTree.getCanonicalFile().toPath();
         } catch (IOException e) {
             // TODO
             e.printStackTrace();
@@ -203,7 +209,7 @@ public class AstConverter {
         }
     }
     
-    private static void convertExternalDef(SyntaxElement parent, Formula condition, ExternalDef externalDef, String relation) {
+    static void convertExternalDef(SyntaxElement parent, Formula condition, ExternalDef externalDef, String relation) {
         if (externalDef instanceof AsmExpr) {
             createSyntaxElement(parent, condition, new ErrorSyntaxElement("TODO: " + externalDef.getClass()), relation, externalDef); // TODO
         } else if (externalDef instanceof Declaration) {
@@ -1268,7 +1274,7 @@ public class AstConverter {
     
     // -----------------------------------------------------------
     
-    private static SyntaxElement createSyntaxElement(SyntaxElement parent, Formula condition,
+    static SyntaxElement createSyntaxElement(SyntaxElement parent, Formula condition,
             ISyntaxElementType type, String relation, WithPosition position) {
         
         Formula pc = condition;
@@ -1321,7 +1327,7 @@ public class AstConverter {
     
     private static final Map<String, Formula> formulaCache = new HashMap<>(15000);
     
-    private static Formula toFormula(FeatureExpr featureExpr) {
+    static Formula toFormula(FeatureExpr featureExpr) {
         String text = featureExpr.toTextExpr();
         Formula result = formulaCache.get(text);
         if (result == null) {
@@ -1338,7 +1344,7 @@ public class AstConverter {
         return result;
     }
     
-    private static <T> Iterable<T> scalaIterator(final scala.collection.immutable.List<T> a) {
+    static <T> Iterable<T> scalaIterator(final scala.collection.immutable.List<T> a) {
         return new Iterable<T>() {
 
             @Override
