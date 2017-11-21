@@ -44,13 +44,14 @@ public class TypeChefSettings {
             + " - " + ParseType.LEXER + ": Stops the translation after the lexer and returns a flat list of presence\n"
             + "   conditions only\n"
             + " - " + ParseType.ONLY_C_AST + ": Translates the content of the C-Code only. This includes also\n"
-            + "   embedded marco class of a C-functions. However, this will skip all\n"
+            + "   embedded macro class of a C-functions. However, this will skip all\n"
             + "   header-specific elements, which are not nested inside a C-code element.\n"
             + "   For instance, these may be structs or function declarations.\n"
             + " - " + ParseType.FULL_AST + ": These will generate a full AST. This will also include definitions\n"
-            + "   of included headers, even if this code is not embedded of a C-code. This\n"
+            + "   of included headers, even if this code is not embedded in C-code. This\n"
             + "   facilitates more detailed analyses like data flow analysis. However, this\n"
-            + "   requires significantly more hard drive space if the result is cached.");
+            + "   approach is significantly slower (~ 2x) and requires significantly more hard\n"
+            + "   drive space (~ 40x) if the result is cached, with respect to " + ParseType.ONLY_C_AST + ".");
     
     public static final Setting<File> SYSTEM_ROOT
         = new Setting<>("code.extractor.system_root", DIRECTORY, true, "/", "TODO");
