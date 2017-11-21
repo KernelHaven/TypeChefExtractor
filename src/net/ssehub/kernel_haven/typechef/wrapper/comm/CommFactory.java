@@ -20,6 +20,7 @@ public class CommFactory {
      */
     public static IComm createComm(ObjectInputStream in, ObjectOutputStream out) {
 //        return new CsvOverFileSending(in, out);
+//        return new CsvOverMMFSending(in, out);
         return new CsvOverTcpSending(in, out);
 //        return new JavaSerializationSending(in, out);
     }

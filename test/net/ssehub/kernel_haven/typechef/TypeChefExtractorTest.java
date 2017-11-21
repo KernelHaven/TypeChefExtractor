@@ -83,23 +83,7 @@ public class TypeChefExtractorTest {
         SourceFile result = parseFile(new File("test.c"), "src1", false, ParseType.FULL_AST);
         
         String actual = result.iterator().next().toString();
-        String expected = "";
-        try {
-            InputStream in = new FileInputStream("testdata/src1/ast.txt");
-            expected = Util.readStream(in);
-            expected.replace("\r", "");
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail("Can't load file with expected ASt");
-        }
-        
-        try {
-            assertThat(actual, is(expected));
-        } catch (AssertionError e) {
-            printDifference(actual, expected);
-            throw e;
-        }
+        assertAST(actual, "testdata/src1/ast.txt");
     }
     
     /**
@@ -112,24 +96,7 @@ public class TypeChefExtractorTest {
         SourceFile result = parseFile(new File("test.c"), "src1", true, ParseType.FULL_AST);
         
         String actual = result.iterator().next().toString();
-        String expected = "";
-        try {
-            InputStream in = new FileInputStream("testdata/src1/ast.txt");
-            expected = Util.readStream(in);
-            expected.replace("\r", "");
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail("Can't load file with expected ASt");
-        }
-        
-        System.out.println(actual);
-        try {
-            assertThat(actual, is(expected));
-        } catch (AssertionError e) {
-            printDifference(actual, expected);
-            throw e;
-        }
+        assertAST(actual, "testdata/src1/ast.txt");
     }
     
     /**
@@ -321,4 +288,31 @@ public class TypeChefExtractorTest {
         }
     }
     
+    /**
+     * Compares (and asserts) the actual AST with an expectedAST.
+     * @param actual The parsed AST to test.
+     * @param expectedAstPath A relative location of an AST to load (relative to this project).
+     * @throws AssertionError If the actual AST is not equal to the expected one.
+     */
+    private void assertAST(String actual, String expectedAstPath) throws AssertionError {
+        actual.replace("\r", "");
+        String expected = "";
+        try {
+            InputStream in = new FileInputStream(expectedAstPath);
+            expected = Util.readStream(in);
+            expected.replace("\r", "");
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            fail("Can't load file with expected AST");
+        }
+        
+        System.out.println(actual);
+        try {
+            Assert.assertEquals(expected, actual);
+        } catch (AssertionError e) {
+            printDifference(actual, expected);
+            throw e;
+        }
+    }
 }
