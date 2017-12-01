@@ -48,6 +48,7 @@ class CsvOverMMFSending extends AbstractCsvSending implements IComm {
         File file = File.createTempFile("typechef_result", ".java_serialization");
         file.deleteOnExit();
         
+        @SuppressWarnings("resource") // TODO
         FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
         MappedByteBuffer mem = fc.map(FileChannel.MapMode.READ_WRITE, 0, BUFFER_SIZE);
         
@@ -72,6 +73,7 @@ class CsvOverMMFSending extends AbstractCsvSending implements IComm {
     public SyntaxElement receiveResult() throws IOException {
         try {
             File file = Wrapper.CommThread.readObject(in);
+            @SuppressWarnings("resource") // TODO
             FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
             MappedByteBuffer mem = fc.map(FileChannel.MapMode.READ_ONLY, 0, BUFFER_SIZE);
             
