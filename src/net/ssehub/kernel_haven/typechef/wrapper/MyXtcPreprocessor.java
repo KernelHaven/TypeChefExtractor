@@ -316,7 +316,7 @@ class MyXtcPreprocessor implements VALexer {
             FeatureExpr innerResult = FeatureExprLib.True();
 
 
-            sat = (byte[]) o;
+            sat = notNull((byte[]) o);
 //            first = true;
             for (int i = 0; i < sat.length; i++)
                 if (sat[i] == 0 || sat[i] == 1) {
