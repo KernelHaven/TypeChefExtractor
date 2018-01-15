@@ -51,7 +51,7 @@ public class FullAstConverter implements IAstConverter {
         SyntaxElement tmp = createSyntaxElement(null, True.INSTANCE, new LiteralSyntaxElement(""), "", null);
         convertTranslationUnit(tmp, True.INSTANCE, unit, "");
         
-        return (SyntaxElement) tmp.getNestedElement(0);
+        return tmp.getNestedElement(0);
     }
     
     // CHECKSTYLE:OFF

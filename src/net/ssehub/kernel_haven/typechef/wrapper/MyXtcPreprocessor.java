@@ -302,7 +302,7 @@ class MyXtcPreprocessor implements VALexer {
             return FeatureExprLib.True();
         if (bdd.isZero()) return FeatureExprLib.False();
 
-        allsat = (List<?>) bdd.allsat();
+        allsat = bdd.allsat();
 
         FeatureExpr result = FeatureExprLib.False();
 

@@ -37,7 +37,7 @@ public class CAstConverter implements IAstConverter {
             null);
         convertTranslationUnit(tmp, True.INSTANCE, unit, "");
         
-        return (SyntaxElement) tmp.getNestedElement(0);
+        return tmp.getNestedElement(0);
     }
     
     /**

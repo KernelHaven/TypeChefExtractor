@@ -81,7 +81,7 @@ public class AbstractCsvSending {
         out.writeUnshared(element.serializeCsv(cache).toArray(buffer));
         
         for (SyntaxElement child : element.iterateNestedSyntaxElements()) {
-            sendSingleElement(out, (SyntaxElement) child, nesting + 1, cache);
+            sendSingleElement(out, child, nesting + 1, cache);
         }
     }
     
