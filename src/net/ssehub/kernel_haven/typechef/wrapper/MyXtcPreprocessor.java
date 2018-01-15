@@ -1,5 +1,7 @@
 package net.ssehub.kernel_haven.typechef.wrapper;
 
+import static net.ssehub.kernel_haven.util.null_checks.NullHelpers.notNull;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -348,7 +350,7 @@ class MyXtcPreprocessor implements VALexer {
                         } while (!success);
                         
                     }
-                    if (sat[i] == 0) var = var.not();
+                    if (sat[i] == 0) var = notNull(var).not();
 
                     innerResult = innerResult.and(var);
                 }
