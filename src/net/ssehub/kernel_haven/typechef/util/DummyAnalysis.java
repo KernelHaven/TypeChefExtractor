@@ -6,6 +6,7 @@ import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.CodeExtractorException;
+import net.ssehub.kernel_haven.util.null_checks.NonNull;
 
 /**
  * A dummy analysis for debugging purposes. Simply dumps the AST result to the logs.
@@ -19,7 +20,7 @@ public class DummyAnalysis extends AbstractAnalysis {
      * 
      * @param config The configuration.
      */
-    public DummyAnalysis(Configuration config) {
+    public DummyAnalysis(@NonNull Configuration config) {
         super(config);
     }
 
