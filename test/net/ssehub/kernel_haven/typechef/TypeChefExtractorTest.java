@@ -15,7 +15,6 @@ import java.util.Properties;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -42,14 +41,6 @@ import net.ssehub.kernel_haven.util.logic.Variable;
 public class TypeChefExtractorTest {
     
     private static final File RES_DIR = new File(AllTests.TESTDATA, "res");
-    
-    /**
-     * Inits the logger.
-     */
-    @BeforeClass
-    public static void initLogger() {
-        Logger.init();
-    }
     
     /**
      * Creates the resource directory for each test.
