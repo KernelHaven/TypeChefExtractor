@@ -431,6 +431,7 @@ public class Configuration {
         
         try {
             this.openVariablesFile = File.createTempFile("open_variables", ".txt");
+            this.openVariablesFile.deleteOnExit();
             
             LOGGER.logDebug("Writing open variables file to " + this.openVariablesFile.getAbsolutePath());
             
