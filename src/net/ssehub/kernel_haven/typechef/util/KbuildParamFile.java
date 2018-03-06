@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -81,11 +82,11 @@ public class KbuildParamFile {
      * @throws IOException If reading the file fails.
      */
     private void readFile(File file) throws IOException {
-        BufferedReader in = new BufferedReader(new FileReader(file));
+        LineNumberReader in = new LineNumberReader(new BufferedReader(new FileReader(file)));
         
         String line;
         while ((line = in.readLine()) != null) {
-            parseLine(line);
+            parseLine(line, in.getLineNumber());
         }
         
         in.close();
@@ -95,11 +96,12 @@ public class KbuildParamFile {
      * Parses a single line of a kbuildparam.sh file.
      * 
      * @param line The line to parse.
+     * @param currentLineNumber The current line number. Used for error messages.
      */
-    private void parseLine(String line) {
+    private void parseLine(String line, int currentLineNumber) {
         int colonIndex = line.indexOf(':');
         if (colonIndex <= 0) {
-            Logger.get().logError("Invalid line in KbuildParamFile:", line);
+            Logger.get().logError("Invalid format in KbuildParamFile line " + currentLineNumber + ":", line);
             return;
         }
         
