@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.lang.ProcessBuilder.Redirect;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -63,7 +64,11 @@ public class Wrapper {
         URL[] urls = ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs();
         
         for (URL url : urls) {
-            cp.append(url.getFile()).append(File.pathSeparatorChar);
+            try {
+                cp.append(new File(url.toURI())).append(File.pathSeparatorChar);
+            } catch (URISyntaxException e) {
+                LOGGER.logExceptionWarning("Can't convert classpath element to file", e);
+            }
         }
         
         // remove last path separator
