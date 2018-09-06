@@ -27,6 +27,7 @@ import net.ssehub.kernel_haven.typechef.wrapper.TypeChefSettings.ParseType;
 import net.ssehub.kernel_haven.util.ExtractorException;
 import net.ssehub.kernel_haven.util.Logger;
 import net.ssehub.kernel_haven.util.Util;
+import net.ssehub.kernel_haven.util.Util.OSType;
 import net.ssehub.kernel_haven.util.logic.Conjunction;
 import net.ssehub.kernel_haven.util.logic.Formula;
 import net.ssehub.kernel_haven.util.logic.Negation;
@@ -281,7 +282,8 @@ public class TypeChefExtractorTest {
         props.setProperty("code.extractor.debug.inherit_output", "false");
         props.setProperty("code.extractor.debug.call_in_same_vm", Boolean.toString(inSameVm));
         
-        if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
+        OSType os = Util.determineOS();
+        if (os == OSType.WIN32 || os == OSType.WIN64) {
             props.setProperty("code.extractor.platform_header", "testdata/win/platform.h");
         }
         
