@@ -9,7 +9,8 @@ import net.ssehub.kernel_haven.build_model.BuildModel;
 import net.ssehub.kernel_haven.cnf.ConverterException;
 import net.ssehub.kernel_haven.cnf.FormulaToCnfConverterFactory;
 import net.ssehub.kernel_haven.cnf.IFormulaToCnfConverter;
-import net.ssehub.kernel_haven.cnf.SatSolver;
+import net.ssehub.kernel_haven.cnf.ISatSolver;
+import net.ssehub.kernel_haven.cnf.SatSolverFactory;
 import net.ssehub.kernel_haven.cnf.SolverException;
 import net.ssehub.kernel_haven.cnf.VmToCnfConverter;
 import net.ssehub.kernel_haven.code_model.AbstractCodeModelExtractor;
@@ -41,7 +42,7 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
     
     private BuildModel buildModel;
     
-    private SatSolver satSolver;
+    private ISatSolver satSolver;
     
     private IFormulaToCnfConverter cnfConverter;
     
@@ -109,8 +110,9 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
         }
         cnfConverter = FormulaToCnfConverterFactory.create();
         try {
-            satSolver = new SatSolver(new VmToCnfConverter().convertVmToCnf(varModel));
-        } catch (FormatException e) {
+            satSolver = SatSolverFactory.createSolver(null, null, new VmToCnfConverter().convertVmToCnf(varModel),
+                    false);
+        } catch (FormatException | SetUpException e) {
             throw new ExtractorException(e);
         }
     }
