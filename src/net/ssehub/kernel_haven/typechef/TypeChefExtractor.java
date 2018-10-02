@@ -110,9 +110,8 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
         }
         cnfConverter = FormulaToCnfConverterFactory.create();
         try {
-            satSolver = SatSolverFactory.createSolver(null, null, new VmToCnfConverter().convertVmToCnf(varModel),
-                    false);
-        } catch (FormatException | SetUpException e) {
+            satSolver = SatSolverFactory.createSolver(new VmToCnfConverter().convertVmToCnf(varModel), false);
+        } catch (FormatException e) {
             throw new ExtractorException(e);
         }
     }
