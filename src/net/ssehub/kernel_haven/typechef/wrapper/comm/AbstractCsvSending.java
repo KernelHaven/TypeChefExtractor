@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
-import net.ssehub.kernel_haven.code_model.SyntaxElementCsvUtil;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElementCsvUtil;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.FormulaCache;
 import net.ssehub.kernel_haven.util.Logger;
@@ -80,7 +80,7 @@ public class AbstractCsvSending {
         out.writeUnshared(nesting);
         out.writeUnshared(element.serializeCsv(cache).toArray(buffer));
         
-        for (SyntaxElement child : element.iterateNestedSyntaxElements()) {
+        for (SyntaxElement child : element) {
             sendSingleElement(out, child, nesting + 1, cache);
         }
     }

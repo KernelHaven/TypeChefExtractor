@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
 
 /**
  * A communication between parent and sub-process that sends the AST as CSV (string arrays) over the Java

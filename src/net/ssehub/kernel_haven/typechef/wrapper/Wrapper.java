@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.ssehub.kernel_haven.code_model.SourceFile;
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
 import net.ssehub.kernel_haven.typechef.util.OutputVoider;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.CommFactory;
 import net.ssehub.kernel_haven.typechef.wrapper.comm.IComm;
@@ -431,8 +431,8 @@ public class Wrapper {
     * @throws IOException If the TypeChef execution or communication with the sub-process throws an IOException.
     * @throws ExtractorException If Typechef or the output conversion fails.
     */
-    public SourceFile runOnFile(File file) throws IOException, ExtractorException {
-        SourceFile result = new SourceFile(file);
+    public SourceFile<SyntaxElement> runOnFile(File file) throws IOException, ExtractorException {
+        SourceFile<SyntaxElement> result = new SourceFile<>(file);
         
         SyntaxElement element = runTypeChef(file);
         result.addElement(element);

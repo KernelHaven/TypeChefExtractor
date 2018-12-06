@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
 import net.ssehub.kernel_haven.typechef.wrapper.Wrapper;
 
 /**

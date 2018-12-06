@@ -15,6 +15,7 @@ import net.ssehub.kernel_haven.cnf.SolverException;
 import net.ssehub.kernel_haven.cnf.VmToCnfConverter;
 import net.ssehub.kernel_haven.code_model.AbstractCodeModelExtractor;
 import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
 import net.ssehub.kernel_haven.typechef.wrapper.Configuration;
 import net.ssehub.kernel_haven.typechef.wrapper.TypeChefSettings;
 import net.ssehub.kernel_haven.typechef.wrapper.Wrapper;
@@ -55,7 +56,7 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
     }
 
     @Override
-    protected SourceFile runOnFile(File target) throws ExtractorException {
+    protected SourceFile<SyntaxElement> runOnFile(File target) throws ExtractorException {
         if (!ignoreOtherModels) {
             readFromOtherExtractors();
         }
@@ -66,7 +67,7 @@ public class TypeChefExtractor extends AbstractCodeModelExtractor {
         
         try {
             Wrapper wrapper = new Wrapper(typechefConfig);
-            SourceFile result = wrapper.runOnFile(target);
+            SourceFile<SyntaxElement> result = wrapper.runOnFile(target);
             return result;
             
         } catch (IOException | ExtractorException e) {

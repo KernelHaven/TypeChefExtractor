@@ -19,9 +19,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import net.ssehub.kernel_haven.SetUpException;
-import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
 import net.ssehub.kernel_haven.test_utils.TestConfiguration;
 import net.ssehub.kernel_haven.typechef.wrapper.TypeChefSettings.ParseType;
 import net.ssehub.kernel_haven.util.ExtractorException;
@@ -73,7 +72,7 @@ public class TypeChefExtractorTest {
      */
     @Test
     public void testSeparateProcess() {
-        SourceFile result = parseFile(new File("test.c"), "src1", false, ParseType.FULL_AST);
+        SourceFile<SyntaxElement> result = parseFile(new File("test.c"), "src1", false, ParseType.FULL_AST);
         
         String actual = result.iterator().next().toString();
         assertAST(actual, "testdata/src1/ast.txt");
@@ -86,7 +85,7 @@ public class TypeChefExtractorTest {
      */
     @Test
     public void testSameProcess() {
-        SourceFile result = parseFile(new File("test.c"), "src1", true, ParseType.FULL_AST);
+        SourceFile<SyntaxElement> result = parseFile(new File("test.c"), "src1", true, ParseType.FULL_AST);
         
         String actual = result.iterator().next().toString();
         assertAST(actual, "testdata/src1/ast.txt");
@@ -98,11 +97,11 @@ public class TypeChefExtractorTest {
     @Test
     @Ignore("Failure caused by a bug in TypeChef, see comment at the end of the test method for details")
     public void testPCsOfAST() {
-        SourceFile result = parseFile(new File("calc.c"), "varAST", false, ParseType.FULL_AST);
+        SourceFile<SyntaxElement> result = parseFile(new File("calc.c"), "varAST", false, ParseType.FULL_AST);
         
         // Collect all elements, whose presence condition is not TRUE
-        CodeElement unit = result.iterator().next();
-        List<CodeElement> varAstParts = new ArrayList<>();
+        SyntaxElement unit = result.iterator().next();
+        List<SyntaxElement> varAstParts = new ArrayList<>();
         collectVariableElements(unit, varAstParts);
         
         // Allowed PCs
@@ -173,10 +172,10 @@ public class TypeChefExtractorTest {
     @Test
     public void testCAst() {
         File testFile = new File("main.c");
-        SourceFile result = parseFile(testFile, "includeHeader", false, ParseType.ONLY_C_AST);
+        SourceFile<SyntaxElement> result = parseFile(testFile, "includeHeader", false, ParseType.ONLY_C_AST);
         
         // Collect all elements, whose presence condition is not TRUE
-        CodeElement unit = result.iterator().next();
+        SyntaxElement unit = result.iterator().next();
         
         /*
          * Test file contains 1 header element (which should be skipped) and 2 C elements
@@ -184,7 +183,7 @@ public class TypeChefExtractorTest {
         int nElements = unit.getNestedElementCount();
         Assert.assertEquals(2, nElements);
         for (int i = 0; i < nElements; i++) {
-            CodeElement astElement = unit.getNestedElement(i);
+            SyntaxElement astElement = unit.getNestedElement(i);
             Assert.assertEquals(testFile, astElement.getSourceFile());
         }
     }
@@ -197,10 +196,10 @@ public class TypeChefExtractorTest {
     @Test
     public void testFullAst() {
         File testFile = new File("main.c");
-        SourceFile result = parseFile(testFile, "includeHeader", false, ParseType.FULL_AST);
+        SourceFile<SyntaxElement> result = parseFile(testFile, "includeHeader", false, ParseType.FULL_AST);
         
         // Collect all elements, whose presence condition is not TRUE
-        CodeElement unit = result.iterator().next();
+        SyntaxElement unit = result.iterator().next();
         
         /*
          * Test file contains 1 header element (which should be skipped) and 2 C elements
@@ -208,10 +207,10 @@ public class TypeChefExtractorTest {
         int nElements = unit.getNestedElementCount();
         Assert.assertEquals(3, nElements);
         // First element is struct definition from header
-        CodeElement headerElement = unit.getNestedElement(0);
+        SyntaxElement headerElement = unit.getNestedElement(0);
         Assert.assertEquals(new File("logging.h"), headerElement.getSourceFile());
         for (int i = 1; i < nElements; i++) {
-            CodeElement astElement = unit.getNestedElement(i);
+            SyntaxElement astElement = unit.getNestedElement(i);
             Assert.assertEquals(testFile, astElement.getSourceFile());
         }
     }
@@ -222,20 +221,19 @@ public class TypeChefExtractorTest {
      * @param varAstParts The AST elements to test (should be a subset of the <tt>unit</tt>).
      * @param allowedPCs The expected presence conditions.
      */
-    private void assertConditions(CodeElement unit, List<CodeElement> varAstParts, List<Formula> allowedPCs) {
-        for (CodeElement astElem : varAstParts) {
+    private void assertConditions(SyntaxElement unit, List<SyntaxElement> varAstParts, List<Formula> allowedPCs) {
+        for (SyntaxElement astElem : varAstParts) {
             Formula pc = astElem.getPresenceCondition();
             boolean contained = false;
             for (int i = 0; i < allowedPCs.size() && !contained; i++) {
                 contained = allowedPCs.get(i).equals(pc);
             }
             if (!contained) {
-                SyntaxElement syntaxElement = (SyntaxElement) astElem;
-                String elem = syntaxElement.getType().toString();
-                if (syntaxElement.getNestedElementCount() > 0) {
-                    elem += " " + syntaxElement.getRelation(0);
+                String elem = astElem.getType().toString();
+                if (astElem.getNestedElementCount() > 0) {
+                    elem += " " + astElem.getRelation(0);
                 }
-                elem += " in Line " + syntaxElement.getLineStart();
+                elem += " in Line " + astElem.getLineStart();
                 String msg = "AST element \"" + elem + "\" containes an invalid presence condtion: "
                     + pc + "\nComplete AST:\n" + unit;
                 System.err.println(msg);
@@ -249,7 +247,7 @@ public class TypeChefExtractorTest {
      * @param astElement The parent element to start, will also look into all nested elements.
      * @param varAstParts An empty list, which will be filled as side-effect.
      */
-    private void collectVariableElements(CodeElement astElement, List<CodeElement> varAstParts) {
+    private void collectVariableElements(SyntaxElement astElement, List<SyntaxElement> varAstParts) {
         if (astElement.getPresenceCondition() != True.INSTANCE) {
             varAstParts.add(astElement);
         }
@@ -268,7 +266,7 @@ public class TypeChefExtractorTest {
      *     
      * @return The parsed file, won't be <tt>null</tt>.
      */
-    private SourceFile parseFile(File sourceFile, String srcDir, boolean inSameVm, ParseType parseType) {
+    private SourceFile<SyntaxElement> parseFile(File sourceFile, String srcDir, boolean inSameVm, ParseType parseType) {
         
         // Configure extractor
         Properties props = new Properties();
@@ -288,7 +286,7 @@ public class TypeChefExtractorTest {
         }
         
         // Start extraction
-        SourceFile result = null;
+        SourceFile<SyntaxElement> result = null;
         try {
             TestConfiguration testConfig = new TestConfiguration(props);
             

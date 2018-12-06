@@ -2,8 +2,8 @@ package net.ssehub.kernel_haven.typechef.util;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.analysis.AbstractAnalysis;
-import net.ssehub.kernel_haven.code_model.CodeElement;
 import net.ssehub.kernel_haven.code_model.SourceFile;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.util.CodeExtractorException;
 import net.ssehub.kernel_haven.util.null_checks.NonNull;
@@ -31,9 +31,9 @@ public class DummyAnalysis extends AbstractAnalysis {
             bmProvider.start();
             cmProvider.start();
             
-            SourceFile file;
-            while ((file = cmProvider.getNextResult()) != null) {
-                for (CodeElement element : file) {
+            SourceFile<SyntaxElement> file;
+            while ((file = cmProvider.getNextResult().castTo(SyntaxElement.class)) != null) {
+                for (SyntaxElement element : file) {
                     String[] lines = element.toString().split("\n");
                     LOGGER.logInfo(lines);
                 }

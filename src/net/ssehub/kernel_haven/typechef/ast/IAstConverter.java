@@ -3,7 +3,7 @@ package net.ssehub.kernel_haven.typechef.ast;
 import java.io.File;
 
 import de.fosd.typechef.parser.c.TranslationUnit;
-import net.ssehub.kernel_haven.code_model.SyntaxElement;
+import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
 
 /**
  * A converter to transform the TypeChef output into {@link SyntaxElement}s. 
