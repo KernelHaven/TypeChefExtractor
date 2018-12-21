@@ -24,3 +24,11 @@ In addition to KernelHaven, this plugin has the following dependencies:
 ## License
 
 This plugin is licensed under the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
+
+## Used Tools
+
+The following tools are used (and bundled in `lib/`) by this plugin:
+
+| Tool | Version | License |
+|------|---------|---------|
+| [TypeChef](https://ckaestne.github.io/TypeChef/) | 0.4.1 | [LGPLv3](https://www.gnu.org/licenses/lgpl.html) |
