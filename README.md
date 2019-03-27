@@ -1,6 +1,6 @@
 # TypeChefExtractor
 
-![Build Status](https://jenkins.sse.uni-hildesheim.de/buildStatus/icon?job=KernelHaven_TypeChefExtractor)
+![Build Status](https://jenkins-2.sse.uni-hildesheim.de/buildStatus/icon?job=KH_TypeChefExtractor)
 
 A code-model extractor for [KernelHaven](https://github.com/KernelHaven/KernelHaven).
 
@@ -12,7 +12,7 @@ This extractor extracts a variability-aware abstract syntax tree (AST) from C so
 
 ## Usage
 
-Place [`TypeChefExtractor.jar`](https://jenkins.sse.uni-hildesheim.de/view/KernelHaven/job/KernelHaven_TypeChefExtractor/lastSuccessfulBuild/artifact/build/jar/TypeChefExtractor.jar) in the plugins folder of KernelHaven.
+Place [`TypeChefExtractor.jar`](https://jenkins-2.sse.uni-hildesheim.de/view/KernelHaven/job/KH_TypeChefExtractor/lastSuccessfulBuild/artifact/build/jar/TypeChefExtractor.jar) in the plugins folder of KernelHaven.
 
 To use this extractor, set `code.extractor.class` to `net.ssehub.kernel_haven.typechef.TypechefExtractor` in the KernelHaven properties.
 
