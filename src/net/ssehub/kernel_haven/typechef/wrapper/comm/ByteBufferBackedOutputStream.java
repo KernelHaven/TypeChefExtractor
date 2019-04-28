@@ -20,7 +20,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 /**
- * An Adapter to wrap an {@link ByteBuffer} into an {@link OutputStream}.<br/>
+ * An Adapter to wrap an {@link ByteBuffer} into an {@link OutputStream}.
+ * <p>
  * Code comes from <a href="https://stackoverflow.com/a/6603018">https://stackoverflow.com/a/6603018</a>.
  * @author El-Sharkawy
  *

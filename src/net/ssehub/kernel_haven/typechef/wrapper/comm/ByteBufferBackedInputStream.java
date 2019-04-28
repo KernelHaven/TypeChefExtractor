@@ -20,7 +20,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
- * An Adapter to wrap an {@link ByteBuffer} into an {@link InputStream}.<br/>
+ * An Adapter to wrap an {@link ByteBuffer} into an {@link InputStream}.
+ * <p>
  * Code comes from <a href="https://stackoverflow.com/a/6603018">https://stackoverflow.com/a/6603018</a>.
  * @author El-Sharkawy
  *

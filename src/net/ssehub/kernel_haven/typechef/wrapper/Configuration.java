@@ -514,7 +514,7 @@ public class Configuration {
     /**
      * How many TypeChef processes can send their data at once to us.
      * 
-     * @return The number of threads that concurrently can receive data from processes;  <= 0 means no limit.
+     * @return The number of threads that concurrently can receive data from processes; {@code <= 0} means no limit.
      */
     public int getMaxReceivingThreads() {
         return maxReceivingThreads;
