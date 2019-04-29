@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- author: moritz, kevin, Sascha El-Sharkawy -->
+<!-- Author: Adam, Sascha El-Sharkawy -->
 <project name="TypeChefExtractor" default="jenkins" basedir=".">
 	<description>A code-model extractor based on the TypeChef tool</description>
 
@@ -21,7 +21,7 @@
 
 	<target name="dependencies.download">
 		<get src="${infrastructure.fortesting.url}" dest="${dependencies.dir}" />
-		<get src="${plugins.CnfUtils.url}" dest="${dependencies.dir}/CnfUtils.jar" />
+		<get src="${plugins.CnfUtils.url}" dest="${dependencies.dir}" />
 	</target>
 
 </project>
