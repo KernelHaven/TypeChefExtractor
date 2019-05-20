@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Stack;
 
 import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElement;
-import net.ssehub.kernel_haven.code_model.simple_ast.SyntaxElementCsvUtil;
 import net.ssehub.kernel_haven.util.FormatException;
 import net.ssehub.kernel_haven.util.FormulaCache;
 import net.ssehub.kernel_haven.util.Logger;
@@ -93,7 +92,7 @@ public class AbstractCsvSending {
         FormulaCache cache) throws IOException {
         
         out.writeUnshared(nesting);
-        out.writeUnshared(element.serializeCsv(cache).toArray(buffer));
+        out.writeUnshared(SyntaxElementCsvUtil.elementToCsv(element, cache).toArray(buffer));
         
         for (SyntaxElement child : element) {
             sendSingleElement(out, child, nesting + 1, cache);
@@ -115,7 +114,7 @@ public class AbstractCsvSending {
         Map<String, File> filenameCache = new HashMap<>(1000);
         
         try {
-            SyntaxElement root = SyntaxElement.createFromCsv(readObject(in), parser);
+            SyntaxElement root = SyntaxElementCsvUtil.csvToElement(readObject(in), parser);
             Stack<SyntaxElement> nesting = new Stack<>();
             nesting.push(root);
             

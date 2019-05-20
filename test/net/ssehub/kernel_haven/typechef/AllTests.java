@@ -28,7 +28,8 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
-    TypeChefExtractorTest.class
+    SyntaxElementCsvUtilTest.class,
+    TypeChefExtractorTest.class,
     })
 public class AllTests {
     
