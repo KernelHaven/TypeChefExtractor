@@ -19,19 +19,18 @@ import static net.ssehub.kernel_haven.config.Setting.Type.BOOLEAN;
 import static net.ssehub.kernel_haven.config.Setting.Type.DIRECTORY;
 import static net.ssehub.kernel_haven.config.Setting.Type.FILE;
 import static net.ssehub.kernel_haven.config.Setting.Type.INTEGER;
-import static net.ssehub.kernel_haven.config.Setting.Type.SETTING_LIST;
 import static net.ssehub.kernel_haven.config.Setting.Type.STRING;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import net.ssehub.kernel_haven.SetUpException;
 import net.ssehub.kernel_haven.config.Configuration;
 import net.ssehub.kernel_haven.config.EnumSetting;
+import net.ssehub.kernel_haven.config.ListSetting;
 import net.ssehub.kernel_haven.config.Setting;
 
 /**
@@ -77,20 +76,20 @@ public class TypeChefSettings {
     public static final Setting<String> PROCES_RAM
         = new Setting<>("code.extractor.process_ram", STRING, true, "15g", "TODO");
 
-    public static final Setting<List<String>> STATIC_INCLUDES
-        = new Setting<>("code.extractor.static_include", SETTING_LIST, false, null, "TODO");
+    public static final ListSetting<String> STATIC_INCLUDES
+        = new ListSetting<>("code.extractor.static_include", STRING, false, "TODO");
     
-    public static final Setting<List<String>> POST_INCLUDE_DIRS
-        = new Setting<>("code.extractor.post_include_dir", SETTING_LIST, false, null, "TODO");
+    public static final ListSetting<String> POST_INCLUDE_DIRS
+        = new ListSetting<>("code.extractor.post_include_dir", STRING, false, "TODO");
     
-    public static final Setting<List<String>> SOURCE_INCLUDE_DIRS
-        = new Setting<>("code.extractor.source_include_dir", SETTING_LIST, false, null, "TODO");
+    public static final ListSetting<String> SOURCE_INCLUDE_DIRS
+        = new ListSetting<>("code.extractor.source_include_dir", STRING, false, "TODO");
     
     public static final Setting<Boolean> ADD_LINUX_SOURCE_INCLUDE_DIRS
         = new Setting<>("code.extractor.add_linux_source_include_dirs", BOOLEAN, true, "false", "TODO");
     
-    public static final Setting<List<String>> PREPROCESSOR_DEFINES
-        = new Setting<>("code.extractor.preprocessor_define", SETTING_LIST, false, null, "TODO");
+    public static final ListSetting<String> PREPROCESSOR_DEFINES
+        = new ListSetting<>("code.extractor.preprocessor_define", STRING, false, "TODO");
     
     public static final Setting<File> KBUILDPARAM_FILE
         = new Setting<>("code.extractor.kbuildparam_file", FILE, false, null, "TODO");
